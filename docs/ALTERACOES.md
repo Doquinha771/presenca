@@ -45,3 +45,12 @@ Não há exclusão automática de dados, credenciais administrativas embutidas, 
 7. Política institucional de privacidade e limites de autenticação dependem da configuração pela escola/Supabase. A UI não declara conformidade jurídica automática.
 8. Nenhum arquivo é enviado ao Storage; esse recurso não era necessário às funções implementadas.
 9. Sem restauração automática do frontend antigo: RPCs antigas de registro são revogadas. Reverter exige revisão do SQL, não apenas trocar o HTML.
+
+
+## Presença+ 4.1.0 — Cadastro institucional e economia de espaço
+
+- A tela de entrada diferencia explicitamente aluno e instituição; o cadastro autônomo exibe os passos de validação escolar.
+- O registro de alunos pela equipe agora devolve o identificador da matrícula. A criação de contas já confirmadas exige uma Edge Function autorizada, que gera senha temporária forte e mostra o segredo somente ao funcionário autenticado.
+- Cadastros autônomos passam a aguardar a vinculação com matrícula feita pela escola. Nenhum dado autodeclarado concede cargo institucional ou autoriza acesso escolar.
+- A migração `sql/04_v4_1.sql` mantém os registros anteriores, protege tabelas pela RLS e evita armazenar textos redundantes em novas auditorias de rotina. O tamanho real depende da quantidade de alunos, uso, índices e Auth.
+- **Implantação parcial:** banco remoto atualizado. O deploy automático da Edge Function foi bloqueado pela integração; precisa ser feito antes de publicar a nova interface do GitHub Pages.

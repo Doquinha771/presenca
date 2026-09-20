@@ -38,6 +38,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f tests/bootstrap.sql
           psql -v ON_ERROR_STOP=1 -f sql/01_portal.sql
           psql -v ON_ERROR_STOP=1 -f sql/03_v4.sql
+          psql -v ON_ERROR_STOP=1 -f sql/04_v4_1.sql
           psql -v ON_ERROR_STOP=1 -f tests/database.sql
           node tests/concurrency.mjs
       - name: Instalar navegador para testes

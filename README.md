@@ -1,6 +1,6 @@
 # Presença+
 
-Gestão escolar de atrasos, com Portal do Aluno, Secretaria e Direção. Versão 4.0.0 para GitHub Pages e Supabase.
+Gestão escolar de atrasos, com Portal do Aluno, Secretaria e Direção. Versão 4.1.0 para GitHub Pages e Supabase.
 
 **Estado: implementação entregue para homologação. A migração não foi executada no seu Supabase e os testes completos de banco e navegador ainda precisam passar. Não tratar esta entrega como produção validada.**
 
@@ -119,6 +119,7 @@ Para validar SQL, utilize um banco descartável PostgreSQL 16 chamado `presenca_
 psql -v ON_ERROR_STOP=1 -f tests/bootstrap.sql
 psql -v ON_ERROR_STOP=1 -f sql/01_portal.sql
 psql -v ON_ERROR_STOP=1 -f sql/03_v4.sql
+psql -v ON_ERROR_STOP=1 -f sql/04_v4_1.sql
 psql -v ON_ERROR_STOP=1 -f tests/database.sql
 node tests/concurrency.mjs
 ```
@@ -129,4 +130,14 @@ Consulte `docs/VALIDACAO.md`, `docs/PERMISSOES.md` e `docs/ALTERACOES.md` para r
 
 ## Estado do projeto
 
-Versão 4.0.0, exclusivamente web, configurada para GitHub Pages e Supabase. Código e migração preparados; implantação remota não realizada. Autenticação real, envio de e-mail, compatibilidade com o esquema remoto, testes transacionais e revisão visual precisam ser homologados antes da liberação escolar.
+Versão 4.1.0, exclusivamente web, configurada para GitHub Pages e Supabase. Migração 4.1 aplicada ao banco do Presença+ em 20/09/2026. A implantação da Edge Function de provisionamento foi bloqueada pela integração e permanece PENDENTE. Os arquivos do GitHub Pages precisam ser publicados pelo responsável. Não utilizar a criação automática de contas antes de implantar a função e validar o fluxo com uma matrícula de teste.
+
+## Atualização 4.1: alunos e tamanho do banco
+
+1. Faça backup e confirme que o banco tem a versão `4.1.0` em `public.portal_migrations`. No banco Presença+ vinculado a este projeto, a migração já foi aplicada. `sql/04_v4_1.sql` serve para instalações que ainda não receberam a atualização; não o execute novamente no banco já migrado.
+2. **Pendente:** implante a função `supabase/functions/provision-student/index.ts` como `provision-student` com verificação de JWT habilitada. Ela deve receber os secrets padrão do Supabase; nunca coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend, no README ou no GitHub. Dashboard > Edge Functions > Deploy a new function > Via Editor; salve com o nome `provision-student`, copie `index.ts`, mantenha JWT habilitado e implante. Verifique a autorização de funcionários antes do uso.
+3. Publique os arquivos estáticos no GitHub Pages. O formulário de matrícula institucional cria a conta Auth com senha provisória aleatória, exibida uma única vez ao funcionário autenticado. A escola deve entregar a senha ao aluno por canal privado; o aluno deve alterá-la.
+4. Alunos que solicitam acesso por conta própria precisam confirmar o e-mail escolar E aguardar a matrícula ser aprovada pela instituição. O portal não utiliza RA, nome ou data de nascimento como prova de autorização.
+5. A mensagem genérica `Database error saving new user` pode representar falhas adicionais de Auth. Consulte os logs de autenticação e do Postgres se ela persistir.
+
+A migração 4.1 preserva os registros antigos, mantém RLS e não exclui informações escolares. Reduz apenas textos redundantes de auditoria **em eventos novos**, sem eliminar motivos de correções. Monitorar `pg_database_size(current_database())` periodicamente: o tamanho combinado de projetos da mesma organização também conta para a política de uso justo do Supabase.
