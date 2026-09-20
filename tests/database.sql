@@ -49,6 +49,7 @@ select pg_temp.denied($q$select public.portal_write('record','{"student":"a40000
 select public.portal_write('undo',jsonb_build_object('event',public.portal_read('history','{"student":"a4000000-0000-4000-8000-000000000003"}')->0->>'id','reason','Aluno selecionado incorretamente'));
 reset role;
 select pg_temp.check_true((select count(*)=1 from public.attendance_events where student_id='a4000000-0000-4000-8000-000000000003' and status='void'),'desfazer preserva ocorrência');
+select pg_temp.check_true((select change_reason='Aluno selecionado incorretamente' from public.attendance_events where student_id='a4000000-0000-4000-8000-000000000003' and status='void'),'desfazer registra justificativa');
 select pg_temp.check_true((select unjustified_count=4 from public.profiles where id='a4000000-0000-4000-8000-000000000003'),'desfazer corrige contagem');
 set local role authenticated;
 select public.portal_write('record','{"student":"a4000000-0000-4000-8000-000000000003","request":"a4000000-0000-4000-8000-000000000023"}');
@@ -64,6 +65,7 @@ select public.portal_write('forgive',jsonb_build_object('event',current_setting(
 reset role;
 select pg_temp.check_true((select unjustified_count=4 from public.profiles where id='a4000000-0000-4000-8000-000000000003'),'perdão reduz contagem');
 select pg_temp.check_true((select count(*)=2 from public.attendance_events where student_id='a4000000-0000-4000-8000-000000000003'),'perdão não apaga histórico');
+select pg_temp.check_true((select change_reason='Justificativa aceita pela Direção' from public.attendance_events where request_id='a4000000-0000-4000-8000-000000000023'),'perdão registra justificativa');
 update public.profiles set active=false where id='a4000000-0000-4000-8000-000000000002';
 set local role authenticated;
 set local request.jwt.claim.sub='a4000000-0000-4000-8000-000000000002';

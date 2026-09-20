@@ -189,12 +189,12 @@ begin
  update public.profiles set unjustified_count=n,late_count=greatest(late_count,n),blocked=(n>=late_limit) where id=p_student;
 end;$$;
 create function private.portal_write(p_action text,p_args jsonb) returns jsonb language plpgsql security definer set search_path='' as $$
-declare me public.profiles; s public.profiles; ev public.attendance_events; rid uuid; sid uuid; cl public.school_classes; en public.school_enrollments; reason text:=trim(coalesce(p_args->>'reason','')); result jsonb:='{}'; oldrole text;
+declare me public.profiles; s public.profiles; ev public.attendance_events; rid uuid; sid uuid; cl public.school_classes; en public.school_enrollments; v_reason text:=trim(coalesce(p_args->>'reason','')); result jsonb:='{}'; oldrole text;
 begin
  me:=private.require_portal();
  if me.role='aluno' then raise exception 'Operação institucional' using errcode='42501';end if;
  if p_action not in ('record','undo') and me.role<>'admin' then raise exception 'Operação reservada à Direção' using errcode='42501';end if;
- if p_action in ('chance','forgive','correct','undo','archive','restore','approve','edit_student','reset_student','role') and length(reason) not between 5 and 500 then raise exception 'Informe justificativa de 5 a 500 caracteres';end if;
+ if p_action in ('chance','forgive','correct','undo','archive','restore','approve','edit_student','reset_student','role') and length(v_reason) not between 5 and 500 then raise exception 'Informe justificativa de 5 a 500 caracteres';end if;
  -- Mesmo lock compartilhado para eventos e mudanças administrativas; reset usa lock exclusivo.
  perform pg_catalog.pg_advisory_xact_lock_shared(21945,17);
  if p_action in ('record','chance','archive','restore','approve','edit_student','reset_student') then
@@ -214,8 +214,8 @@ begin
   if not s.enrollment_approved then raise exception 'Matrícula precisa ser validada pela Direção';end if;
   if s.blocked or s.unjustified_count>=s.late_limit then raise exception 'Limite atingido. Encaminhe à Direção.';end if;
   if exists(select 1 from public.attendance_events where student_id=sid and status<>'void' and occurred_at>clock_timestamp()-interval '2 minutes') then raise exception 'Este aluno já possui um registro nos últimos dois minutos';end if;
-  if length(reason)>500 then raise exception 'Observação muito longa';end if;
-  insert into public.attendance_events(student_id,operator_id,reason,request_id,occurred_at) values(sid,me.id,reason,rid,clock_timestamp()) returning * into ev;
+  if length(v_reason)>500 then raise exception 'Observação muito longa';end if;
+  insert into public.attendance_events(student_id,operator_id,reason,request_id,occurred_at) values(sid,me.id,v_reason,rid,clock_timestamp()) returning * into ev;
   update public.profiles set late_count=late_count+1 where id=sid;
   perform private.recount(sid);
   result:=jsonb_build_object('id',ev.public_id,'occurred_at',ev.occurred_at);
@@ -226,28 +226,28 @@ begin
   if not found then raise exception 'Ocorrência não encontrada';end if;
   if p_action='undo' and (ev.operator_id is distinct from me.id or clock_timestamp()-ev.occurred_at>interval '2 minutes' or ev.status<>'active') then raise exception 'Desfazimento expirado ou não autorizado. Solicite correção à Direção.';end if;
   if ev.status='void' or (p_action='forgive' and ev.status='forgiven') then raise exception 'Ocorrência já tratada';end if;
-  update public.attendance_events set status=case when p_action='forgive' then 'forgiven' else 'void' end, changed_at=now(),changed_by=me.id,change_reason=reason where id=ev.id;
+  update public.attendance_events set status=case when p_action='forgive' then 'forgiven' else 'void' end, changed_at=now(),changed_by=me.id,change_reason=v_reason where id=ev.id;
   -- Legados anteriores à migração têm contagem consolidada; não inferir sua participação no período.
   if ev.occurred_at<s.count_from then result:=jsonb_build_object('notice','Histórico atualizado. Contagem consolidada anterior preservada.');end if;
   perform private.recount(sid);
-  insert into public.student_adjustments(student_id,action,event_id,reason,actor_id) values(sid,p_action,ev.id,reason,me.id);
+  insert into public.student_adjustments(student_id,action,event_id,reason,actor_id) values(sid,p_action,ev.id,v_reason,me.id);
  elsif p_action='chance' then
   if s.archived_at is not null then raise exception 'Aluno arquivado';end if;
   update public.profiles set late_limit=late_limit+1,blocked=(unjustified_count>=late_limit+1) where id=sid;
-  insert into public.student_adjustments(student_id,action,reason,actor_id) values(sid,'chance',reason,me.id);
+  insert into public.student_adjustments(student_id,action,reason,actor_id) values(sid,'chance',v_reason,me.id);
  elsif p_action in ('archive','restore','approve','reset_student') then
-  if p_action='archive' then update public.profiles set active=false,archived_at=now(),archive_reason=reason where id=sid;
+  if p_action='archive' then update public.profiles set active=false,archived_at=now(),archive_reason=v_reason where id=sid;
   elsif p_action='restore' then update public.profiles set active=true,archived_at=null,archive_reason=null where id=sid;
   elsif p_action='approve' then update public.profiles set enrollment_approved=true where id=sid;
   else update public.profiles set count_from=clock_timestamp(),baseline_count=0,late_count=0,unjustified_count=0,late_limit=(select default_limit from public.school_settings where id),blocked=false where id=sid;
   end if;
-  insert into public.student_adjustments(student_id,action,reason,actor_id) values(sid,p_action,reason,me.id);
+  insert into public.student_adjustments(student_id,action,reason,actor_id) values(sid,p_action,v_reason,me.id);
  elsif p_action='edit_student' then
   select * into cl from public.school_classes where id=(p_args->>'class')::uuid and active;
   if not found or length(trim(p_args->>'name')) not between 3 and 120 or coalesce(p_args->>'ra','') !~ '^[0-9]{7,16}(sp)?$' or nullif(p_args->>'birth','') is null or (p_args->>'birth')::date>current_date or (p_args->>'birth')::date<current_date-interval '110 years' then raise exception 'Dados escolares inválidos';end if;
   update public.profiles set ra=p_args->>'ra',birth_date=(p_args->>'birth')::date,full_name=trim(p_args->>'name'),grade=cl.grade||' • '||cl.name,class_id=cl.id where id=sid;
   update public.school_enrollments set ra=p_args->>'ra',birth_date=(p_args->>'birth')::date,full_name=trim(p_args->>'name'),class_id=cl.id where profile_id=sid;
-  insert into public.student_adjustments(student_id,action,reason,actor_id) values(sid,p_action,reason,me.id);
+  insert into public.student_adjustments(student_id,action,reason,actor_id) values(sid,p_action,v_reason,me.id);
  elsif p_action='class' then
   insert into public.school_classes(id,grade,name,active) values(coalesce(nullif(p_args->>'id','')::uuid,gen_random_uuid()),trim(p_args->>'grade'),trim(p_args->>'name'),coalesce((p_args->>'active')::boolean,true))
   on conflict(id) do update set grade=excluded.grade,name=excluded.name,active=excluded.active returning * into cl;
@@ -279,7 +279,7 @@ begin
   perform public.change_staff_role((p_args->>'user')::uuid,p_args->>'role',(p_args->>'active')::boolean);
  else raise exception 'Ação desconhecida';
  end if;
- insert into public.audit_events(actor_id,action,subject_id,detail) values(me.id,'V4_'||upper(p_action),sid,case when p_action in ('privacy','enrollment','settings') then 'Alteração institucional registrada' else left(reason,500) end);
+ insert into public.audit_events(actor_id,action,subject_id,detail) values(me.id,'V4_'||upper(p_action),sid,case when p_action in ('privacy','enrollment','settings') then 'Alteração institucional registrada' else left(v_reason,500) end);
  return result;
 end;$$;
 -- API pública mínima, sem privilégios de proprietário. Definers ficam no schema privado.
