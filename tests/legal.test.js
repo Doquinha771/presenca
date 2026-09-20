@@ -9,10 +9,11 @@ const home=read('index.html'),terms=read('termos.html'),privacy=read('privacidad
 test('documentos legais estão disponíveis antes do login e sem requisições externas',()=>{
   for(const page of [terms,privacy]){
     assert.match(page, /<html lang="pt-BR">/);
-    assert.match(page, /<main id="main"/);
-    assert.match(page, /<meta http-equiv="Content-Security-Policy"/);
+    assert.match(page, /<main[^>]*id="main"/);
+    assert.match(page, /<meta[^>]*http-equiv="Content-Security-Policy"/);
     assert.doesNotMatch(page,/<script|<iframe|<form/i);
-    assert.match(page,/Minuta para aprovação da instituição/);
+    assert.doesNotMatch(page, /Minuta para aprovação da instituição|validar com a instituição|aguardando identificação/i);
+    assert.match(page, /Versão 2\.0/);
   }
   assert.ok(existsSync(join(root,'assets/legal.css')));
   assert.match(terms,/privacidade\.html/);
@@ -27,11 +28,11 @@ test('documentos estão visíveis no login e no painel; formulário exige ciênc
   assert.doesNotMatch(app,/\$\('privacyLink'\)\.onclick/);
 });
 test('política distingue autorização institucional, base legal e hospedagem internacional',()=>{
-  assert.match(privacy,/us-west-2 \(Estados Unidos\)/);
+  assert.match(privacy,/us-west-2, Estados Unidos/);
   assert.match(privacy,/art\. 18 da LGPD/);
   assert.match(privacy,/art\. 14/);
-  assert.match(privacy,/A leitura ou aceitação desta Política não substitui a base legal/);
-  assert.match(terms,/não constitui consentimento genérico/);
+  assert.match(privacy,/não constitui consentimento genérico/);
+  assert.match(terms,/não equivale a consentimento geral/);
   assert.match(read('README.md'),/não\*\*\s*\nrepresenta consentimento genérico/);
 });
 test('licença é restrita e protege direitos legais; nenhum segredo é publicado em páginas jurídicas',()=>{
@@ -41,5 +42,18 @@ test('licença é restrita e protege direitos legais; nenhum segredo é publicad
   for(const item of [home,terms,privacy,read('README.md'),license]){
     assert.doesNotMatch(item,/sb_secret_[A-Za-z0-9_-]{16,}/);
     assert.doesNotMatch(item,/service_role\s*[:=]\s*["'][A-Za-z0-9_.-]{20,}/);
+  }
+});
+
+test('política descreve endereço, dados, direitos, ausência de retenção fixa e canal público',()=>{
+  assert.match(privacy,/us-west-2, Estados Unidos/);
+  assert.match(privacy,/não há prazo único de eliminação automática/);
+  assert.match(privacy,/art\. 18 da LGPD/);
+  assert.match(privacy,/atendimento\.educacao\.sp\.gov\.br/);
+  assert.match(privacy,/não é um canal oficial|sem vínculo ou chancela oficial/);
+  assert.match(home,/Esta confirmação de leitura não constitui consentimento genérico/);
+  for(const p of [terms,privacy]) {
+    assert.doesNotMatch(p, /<form|<script|<iframe/i);
+    assert.doesNotMatch(p, /secretaria\.educacao\.sp\.gov\.br@|@example\.com/);
   }
 });

@@ -94,9 +94,9 @@ conferência de matrícula, registros de atraso e histórico de alterações.
 A caixa de leitura no cadastro é uma etapa informativa da interface e **não**
 representa consentimento genérico, contrato com o poder público ou registro
 auditável de aceitação no banco.
-As políticas do site são **minutas para avaliação**, não prova de autorização
-oficial, certificação de conformidade ou substituto para o contrato de
-tratamento de dados eventualmente exigido pela autoridade educacional.
+As páginas de Termos e Privacidade são textos informativos de uso do portal.
+A publicação não demonstra, por si só, adoção pelo poder público, certificação
+de conformidade nem a existência de um instrumento de tratamento de dados.
 
 **Antes do uso com dados reais:** identifique o controlador e os eventuais
 operadores; documente a base legal e a finalidade; confira a necessidade de
@@ -120,11 +120,11 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do projeto | 4.1.2, com documentação jurídica 1.0 |
+| Versão do projeto | 4.1.2, com documentos de uso e privacidade 2.0 |
 | Plataforma | Web responsiva / GitHub Pages |
-| Banco e autenticação | Supabase (projeto institucional a ser validado) |
-| Implantação institucional | Depende de aprovação formal e validação jurídica e técnica |
-| Termos e política | Minutas integradas ao site, aguardando identificação dos responsáveis e canais oficiais |
+| Banco e autenticação | Supabase |
+| Natureza do serviço | Projeto independente, sem vínculo oficial com a Secretaria da Educação |
+| Termos e política | Textos informativos integrados ao site; não substituem atos e canais da rede de ensino |
 
 ## Licença
 
