@@ -27,3 +27,10 @@ test('README é informativo e não contém instruções para instalar, baixar ou
  assert.match(readme,/## Funcionalidades/);
  assert.match(readme,/## Licença/);
 });
+test('CI usa a migração de cadastro pendente e o teste de matrícula mantém SELECT direto bloqueado',()=>{
+ const workflow=fs.readFileSync(new URL('../.github/workflows/verify.yml',import.meta.url),'utf8');
+ const testSql=fs.readFileSync(new URL('./database.sql',import.meta.url),'utf8');
+ assert.match(workflow,/psql -v ON_ERROR_STOP=1 -f sql\/05_v4_1_2\.sql[\s\S]*psql -v ON_ERROR_STOP=1 -f tests\/database\.sql/);
+ assert.match(testSql,/select pg_temp\.denied\(\$q\$select enrollment_approved from public\.profiles[\s\S]*reset role;\s*select pg_temp\.check_true\(\(select enrollment_approved and verified/);
+ assert.match(testSql,/and birth_date is null[\s\S]*'solicitação incompleta permanece pendente/);
+});

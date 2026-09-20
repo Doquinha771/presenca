@@ -1,4 +1,5 @@
--- Requer 01_portal.sql + 03_v4.sql + 04_v4_1.sql. Somente homologação. Tudo é revertido ao final.
+-- Requer 01_portal.sql + 03_v4.sql + 04_v4_1.sql + 05_v4_1_2.sql.
+-- Somente banco descartável de homologação. Tudo é revertido ao final.
 begin;
 create function pg_temp.check_true(value boolean,label text) returns void language plpgsql as $$begin if value is distinct from true then raise exception 'FALHOU: %',label;end if;raise notice 'PASSOU: %',label;end;$$;
 create function pg_temp.denied(command text, expected text) returns void language plpgsql as $$begin
@@ -13,7 +14,13 @@ insert into public.school_classes(id,grade,name) values('a4000000-0000-4000-8000
 insert into public.school_enrollments(ra,email,full_name,birth_date,class_id) values
  ('9999999999001','9999999999001@al.educacao.sp.gov.br','Estudante teste um','2007-01-01','a4000000-0000-4000-8000-000000000010'),
  ('9999999999002','9999999999002@al.educacao.sp.gov.br','Estudante teste dois','2007-01-01','a4000000-0000-4000-8000-000000000010');
-select pg_temp.denied($q$insert into auth.users(id,email,raw_user_meta_data) values(gen_random_uuid(),'9999999999099@al.educacao.sp.gov.br','{"full_name":"Intruso"}')$q$,'Dados escolares incompletos');
+-- Solicitação espontânea com metadados incompletos deve ser criada como pendente,
+-- sem obter autorização nem cargo institucional.
+insert into auth.users(id,email,raw_user_meta_data) values
+ ('a4000000-0000-4000-8000-000000000098','9999999999098@al.educacao.sp.gov.br','{"full_name":"Solicitação incompleta","role":"admin"}');
+select pg_temp.check_true((select role='aluno' and not enrollment_approved and grade is null
+ and birth_date is null from public.profiles where id='a4000000-0000-4000-8000-000000000098'),
+ 'solicitação incompleta permanece pendente, sem cargo nem dados escolares não verificados');
 -- Aluno sem matrícula: Auth cria solicitação pendente, sem acesso aos registros.
 insert into auth.users(id,email,raw_user_meta_data,email_confirmed_at) values
  ('a4000000-0000-4000-8000-000000000099','9999999999099@al.educacao.sp.gov.br',
@@ -26,8 +33,11 @@ select pg_temp.denied($q$select public.portal_read('me')$q$,'Matrícula aguardan
 set local request.jwt.claim.sub='a4000000-0000-4000-8000-000000000002';
 select public.portal_write('enrollment',jsonb_build_object('ra','9999999999099','email','9999999999099@al.educacao.sp.gov.br',
  'name','Nome aprovado pela escola','birth','2007-01-01','class','a4000000-0000-4000-8000-000000000010','active','true'));
-select pg_temp.check_true((select enrollment_approved and verified and full_name='Nome aprovado pela escola' from public.profiles where id='a4000000-0000-4000-8000-000000000099'),'secretaria vincula matrícula ao Auth já existente');
+-- A secretaria grava a matrícula via RPC; isso NÃO concede SELECT direto em
+-- public.profiles ao papel authenticated (dados escolares são protegidos).
+select pg_temp.denied($q$select enrollment_approved from public.profiles where id='a4000000-0000-4000-8000-000000000099'$q$,'permission denied');
 reset role;
+select pg_temp.check_true((select enrollment_approved and verified and full_name='Nome aprovado pela escola' from public.profiles where id='a4000000-0000-4000-8000-000000000099'),'secretaria vincula matrícula ao Auth já existente');
 insert into auth.users(id,email,raw_user_meta_data,email_confirmed_at) values
  ('a4000000-0000-4000-8000-000000000003','9999999999001@al.educacao.sp.gov.br','{"full_name":"Nome ignorado","ra":"9999999999001","birth_date":"2007-01-01","role":"admin"}',now()),
  ('a4000000-0000-4000-8000-000000000004','9999999999002@al.educacao.sp.gov.br','{"full_name":"Outro aluno","ra":"9999999999002","birth_date":"2007-01-01"}',now());
