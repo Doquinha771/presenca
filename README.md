@@ -6,12 +6,12 @@
 
 **Portal web de acompanhamento escolar e gestão de registros de atraso.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-4.1.0-205f50)](./docs/ALTERACOES.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-4.1.2-205f50)](./docs/ALTERACOES.md)
 [![Plataforma](https://img.shields.io/badge/plataforma-Web-396c82)](./index.html)
 [![Banco](https://img.shields.io/badge/dados-Supabase-3c7659)](https://supabase.com/)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-institucional%20restrita-6c7075)](./LICENSE)
 
-[**Acessar o portal**](https://doquinha771.github.io/presenca/) · [**Documentação**](./docs/) · [**Termos de Uso**](./termos.html) · [**Privacidade**](./privacidade.html)
+[**Acessar o portal**](https://doquinha771.github.io/presenca/) · [**Termos de Uso**](./termos.html) · [**Privacidade**](./privacidade.html)
 
 </div>
 
@@ -33,7 +33,7 @@ procedimentos de segurança, governança de dados e avaliação jurídica prévi
 | Aluno | Acesso por conta individual, consulta de atrasos, histórico e comunicados. |
 | Secretaria | Gestão de matrículas autorizadas, cadastro e registros de atraso. |
 | Direção | Administração de permissões, ajustes justificados, períodos e auditoria. |
-| Identidade | Convites institucionais, confirmação de e-mail quando aplicável e provisionamento de contas pela secretaria. |
+| Identidade | Solicitações pendentes de alunos, convites institucionais, confirmação de e-mail e provisionamento de contas pela secretaria. |
 | Privacidade | Documentos públicos, controles de acesso no banco e solicitação de revisão de registros. |
 
 ## Arquitetura
@@ -53,7 +53,7 @@ Políticas RLS / funções com validação de autorização
 
 A interface estática não contém senhas administrativas ou chaves de serviço.
 `config.js` armazena somente a URL e a chave **publicável** do projeto Supabase.
-A criação de contas institucionais é processada na Edge Function
+A criação automática de contas de alunos matriculados é processada na Edge Function
 `provision-student`, cujo acesso exige autenticação e verificação do cargo no
 banco. Operações no PostgreSQL dependem das políticas de acesso e das funções
 institucionais. Não há backend local ou armazenamento offline de registros.
@@ -74,33 +74,6 @@ institucionais. Não há backend local ou armazenamento offline de registros.
 └── tests/                        # Testes automatizados
 ```
 
-## Instalação e publicação
-
-**Pré-requisito:** acesso institucional autorizado ao projeto Supabase e ao
-repositório do GitHub Pages. O projeto foi configurado para o endereço
-`https://doquinha771.github.io/presenca/`.
-
-1. Revise `docs/AVALIACAO_INSTITUCIONAL.md` e obtenha a autorização necessária
-   antes de importar informações de alunos ou da equipe.
-2. Configure `config.js` somente com URL e chave publicável do projeto
-   Supabase. Não publique `sb_secret_`, `service_role` nem senhas.
-3. Para banco novo, siga a ordem de instalação documentada em
-   `docs/ALTERACOES.md`. Para banco existente, **não execute novamente**
-   `sql/01_portal.sql` nem migrações já aplicadas. Confirme a versão em
-   `public.portal_migrations` e tenha um procedimento de backup/recuperação.
-4. Publique a Edge Function `supabase/functions/provision-student/index.ts`
-   sob o nome `provision-student`, com verificação JWT habilitada.
-5. Publique os arquivos estáticos na raiz do GitHub Pages. Em
-   **Settings → Pages**, selecione `Deploy from a branch`, `main`, `/ (root)`.
-   As páginas `termos.html` e `privacidade.html` precisam estar na mesma raiz
-   de `index.html`.
-6. Verifique as contas de teste, os perfis autorizados, os links jurídicos e os
-   fluxos de cadastro, sem usar registros escolares reais na homologação.
-
-> **Nota:** as migrações SQL não são executadas automaticamente pelo GitHub
-> Pages. `tests/bootstrap.sql` é exclusivo para um banco descartável de testes
-> e nunca deve ser aplicado no Supabase da escola.
-
 ## Perfis e acesso
 
 - **Aluno:** consulta exclusivamente os próprios registros após a autorização
@@ -108,7 +81,7 @@ repositório do GitHub Pages. O projeto foi configurado para o endereço
 - **Secretaria:** administra matrículas e operações permitidas ao cargo.
 - **Direção:** administra permissões, justificativas e configurações.
 
-O aluno matriculado pela secretaria pode receber uma conta provisionada pela
+O aluno sem matrícula autorizada pode solicitar uma conta, mas permanece sem acesso aos registros escolares até a conferência institucional. O aluno matriculado pela secretaria pode receber uma conta provisionada pela
 função administrativa. O responsável institucional deve entregar a senha
 provisória por canal individual e orientar sua alteração. Solicitações
 espontâneas dependem de validação institucional. Nunca use o RA ou a data de
@@ -137,14 +110,9 @@ Os registros escolares não devem ser armazenados no repositório do GitHub ou
 em arquivos públicos do site. A disponibilização do código-fonte **não** torna
 públicos nem licenciáveis os dados da instituição.
 
-## Desenvolvimento e testes
+## Qualidade e testes
 
-```bash
-npm test
-npm run check
-```
-
-Consulte `package.json` e `docs/VALIDACAO.md` para outros testes. A suíte SQL
+O repositório contém verificações automatizadas de validação de dados, acesso, integridade do frontend e documentos institucionais. Consulte `docs/VALIDACAO.md` para os critérios de homologação. A suíte SQL
 utiliza banco PostgreSQL descartável. Testes locais não comprovam o
 funcionamento de autenticação real ou a adequação jurídica de uma implantação.
 
@@ -152,7 +120,7 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do frontend | 4.1.0, com documentação jurídica 1.0 |
+| Versão do projeto | 4.1.2, com documentação jurídica 1.0 |
 | Plataforma | Web responsiva / GitHub Pages |
 | Banco e autenticação | Supabase (projeto institucional a ser validado) |
 | Implantação institucional | Depende de aprovação formal e validação jurídica e técnica |

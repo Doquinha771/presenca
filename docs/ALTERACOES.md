@@ -1,3 +1,11 @@
+# Atualização 4.1.2 — solicitação de acesso de aluno
+
+- Conta do aluno sem matrícula previamente aprovada recebe perfil **pendente**, sem acesso aos registros escolares.
+- RA do perfil pendente é derivado do e-mail escolar; série e nascimento oficiais são preenchidos apenas pela secretaria.
+- Cadastro de alunos previamente matriculados mantém a autorização institucional, sem aceitar promoção de cargo por metadados.
+- Correção do tratamento de falha de cadastro no frontend e validação de correspondência entre RA e e-mail.
+- O README descreve o projeto sem instruções de download, instalação ou publicação.
+
 ## Atualização documental — 20/09/2026
 
 Adicionados `README.md` profissional, `LICENSE` de uso institucional restrito,
