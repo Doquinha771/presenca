@@ -13,7 +13,7 @@ test('documentos legais estão disponíveis antes do login e sem requisições e
     assert.match(page, /<meta[^>]*http-equiv="Content-Security-Policy"/);
     assert.doesNotMatch(page,/<script|<iframe|<form/i);
     assert.doesNotMatch(page, /Minuta para aprovação da instituição|validar com a instituição|aguardando identificação/i);
-    assert.match(page, /Versão 2\.0/);
+    assert.match(page, /Versão 2\.1/);
   }
   assert.ok(existsSync(join(root,'assets/legal.css')));
   assert.match(terms,/privacidade\.html/);
@@ -47,13 +47,25 @@ test('licença é restrita e protege direitos legais; nenhum segredo é publicad
 
 test('política descreve endereço, dados, direitos, ausência de retenção fixa e canal público',()=>{
   assert.match(privacy,/us-west-2, Estados Unidos/);
-  assert.match(privacy,/não há prazo único de eliminação automática/);
+  assert.match(privacy,/não há prazo único de eliminação automática/i);
   assert.match(privacy,/art\. 18 da LGPD/);
   assert.match(privacy,/atendimento\.educacao\.sp\.gov\.br/);
-  assert.match(privacy,/não é um canal oficial|sem vínculo ou chancela oficial/);
+  assert.match(privacy,/não é o portal oficial|não é uma plataforma oficial|não substitui os sistemas da rede/i);
   assert.match(home,/Esta confirmação de leitura não constitui consentimento genérico/);
   for(const p of [terms,privacy]) {
     assert.doesNotMatch(p, /<form|<script|<iframe/i);
     assert.doesNotMatch(p, /secretaria\.educacao\.sp\.gov\.br@|@example\.com/);
   }
+});
+
+test('origem coletiva, apoio escolar e limites do uso acadêmico aparecem nos documentos',()=>{
+  for(const page of [terms,privacy]){
+    assert.match(page,/grupo de estudantes/);
+    assert.match(page,/secretaria escolar/);
+    assert.match(page,/Trabalho de Conclusão de Curso/);
+    assert.match(page,/dados (fictícios|sintéticos)/);
+    assert.doesNotMatch(page,/validar com a instituição|Minuta para aprovação/i);
+  }
+  assert.match(home,/Projeto estudantil de inovação com apoio da secretaria escolar/);
+  assert.doesNotMatch(read('README.md'),/## Instalação|## Download/);
 });

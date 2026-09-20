@@ -22,9 +22,9 @@ registra atrasos, acompanha ocorrências e disponibiliza aos alunos uma consulta
 individual de seus próprios dados. A gestão e a conferência de registros cabem à
 equipe institucional autorizada.
 
-O projeto é **independente** e não deve ser apresentado como sistema oficial da
-Secretaria da Educação. Sua adoção com dados reais requer aprovação institucional,
-procedimentos de segurança, governança de dados e avaliação jurídica prévias.
+O **Presença+** foi desenvolvido por um **grupo de estudantes do 3º ano A da E.E. Amador e Catharina Saporito Augusto**, no contexto do Trabalho de Conclusão de Curso (TCC) do curso técnico de Desenvolvimento de Sistemas. O projeto conta com o apoio da secretaria escolar e a participação da comunidade educacional, com foco em resolver uma necessidade concreta da instituição.
+
+É uma iniciativa de **inovação tecnológica no ambiente escolar** e uma ferramenta de apoio à rotina da escola. Não substitui os sistemas, os canais nem as decisões oficiais da Secretaria da Educação do Estado de São Paulo. O apoio à iniciativa não dispensa as regras de tratamento de dados pessoais dos estudantes.
 
 ## Funcionalidades
 
@@ -98,15 +98,11 @@ As páginas de Termos e Privacidade são textos informativos de uso do portal.
 A publicação não demonstra, por si só, adoção pelo poder público, certificação
 de conformidade nem a existência de um instrumento de tratamento de dados.
 
-**Antes do uso com dados reais:** identifique o controlador e os eventuais
-operadores; documente a base legal e a finalidade; confira a necessidade de
-cada campo; estabeleça retenção, canais de atendimento e resposta a incidentes;
-revise RLS, permissões e os contratos de nuvem; avalie a transferência
-internacional de dados. Consulte [Termos](./termos.html),
+**Governança de dados:** a atuação da equipe estudantil no código e na manutenção não concede acesso ilimitado a registros escolares. As decisões sobre finalidades, permissões e conservação seguem as atribuições dos responsáveis pelo tratamento; devem observar as bases legais, a segurança e os direitos dos titulares. A apresentação do TCC utiliza dados fictícios, sintéticos ou adequadamente anonimizados. O armazenamento internacional em nuvem exige salvaguardas previstas na LGPD. Consulte [Termos](./termos.html),
 [Privacidade](./privacidade.html) e o
 [checklist institucional](./docs/AVALIACAO_INSTITUCIONAL.md).
 
-Os registros escolares não devem ser armazenados no repositório do GitHub ou
+O trabalho acadêmico e o apoio da secretaria não autorizam a publicação de dados reais de alunos. Os registros escolares não devem ser armazenados no repositório do GitHub ou
 em arquivos públicos do site. A disponibilização do código-fonte **não** torna
 públicos nem licenciáveis os dados da instituição.
 
@@ -120,11 +116,11 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do projeto | 4.1.2, com documentos de uso e privacidade 2.0 |
+| Versão do projeto | 4.1.2, com documentos de uso e privacidade 2.1 |
 | Plataforma | Web responsiva / GitHub Pages |
 | Banco e autenticação | Supabase |
-| Natureza do serviço | Projeto independente, sem vínculo oficial com a Secretaria da Educação |
-| Termos e política | Textos informativos integrados ao site; não substituem atos e canais da rede de ensino |
+| Natureza do serviço | Projeto estudantil coletivo de TCC, com apoio da secretaria escolar, sem condição de sistema oficial da rede estadual |
+| Termos e política | Documentos 2.1 integrados ao site, com atribuições da equipe escolar e do grupo de estudantes |
 
 ## Licença
 

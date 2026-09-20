@@ -1,6 +1,6 @@
 # Presença+ — limites jurídicos e operacionais
 
-A publicação dos Termos de Uso e da Política de Privacidade não é parecer jurídico, autorização administrativa ou certificação LGPD. O portal é um projeto independente.
+A publicação dos Termos de Uso e da Política de Privacidade não é parecer jurídico, autorização administrativa ou certificação LGPD. O portal é uma iniciativa estudantil coletiva desenvolvida como TCC com apoio da secretaria escolar; esse apoio não equivale à adoção como sistema oficial da rede.
 
 **Identidade do controlador:** a pessoa jurídica/órgão público que efetivamente determinar finalidade e meios deve ser identificada no ato de adoção institucional. A escola é canal de atendimento dos registros que efetivamente produzir, mas sua indicação no site não define sozinha sua posição jurídica de controlador. O nome e os contatos do responsável/encarregado precisam ser disponibilizados pelo ente competente segundo a organização aplicável. Não inventar e-mails ou afirmar que a Secretaria adotou este serviço.
 
@@ -23,3 +23,5 @@ A publicação dos Termos de Uso e da Política de Privacidade não é parecer j
 - ANPD, transferência internacional: https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd/resolucao-cd-anpd-no-19-de-23-de-agosto-de-2024
 - ANPD, comunicação de incidente: https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis
 - Decreto SP 65.347/2020: https://www.al.sp.gov.br/repositorio/legislacao/decreto/2020/decreto-65347-09.12.2020.html
+
+**Uso acadêmico:** o grupo de estudantes pode apresentar interface e resultados com dados sintéticos ou adequadamente anonimizados; a autoria do software não autoriza divulgação, cópia ou livre acesso a registros individuais de alunos.
