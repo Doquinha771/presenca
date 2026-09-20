@@ -36,7 +36,7 @@ O **Presença+** foi desenvolvido por um **grupo de estudantes do 3º ano A da E
 | Identidade | Solicitações pendentes de alunos, convites institucionais, confirmação de e-mail e provisionamento de contas pela secretaria. |
 | Privacidade | Documentos públicos, controles de acesso no banco e solicitação de revisão de registros. |
 | Mobile | Navegação inferior dedicada, menu de funções, cartões de histórico e formulários responsivos. |
-| Importação | Excel (.xlsx) e CSV para turmas, matrículas e histórico de atrasos, com prévia, validações, controle por cargo e processamento em lotes pequenos. |
+| Relatórios | Exportação Excel (.xlsx) com indicadores e atrasos consolidados por turma e por dia, sem identificadores individuais. |
 
 ## Arquitetura
 
@@ -53,7 +53,7 @@ Supabase Auth + Edge Functions + PostgreSQL
 Políticas RLS / funções com validação de autorização
 ```
 
-A leitura de arquivos Excel e CSV é feita localmente pelo navegador. Apenas os campos conferidos e autorizados são enviados ao banco em lotes. Dados brutos de planilhas não são publicados nem armazenados no GitHub Pages.
+A exportação Excel é gerada apenas no dispositivo do profissional autenticado, a partir de totais agregados disponibilizados pelo painel institucional. O arquivo não contém nomes, RA, e-mail, data de nascimento ou justificativas individuais. Não há importador de planilhas.
 
 A interface estática não contém senhas administrativas ou chaves de serviço.
 `config.js` armazena somente a URL e a chave **publicável** do projeto Supabase.
@@ -71,7 +71,7 @@ institucionais. Não há backend local ou armazenamento offline de registros.
 ├── privacidade.html              # Política de Privacidade
 ├── LICENSE                       # Licença institucional restrita
 ├── config.js                     # Configuração pública do Supabase
-├── assets/                       # CSS, JavaScript, importador sob demanda e identidade visual
+├── assets/                       # CSS, JavaScript, exportador sob demanda e identidade visual
 ├── sql/                          # Esquema e migrações do banco
 ├── supabase/functions/           # Provisionamento autorizado de alunos
 ├── docs/                         # Validação e diretrizes de implantação
@@ -120,7 +120,7 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do projeto | 4.1.2, com documentos de uso e privacidade 2.1 |
+| Versão do projeto | 5.1.0 (interface e relatórios), banco compatível com 4.1.2 |
 | Plataforma | Web responsiva / GitHub Pages |
 | Banco e autenticação | Supabase |
 | Natureza do serviço | Projeto estudantil coletivo de TCC, com apoio da secretaria escolar, sem condição de sistema oficial da rede estadual |
@@ -135,12 +135,12 @@ instituições públicas. Direitos e licenças de componentes de terceiros
 permanecem aplicáveis.
 
 
-## Importação institucional e limites
+## Relatórios escolares e impressão
 
-A Direção pode importar turmas e ocorrências históricas; Direção e secretaria podem importar matrículas. O sistema confere formatos, apresenta prévia, rejeita linhas inválidas e processa até 25 registros por operação. Turmas são cadastradas antes de matrículas, e atrasos históricos exigem conta escolar vinculada e matrícula autorizada. A importação de matrículas **não gera senhas em massa**: a criação de acesso individual permanece subordinada ao fluxo institucional. Arquivos .xls e .xlsm e planilhas com fórmulas não são processados.
+A equipe institucional pode gerar um arquivo Excel (`.xlsx`) de uso interno com totais de atrasos de hoje, da semana e do mês, quantidades consolidadas por turma no mês corrente e tendência dos últimos 14 dias. A exportação não inclui informações de alunos individualmente identificáveis nem contém senhas, RA, e-mails, datas de nascimento ou observações. O arquivo é gerado no navegador e não é armazenado no Supabase.
 
-As ocorrências importadas preservam a data informada e usam identificadores estáveis para reduzir duplicações em reimportações. Lançamentos anteriores ao início do período de contagem não alteram seus contadores atuais. Registros e relatórios permanecem sujeitos à privacidade e aos limites de acesso já existentes.
+Contagens por turma são dados agregados, mas podem permitir inferências em grupos muito pequenos. Os relatórios destinam-se apenas ao uso interno e não devem ser publicados sem avaliação de privacidade.
 
 ## Desempenho e acessibilidade
 
-A navegação móvel tem apresentação independente da interface de desktop. A central de importação e seu leitor XLSX são carregados apenas quando acessados. A interface oferece alvos de toque ampliados, foco visível, estados de carregamento e suporte à preferência por movimento reduzido. As pontuações Lighthouse variam conforme dispositivo, conexão, autenticação e conteúdo; não há garantia de pontuação fixa.
+A navegação móvel tem apresentação independente da interface de desktop. O gerador XLSX é carregado somente quando o usuário institucional exporta um relatório. A interface oferece alvos de toque ampliados, foco visível, estados de carregamento e suporte à preferência por movimento reduzido. As pontuações Lighthouse variam conforme dispositivo, conexão, autenticação e conteúdo; não há garantia de pontuação fixa.

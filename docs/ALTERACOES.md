@@ -61,7 +61,7 @@ Não há exclusão automática de dados, credenciais administrativas embutidas, 
 2. Matrícula autorizada ainda não vinculada a conta Auth não recebe atraso. O aluno precisa completar o cadastro e confirmar o e-mail antes de entrar no fluxo atual, pois a base original vincula estudantes a `auth.users`.
 3. Históricos anteriores ao saldo consolidado não têm sua participação no período inferida automaticamente. Correções nesses registros não alteram o saldo sem revisão institucional.
 4. Pesquisa por início de nome ou RA, sem busca aproximada ou por palavras no meio do nome.
-5. Exportação CSV, sem XLSX/PDF. O pedido não exigia esses formatos adicionais.
+5. A exportação histórica individual em CSV foi descontinuada na versão 5.1 por questão de privacidade.
 6. Invites autorizam o cadastro; não enviam mensagem de convite automaticamente. O Supabase envia confirmação e recuperação de senha conforme configuração do projeto.
 7. Política institucional de privacidade e limites de autenticação dependem da configuração pela escola/Supabase. A UI não declara conformidade jurídica automática.
 8. Nenhum arquivo é enviado ao Storage; esse recurso não era necessário às funções implementadas.
@@ -76,12 +76,11 @@ Não há exclusão automática de dados, credenciais administrativas embutidas, 
 - A migração `sql/04_v4_1.sql` mantém os registros anteriores, protege tabelas pela RLS e evita armazenar textos redundantes em novas auditorias de rotina. O tamanho real depende da quantidade de alunos, uso, índices e Auth.
 - **Implantação parcial:** banco remoto atualizado. O deploy automático da Edge Function foi bloqueado pela integração; precisa ser feito antes de publicar a nova interface do GitHub Pages.
 
-## 5.0.0 — Interface móvel e importação institucional
+## 5.1.0 — Relatórios Excel e simplificação
 
-- Navegação móvel inferior com gaveta de funções, cartões de registros e modais otimizados para toque.
-- Leitor local de Excel (`.xlsx`) e CSV, prévia, validação, modelos e importação em lotes de até 25 linhas.
-- Matrículas e turmas são conferidas pelo servidor. Ocorrências importadas usam identificadores estáveis para evitar duplicação e mantêm a data histórica.
-- Importação requer autenticação e permissão institucional no banco; não publica planilhas ou senhas no GitHub Pages.
-- Animações de baixo custo com respeito à preferência por movimento reduzido.
-- Termos e privacidade passaram a explicar a importação institucional de dados.
-- Relatório técnico em `docs/RELATORIO_MOBILE_E_PERFORMANCE.md` separa testes locais de medição Lighthouse em produção.
+- Interface móvel dedicada preservada, com navegação inferior e menu de funções.
+- Removidos leitor Excel/CSV, interface de upload, opção de importação e testes relacionados.
+- Nova área de relatórios de uso interno, exportando somente dados agregados, sem identificadores pessoais, em Excel (.xlsx) pronto para impressão.
+- Exportação baseada no resumo mensal já disponibilizado pela RPC `dashboard`, sem varrer histórico individual.
+- Módulo XLSX pequeno, sem dependência externa e carregado sob demanda.
+- Script SQL preventivo desativa a função de importação antiga caso tenha sido instalada, sem afetar registros escolares.

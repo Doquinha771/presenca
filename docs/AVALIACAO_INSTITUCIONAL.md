@@ -28,7 +28,7 @@ da Secretaria da Educação do Estado de São Paulo.
       economizar armazenamento.
 - [ ] Testar autenticação, credenciais temporárias, RLS, autorização em RPCs,
       Edge Function, restauração de backup e tratamento de incidentes.
-- [ ] Confirmar que nenhum RA, senha, aniversário, token, exportação CSV ou
+- [ ] Confirmar que nenhum RA, senha, aniversário, token, relatórios Excel agregados ou
       dado pessoal esteja no código, repositório, console público ou páginas
       HTML; nunca publicar chaves secretas.
 - [ ] Definir tratamento de incidentes: comunicar internamente de imediato;

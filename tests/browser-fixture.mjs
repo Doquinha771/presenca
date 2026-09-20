@@ -6,7 +6,6 @@ const me=role==='aluno'?student:{id:'33333333-3333-4333-8333-333333333333',full_
 let events=[{id:'44444444-4444-4444-8444-444444444444',student_id:student.id,full_name:student.full_name,grade:student.grade,occurred_at:new Date().toISOString(),status:'active',operator_name:'Maria',operator_id:me.id,reason:'<img src=x onerror=alert(1)>',can_undo:true}],callback;
 window.__calls=[];
 export function createClient(){return {auth:{getUser:async()=>({data:{user:window.__signedOut?null:{id:me.id}}}),signInWithPassword:async()=>{window.__signedOut=false;return {};},signUp:async x=>{window.__signup=x;return {};},resetPasswordForEmail:async()=>({}),updateUser:async()=>({}),signOut:async()=>{window.__signedOut=true;callback?.('SIGNED_OUT');return {};},onAuthStateChange:f=>{callback=f;}},rpc:async(name,args)=>{window.__calls.push({name,args});if(window.__fail)return {error:{message:'Failed to fetch'}};
-if(name==='portal_import_batch')return {data:{added:args.p_rows.length,skipped:0}};
 if(name==='portal_write'){if(args.p_action==='record'){student.unjustified_count++;student.blocked=student.unjustified_count>=5;return {data:{id:events[0].id}};}return {data:{}};}
 if(name!=='portal_read')return {data:{}};
 const k=args.p_kind,a=args.p_args;
