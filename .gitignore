@@ -8,3 +8,8 @@ __pycache__/
 *.pyc
 original/
 *.zip
+
+node_modules/
+tests/*.png
+playwright-report/
+test-results/

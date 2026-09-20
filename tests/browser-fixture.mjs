@@ -1,0 +1,13 @@
+// Dublê explícito de rede usado somente pelos testes. Nunca importado pelo aplicativo.
+export const fixture=String.raw`
+const role=window.__testRole||'admin';
+const student={id:'11111111-1111-4111-8111-111111111111',full_name:'João Pedro da Silva',ra:'0000111',grade:'3º ano • A',class_id:'22222222-2222-4222-8222-222222222222',role:'aluno',active:true,verified:true,enrollment_approved:true,late_count:4,unjustified_count:4,late_limit:5,blocked:false,historical_count:4};
+const me=role==='aluno'?student:{id:'33333333-3333-4333-8333-333333333333',full_name:'Maria da Secretaria',role,active:true,verified:true};
+let events=[{id:'44444444-4444-4444-8444-444444444444',student_id:student.id,full_name:student.full_name,grade:student.grade,occurred_at:new Date().toISOString(),status:'active',operator_name:'Maria',operator_id:me.id,reason:'<img src=x onerror=alert(1)>',can_undo:true}],callback;
+window.__calls=[];
+export function createClient(){return {auth:{getUser:async()=>({data:{user:window.__signedOut?null:{id:me.id}}}),signInWithPassword:async()=>{window.__signedOut=false;return {};},signUp:async x=>{window.__signup=x;return {};},resetPasswordForEmail:async()=>({}),updateUser:async()=>({}),signOut:async()=>{window.__signedOut=true;callback?.('SIGNED_OUT');return {};},onAuthStateChange:f=>{callback=f;}},rpc:async(name,args)=>{window.__calls.push({name,args});if(window.__fail)return {error:{message:'Failed to fetch'}};
+if(name==='portal_write'){if(args.p_action==='record'){student.unjustified_count++;student.blocked=student.unjustified_count>=5;return {data:{id:events[0].id}};}return {data:{}};}
+if(name!=='portal_read')return {data:{}};
+const k=args.p_kind,a=args.p_args;
+const vals={me,classes:[{id:student.class_id,grade:'3º ano',name:'A',active:true}],students:a.search&&!student.full_name.toLowerCase().startsWith(a.search.toLowerCase())&&!student.ra.startsWith(a.search)?[]:[student],history:events,team:[me],enrollments:[],adjustments:[],audit:[],privacy:[],resets:[],announcements:[{id:'55555555-5555-4555-8555-555555555555',title:'Bem-vindos',body:'Converse com a secretaria.',active:true,audience:'todos',created_at:new Date().toISOString()}],settings:{default_limit:5,controller:'Escola',privacy_contact:'Secretaria',privacy_notice:'Aviso da escola',retention_policy:'Sem exclusão automática.'},dashboard:role==='aluno'?{historical:4,forgiven:0,count:4,limit:5,blocked:false}:{students:120,today:12,week:29,month:87,warning:4,blocked:2,trend:Array.from({length:14},(_,i)=>({day:'2026-09-'+String(i+1).padStart(2,'0'),total:i%5})),classes:[{grade:'3º ano • A',students:32,total:18}]}};return {data:vals[k]??[]};}};}
+`;

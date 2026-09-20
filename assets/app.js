@@ -1,305 +1,99 @@
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, SCHOOL_NAME } from '../config.js';
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm';
-
-const $ = (id) => document.getElementById(id);
-const SCHOOL_EMAIL = /^[0-9]{7,16}(sp)?@al\.educacao\.sp\.gov\.br$/i;
-const configured = /^sb_publishable_[a-zA-Z0-9_-]+$/.test(SUPABASE_PUBLISHABLE_KEY)
-  && SUPABASE_URL === 'https://svidahhpqozfaletpcbq.supabase.co';
-const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
-}) : null;
-let authMode = 'login';
-let profile = null;
-let students = [];
-let teammates = [];
-let historyRows = [];
-let resets = [];
-let auditRows = [];
-let page = 'overview';
-let loading = false;
-let recovering = /(?:[?#&])type=recovery(?:[&#]|$)/.test(window.location.href);
-
-function message(txt, kind = '', target = 'authMessage') {
-  const node = $(target);
-  node.hidden = false;
-  node.className = 'message' + (kind ? ` ${kind}` : '');
-  node.textContent = txt;
-}
-function errorText(error) {
-  const code = String(error?.code || '');
-  if (code === '23505') return 'Já existe um cadastro com esse identificador.';
-  if (code === '42501') return 'Seu perfil não tem permissão para realizar esta ação.';
-  if (code === 'PGRST202') return 'O banco ainda não recebeu o SQL desta versão. Consulte o README.';
-  if (error?.message?.includes('Failed to fetch')) return 'Não foi possível conectar ao Supabase. Confira a conexão e a configuração.';
-  return String(error?.message || 'A operação não pôde ser concluída.');
-}
-function esc(value) {
-  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function dateBR(value) {
-  if (!value) return '—';
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T12:00:00`) : new Date(value);
-  return Number.isNaN(+date) ? '—' : new Intl.DateTimeFormat('pt-BR', value.length > 10 ? {dateStyle:'short',timeStyle:'short'} : {dateStyle:'short'}).format(date);
-}
-const isStaff = () => ['secretaria','admin'].includes(profile?.role);
-const isAdmin = () => profile?.role === 'admin';
-const roleName = role => ({aluno:'Aluno',secretaria:'Secretaria / portaria',admin:'Administrador'}[role] || 'Conta');
-const filteredStudents = () => students.filter(x => x.role === 'aluno' && !x.archived_at);
-const activeStudents = () => filteredStudents().filter(x => x.active && x.verified);
-const studentById = id => students.find(s => s.id === id);
-
-function setAuthMode(next) {
-  authMode = next;
-  $('authView').hidden = false;
-  $('dashboard').hidden = true;
-  const signup = next === 'signup';
-  const recover = next === 'recover';
-  const reset = next === 'resetPassword';
-  $('signupFields').hidden = !signup;
-  $('passwordFields').hidden = recover;
-  $('emailLabel').hidden = reset;
-  $('email').hidden = reset;
-  $('email').required = !reset;
-  $('password').required = !recover;
-  $('password').autocomplete = signup || reset ? 'new-password' : 'current-password';
-  $('authTitle').textContent = reset ? 'Definir nova senha' : signup ? 'Criar cadastro' : recover ? 'Recuperar acesso' : 'Entre com sua conta';
-  $('authSubtitle').textContent = reset ? 'Escolha uma nova senha com pelo menos 10 caracteres.' : signup ? 'Alunos usam e-mail RA da Educação SP; integrantes da equipe precisam de convite.' : recover ? 'Enviaremos um link para o e-mail cadastrado.' : 'Use seu e-mail escolar ou o e-mail autorizado da equipe.';
-  $('authSubmit').textContent = reset ? 'Salvar nova senha' : signup ? 'Cadastrar e confirmar e-mail' : recover ? 'Enviar link de recuperação' : 'Entrar no portal';
-  $('authMessage').hidden = true;
-  document.querySelectorAll('[data-auth]').forEach(btn => btn.classList.toggle('selected', btn.dataset.auth === next));
-  if (!configured) message('Integração pendente: preencha SUPABASE_PUBLISHABLE_KEY em config.js e aplique sql/01_portal.sql no projeto Supabase. Nunca use chave secreta.','error');
-}
-
-async function handleAuth(event) {
-  event.preventDefault();
-  if (!supabase || loading) { if (!supabase) setAuthMode(authMode); return; }
-  const email = $('email').value.trim().toLowerCase();
-  const password = $('password').value;
-  const btn = $('authSubmit');
-  btn.disabled = true;
-  try {
-    if (authMode === 'resetPassword') {
-      if (password.length < 10) throw new Error('Use pelo menos 10 caracteres na senha.');
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
-      message('Senha atualizada. Você já pode entrar com sua conta.', 'success');
-      await supabase.auth.signOut();
-      recovering = false;
-      setAuthMode('login');
-      message('Senha alterada. Faça login com a nova senha.', 'success');
-      return;
-    }
-    if (authMode === 'recover') {
-      const {error} = await supabase.auth.resetPasswordForEmail(email,{ redirectTo: new URL('./', window.location.href).href });
-      if (error) throw error;
-      message('Se o e-mail estiver cadastrado, você receberá instruções de recuperação.', 'success');
-      return;
-    }
-    if (authMode === 'signup') {
-      if (password.length < 10) throw new Error('A senha deve ter ao menos 10 caracteres.');
-      if (!$('consent').checked) throw new Error('Leia e aceite o aviso de privacidade para continuar.');
-      const staff = $('staffSignup').checked;
-      if (!staff && !SCHOOL_EMAIL.test(email)) throw new Error('Use seu RA no formato 0000111@al.educacao.sp.gov.br.');
-      const name = $('fullName').value.trim();
-      const grade = $('grade').value;
-      const birth = $('birthDate').value;
-      if (name.length < 3 || name.length > 120) throw new Error('Informe seu nome completo.');
-      if (!staff && (!grade || !birth || birth > new Date().toISOString().slice(0,10))) throw new Error('Informe série e data de nascimento válidas.');
-      const { error } = await supabase.auth.signUp({ email,password, options: {
-        emailRedirectTo: new URL('./',window.location.href).href,
-        data:{full_name:name,grade:staff?null:grade,birth_date:staff?null:birth}
-      }});
-      if (error) throw error;
-      message('Cadastro solicitado. Confira a caixa de entrada e confirme o e-mail antes de entrar. Se já existir uma conta, use Entrar ou Recuperar.','success');
-      return;
-    }
-    const {error} = await supabase.auth.signInWithPassword({email,password});
-    if (error) throw error;
-    await loadPortal();
-  } catch (e) { message(errorText(e),'error'); }
-  finally {btn.disabled=false;}
-}
-
-async function loadPortal() {
-  if (!supabase || loading || recovering) return;
-  loading = true;
-  try {
-    const {data:auth,error:authError} = await supabase.auth.getUser();
-    if (authError || !auth.user) { await showLoggedOut(); return; }
-    const {data:p,error} = await supabase.from('profiles').select('id,ra,full_name,grade,birth_date,role,verified,active,late_count,unjustified_count,late_limit,blocked,archived_at,archive_reason,created_at').eq('id',auth.user.id).single();
-    if (error || !p) throw error || new Error('Perfil não encontrado. Aplique o SQL da versão web no Supabase.');
-    if (!p.verified || !p.active) {
-      await supabase.auth.signOut();
-      await showLoggedOut();
-      message('Conta não confirmada, suspensa ou em revisão. Confirme o e-mail ou procure a secretaria.','error');
-      return;
-    }
-    if (recovering) return;
-    profile=p;
-    $('authView').hidden=true;
-    $('dashboard').hidden=false;
-    $('logoutBtn').hidden=false;
-    $('sideName').textContent=p.full_name;
-    $('sideRole').textContent=roleName(p.role);
-    $('avatar').textContent=p.full_name[0]?.toUpperCase() || 'P';
-    $('schoolLabel').textContent=SCHOOL_NAME;
-    $('footerSchool').textContent=SCHOOL_NAME;
-    document.querySelectorAll('.staff-only').forEach(x => x.hidden=!isStaff());
-    document.querySelectorAll('.admin-only').forEach(x => x.hidden=!isAdmin());
-    await refreshData();
-    go('overview');
-  } catch(e) {
-    profile=null;
-    $('dashboard').hidden=true;
-    $('authView').hidden=false;
-    message('Falha ao abrir o portal: '+errorText(e),'error');
-  } finally {loading=false;}
-}
-async function showLoggedOut() {
-  profile=null;
-  $('logoutBtn').hidden=true;
-  setAuthMode('login');
-}
-async function query(table, columns, config=()=>{}) {
-  let req=supabase.from(table).select(columns);
-  req=config(req);
-  const {data,error}=await req;
-  if(error) throw error;
-  return data || [];
-}
-async function refreshData() {
-  if (!profile) return;
-  if (isStaff()) {
-    students=await query('profiles','id,ra,full_name,grade,birth_date,role,verified,active,late_count,unjustified_count,late_limit,blocked,archived_at,archive_reason,created_at',q=>q.order('full_name').limit(1000));
-    if (students.length === 1000) message('A listagem atingiu 1.000 perfis. Use paginação para uma rede escolar maior; os resultados abaixo podem estar incompletos.','error','flash');
-  } else {students=[profile];}
-  historyRows=await query('attendance_events','id,student_id,occurred_at,justified,reason,operator_id',q=>q.order('occurred_at',{ascending:false}).limit(200));
-  if (isAdmin()) {
-    [resets,auditRows]=await Promise.all([
-      query('period_resets','id,scheduled_for,created_at,executed_at,cancelled_at',q=>q.order('scheduled_for',{ascending:false}).limit(100)),
-      query('audit_events','id,created_at,actor_id,action,subject_id,detail',q=>q.order('created_at',{ascending:false}).limit(100))
-    ]);
-    teammates=students.filter(x=>x.role!=='aluno');
-  } else {resets=[];auditRows=[];teammates=[];}
-  renderAll();
-}
-function go(name) {
-  const allowed=['overview','history',...(isStaff()?['students','entry']:[]),...(isAdmin()?['archive','team','period','audit']:[])];
-  if(!allowed.includes(name)) name='overview';
-  page=name;
-  document.querySelectorAll('.page').forEach(node=>node.hidden=node.id!==`page-${name}`);
-  document.querySelectorAll('.nav').forEach(node=>node.classList.toggle('active',node.dataset.page===name));
-  const labels={overview:['Visão geral','Acompanhe os dados disponíveis para sua conta.'],students:['Alunos','Consulte a base discente autorizada.'],entry:['Registrar atraso','Registre uma ocorrência com identificação do operador.'],history:['Histórico','Consulte as ocorrências registradas.'],archive:['Arquivo escolar','Histórico preservado dos alunos arquivados.'],team:['Equipe e convites','Gerencie as permissões dos integrantes.'],period:['Período letivo','Administre os encerramentos do período.'],audit:['Auditoria','Consulte o registro de operações administrativas.']};
-  $('pageTitle').textContent=labels[name][0];$('pageDesc').textContent=labels[name][1];
-  if(name==='history') renderHistory();
-}
-function renderAll() {
-  const target=isStaff()?filteredStudents():[profile];
-  const total=target.length;
-  const late=target.reduce((acc,p)=>acc+p.late_count,0);
-  const warning=target.filter(p=>!p.blocked && p.unjustified_count >= Math.max(1,p.late_limit-2)).length;
-  $('metricStudents').textContent=total;
-  $('metricLate').textContent=late;
-  $('metricWarning').textContent=warning;
-  $('metricBlocked').textContent=target.filter(p=>p.blocked).length;
-  $('welcomeName').textContent=`Olá, ${profile.full_name.split(' ')[0]}`;
-  $('welcomeText').textContent=isStaff()?'Acesse os serviços administrativos disponíveis para seu perfil.':'Consulte seus registros pessoais de frequência escolar.';
-  $('overviewInfo').textContent=isStaff() ? `Sua função: ${roleName(profile.role)}. Apenas ações autorizadas para sua função são disponibilizadas.` : `RA: ${profile.ra || '—'} • Série: ${profile.grade || '—'} • Data de nascimento: ${dateBR(profile.birth_date)}. Os registros estão disponíveis na aba Histórico.`;
-  const list=activeStudents();
-  for(const id of ['entryStudent','historyStudent']){
-    const select=$(id); const prior=select.value;
-    select.replaceChildren();
-    const top=new Option(id==='entryStudent'?'Selecione um aluno':'Todos os alunos','');
-    select.add(top);
-    for(const s of list) select.add(new Option(`${s.full_name} • ${s.ra || ''}`,s.id));
-    select.value=Array.from(select.options).some(o=>o.value===prior)?prior:'';
-  }
-  renderStudents();renderHistory();renderArchive();renderTeam();renderPeriods();renderAudit();
-}
-function table(headers, rows, empty='Nenhum registro encontrado.') {
-  if(!rows.length) return `<p class="empty">${esc(empty)}</p>`;
-  return `<table><thead><tr>${headers.map(h=>`<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
-}
-function status(s) {
-  return s.blocked ? '<span class="pill block">Bloqueado</span>' : s.unjustified_count >= Math.max(1,s.late_limit-2) ? '<span class="pill warn">Em atenção</span>' : '<span class="pill">Regular</span>';
-}
-function renderStudents() {
-  if(!isStaff()) return;
-  const term=$('studentSearch').value.toLocaleLowerCase('pt-BR').trim();
-  const rows=filteredStudents().filter(s=>`${s.full_name} ${s.ra} ${s.grade}`.toLocaleLowerCase('pt-BR').includes(term)).map(s=>`<tr><td><span class="table-name">${esc(s.full_name)}</span><span class="table-sub">RA: ${esc(s.ra)}</span></td><td>${esc(s.grade)}</td><td>${s.late_count} (${s.unjustified_count} não justific.)</td><td>${status(s)}</td><td>${isAdmin()?`<button type="button" class="outline" data-student-action="forgive" data-student="${esc(s.id)}">Nova chance</button><button type="button" class="outline" data-student-action="reset" data-student="${esc(s.id)}">Resetar</button><button type="button" class="danger-outline" data-student-action="archive" data-student="${esc(s.id)}">Arquivar</button>`:'Consulte o histórico'}</td></tr>`);
-  $('studentTable').innerHTML=table(['Aluno','Série','Atrasos','Situação','Ações'],rows);
-}
-function renderHistory() {
-  const selection=isStaff()?$('historyStudent').value:profile?.id;
-  const rows=historyRows.filter(r=>!selection||r.student_id===selection).map(r=>`<tr><td>${esc(dateBR(r.occurred_at))}</td>${isStaff()?`<td>${esc(studentById(r.student_id)?.full_name || 'Aluno')}</td>`:''}<td>${r.justified?'<span class="pill">Justificado</span>':'<span class="pill warn">Não justificado</span>'}</td><td>${esc(r.reason || '—')}</td></tr>`);
-  $('historyTable').innerHTML=table(['Data',...(isStaff()?['Aluno']:[]),'Situação','Observação'],rows);
-  $('historyCaption').textContent='Últimos 200 registros disponíveis para sua função';
-}
-function renderArchive() {
-  if(!isAdmin())return;
-  const rows=students.filter(s=>s.role==='aluno'&&s.archived_at).map(s=>`<tr><td>${esc(s.full_name)}<span class="table-sub">${esc(s.ra)}</span></td><td>${esc(s.grade)}</td><td>${dateBR(s.archived_at)}</td><td>${esc(s.archive_reason||'—')}</td><td><button type="button" class="outline" data-student-action="restore" data-student="${esc(s.id)}">Restaurar</button></td></tr>`);
-  $('archiveTable').innerHTML=table(['Aluno','Série','Arquivado em','Motivo','Ação'],rows);
-}
-function renderTeam() {
-  if(!isAdmin())return;
-  const rows=teammates.map(s=>`<tr><td>${esc(s.full_name)}</td><td>${esc(roleName(s.role))}</td><td>${s.active?'<span class="pill">Ativo</span>':'<span class="pill block">Suspenso</span>'}</td><td>${s.id===profile.id?'Sua conta':`<button type="button" class="outline" data-team-action="role" data-team="${esc(s.id)}">Alterar função</button><button type="button" class="${s.active?'danger-outline':'outline'}" data-team-action="toggle" data-team="${esc(s.id)}">${s.active?'Suspender':'Reativar'}</button>`}</td></tr>`);
-  $('teamTable').innerHTML=table(['Integrante','Função','Situação','Gerenciar'],rows,'Ainda não há outros integrantes.');
-}
-function renderPeriods() {
-  if(!isAdmin())return;
-  const rows=resets.map(r=>`<tr><td>${dateBR(r.scheduled_for)}</td><td>${r.executed_at?'<span class="pill">Executado</span>':r.cancelled_at?'<span class="pill block">Cancelado</span>':'<span class="pill warn">Pendente</span>'}</td><td>${!r.executed_at&&!r.cancelled_at?`<button type="button" class="danger-outline" data-cancel-reset="${esc(r.id)}">Cancelar</button>`:'—'}</td></tr>`);
-  $('periodTable').innerHTML=table(['Data','Situação','Ação'],rows);
-}
-function renderAudit() {
-  if(!isAdmin())return;
-  const rows=auditRows.map(r=>`<tr><td>${esc(dateBR(r.created_at))}</td><td>${esc(r.action)}</td><td>${esc(teammates.find(t=>t.id===r.actor_id)?.full_name || 'Sistema')}</td><td>${esc(r.detail || '—')}</td></tr>`);
-  $('auditTable').innerHTML=table(['Data','Operação','Responsável','Detalhe'],rows);
-}
-async function runRPC(name,args,success) {
-  if(!supabase||!profile)throw new Error('Entre na sua conta para continuar.');
-  const {error}=await supabase.rpc(name,args);
-  if(error) throw error;
-  await refreshData();
-  message(success,'success','flash');
-}
-async function safeRun(fn) {
-  try {await fn();} catch(e) {message(errorText(e),'error','flash');}
-}
-
-$('authForm').addEventListener('submit',handleAuth);
-document.querySelectorAll('[data-auth]').forEach(x=>x.addEventListener('click',()=>setAuthMode(x.dataset.auth)));
-$('openPrivacy').addEventListener('click',()=> $('privacyDialog').showModal());
-$('themeBtn').addEventListener('click',()=>document.body.classList.toggle('high-contrast'));
-$('logoutBtn').addEventListener('click',async()=>{
-  if(supabase){const {error}=await supabase.auth.signOut();if(error){message(errorText(error),'error','flash');return;}}
-  await showLoggedOut();
-});
-$('sidebarNav').addEventListener('click',e=>{const btn=e.target.closest('button[data-page]');if(btn&&!btn.hidden)go(btn.dataset.page);});
-$('refreshBtn').addEventListener('click',()=>safeRun(async()=>{await refreshData();message('Informações atualizadas.','success','flash');}));
-$('studentSearch').addEventListener('input',renderStudents);
-$('historyStudent').addEventListener('change',renderHistory);
-$('entryForm').addEventListener('submit',e=>{e.preventDefault();if(!isStaff())return;const id=$('entryStudent').value;if(!id){message('Selecione um aluno.','error','flash');return;}const justified=$('entryJustified').checked;const reason=$('entryReason').value.trim();if(!window.confirm('Confirmar o registro de atraso deste aluno?'))return;safeRun(async()=>{await runRPC('record_lateness',{p_student:id,p_justified:justified,p_reason:reason},'Atraso registrado com sucesso.');e.target.reset();});});
-$('studentTable').addEventListener('click',e=>handleStudentButton(e));
-$('archiveTable').addEventListener('click',e=>handleStudentButton(e));
-function handleStudentButton(event){const btn=event.target.closest('button[data-student-action]');if(!btn||!isAdmin())return;const id=btn.dataset.student;const action=btn.dataset.studentAction;const student=studentById(id);if(!student)return;
-  const labels={forgive:'Conceder nova chance',reset:'Resetar contadores',archive:'Arquivar aluno',restore:'Restaurar aluno'};
-  let reason='Nova chance autorizada pela administração';
-  if(action!=='forgive'){reason=window.prompt(`${labels[action]}: ${student.full_name}. Informe o motivo (mínimo 5 caracteres):`,'');if(reason===null)return;if(reason.trim().length<5){message('Informe um motivo com pelo menos 5 caracteres.','error','flash');return;}}
-  if(!window.confirm(`${labels[action]} para ${student.full_name}?`))return;
-  safeRun(()=>runRPC('student_action',{p_student:id,p_action:action,p_reason:reason.trim()},'Operação concluída e auditada.'));
-}
-$('inviteForm').addEventListener('submit',e=>{e.preventDefault();if(!isAdmin())return;const email=$('inviteEmail').value.trim().toLowerCase();const role=$('inviteRole').value;if(!window.confirm(`Autorizar cadastro de ${email} como ${roleName(role)}?`))return;safeRun(async()=>{await runRPC('create_staff_invite',{p_email:email,p_role:role},'Cadastro pré-aprovado. Oriente o integrante a abrir o portal e selecionar Cadastrar / Sou integrante da equipe.');e.target.reset();});});
-$('teamTable').addEventListener('click',e=>{const btn=e.target.closest('button[data-team-action]');if(!btn||!isAdmin())return;const user=teammates.find(x=>x.id===btn.dataset.team);if(!user||user.id===profile.id)return;const kind=btn.dataset.teamAction;const role=kind==='role'?(user.role==='admin'?'secretaria':'admin'):user.role;const active=kind==='toggle'?!user.active:user.active;if(!window.confirm(`${kind==='role'?'Alterar a função':'Alterar o status'} de ${user.full_name} para ${roleName(role)} / ${active?'ativo':'suspenso'}?`))return;safeRun(()=>runRPC('change_staff_role',{p_user:user.id,p_role:role,p_active:active},'Permissão atualizada.'));});
-$('periodForm').addEventListener('submit',e=>{e.preventDefault();if(!isAdmin())return;const date=$('periodDate').value;if(!window.confirm(`Agendar encerramento de período para ${dateBR(date)}?`))return;safeRun(async()=>{await runRPC('schedule_period_reset',{p_date:date},'Encerramento agendado. A execução automática depende do agendador SQL estar ativado.');e.target.reset();});});
-$('resetNow').addEventListener('click',()=>{if(!isAdmin()||!window.confirm('Encerrar o período agora? Todos os contadores de alunos ativos serão zerados, preservando o histórico.'))return;safeRun(()=>runRPC('reset_period_now',{},'Período encerrado. O histórico foi preservado.'));});
-$('periodTable').addEventListener('click',e=>{const btn=e.target.closest('button[data-cancel-reset]');if(!btn||!isAdmin()||!window.confirm('Cancelar este agendamento?'))return;safeRun(()=>runRPC('cancel_period_reset',{p_id:Number(btn.dataset.cancelReset)},'Agendamento cancelado.'));});
-
-setAuthMode('login');
-if(supabase){
-  supabase.auth.onAuthStateChange((event)=>{
-    if(event==='PASSWORD_RECOVERY') { recovering=true; setAuthMode('resetPassword'); }
-    if(event==='SIGNED_OUT'&&profile) void showLoggedOut();
-  });
-  if(recovering) setAuthMode('resetPassword');
-  else void loadPortal();
-}
+import {SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,SCHOOL_NAME} from '../config.js';
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm';
+import {esc,dateBR,csvCell,errorText,roleName,SCHOOL_EMAIL} from './utils.js';
+const $=id=>document.getElementById(id);
+if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(SUPABASE_URL)||!/^sb_publishable_/.test(SUPABASE_PUBLISHABLE_KEY))throw Error('Configuração inválida');
+const db=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const state={me:null,page:'overview',offset:0,rows:[],classes:[],selected:null,search:[],index:-1,historyStudent:'',request:null};
+let authMode='login',access='aluno',recovering=/(?:[?#&])type=recovery(?:[&#]|$)/.test(location.href),busy=false,renderToken=0,searchToken=0,authLoading=false;
+const paths={overview:['Visão geral','O dia a dia da escola, em perspectiva.','M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z'],entry:['Registrar atraso','Pesquise, selecione e registre.','M12 8v4l3 2 M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0'],students:['Alunos','Consulte a situação e o histórico de cada estudante.','M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M20 8v6 M17 11h6'],history:['Histórico','Ocorrências preservadas, com suas correções e justificativas.','M4 3h16v18H4z M8 8h8 M8 12h8 M8 16h5'],enrollments:['Matrículas','Autorize o cadastro e mantenha os dados escolares.','M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h4'],classes:['Séries e turmas','Organização das turmas da unidade escolar.','M3 21V7l9-5 9 5v14 M9 21v-7h6v7 M7 9h1 M16 9h1'],team:['Equipe','Cadastros autorizados e permissões institucionais.','M4 21v-3a5 5 0 0 1 10 0v3 M13 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M17 4a4 4 0 0 1 0 8 M18 15a4 4 0 0 1 3 4v2'],adjustments:['Novas chances e ajustes','Decisões administrativas e seus motivos.','M4 5h16v14H4z M8 10h8 M12 6v8'],announcements:['Comunicados','Informações publicadas pela escola.','M3 10v4h4l11 5V5L7 10z M7 14l2 7'],archive:['Arquivo escolar','Alunos arquivados com histórico preservado.','M3 3h18v5H3z M5 8v13h14V8 M9 12h6'],period:['Período e regras','Configurações escolares e encerramento de períodos.','M4 5h16v16H4z M8 2v6 M16 2v6 M4 10h16'],audit:['Auditoria','Rastreabilidade das operações institucionais.','M5 3h14v18H5z M9 7h6 M9 12h6 M9 17h6'],privacy:['Privacidade','Solicitações e incidentes sob responsabilidade da Direção.','M12 2l8 4v6c0 5-8 10-8 10S4 17 4 12V6z M9 12l2 2 4-4']};
+const staff=()=>state.me?.role!=='aluno';
+const admin=()=>state.me?.role==='admin';
+const allowed=()=>state.me?.role==='aluno'?['overview','history','announcements']:admin()?Object.keys(paths):['overview','entry','students','history','announcements'];
+function msg(text,kind='success',target='flash'){const n=$(target);n.hidden=false;n.className='message '+kind;n.textContent=text;}
+async function rpc(name,args){const {data,error}=await db.rpc(name,args);if(error){if(['PGRST301','PGRST303'].includes(error.code)){clearSession();msg('Sua sessão expirou. Entre novamente.','error','authMessage');}throw error;}return data;}
+const read=(kind,args={})=>rpc('portal_read',{p_kind:kind,p_args:args});
+const write=(action,args)=>rpc('portal_write',{p_action:action,p_args:args});
+function button(label,action,id='',cls='outline'){return `<button type="button" class="${cls}" data-action="${action}" data-id="${esc(id)}">${esc(label)}</button>`;}
+function table(headers,rows){return rows.length?`<div class="table-scroll"><table class="responsive"><thead><tr>${headers.map(x=>`<th scope="col">${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.map(cells=>`<tr>${cells.map((v,i)=>`<td data-label="${esc(headers[i])}">${v}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nenhum registro encontrado.</div>';}
+function pager(rows){return `<div class="pager">${button('Anterior','prev')}<span>Página ${state.offset/25+1}</span>${button('Próxima','next')}</div>`;}
+function bindPager(rows){const p=$('view').querySelector('[data-action=prev]'),n=$('view').querySelector('[data-action=next]');if(p)p.disabled=state.offset===0;if(n)n.disabled=rows.length<25;}
+const status=s=>`<span class="pill ${s.blocked?'block':s.unjustified_count>=s.late_limit-1?'warn':''}">${!s.enrollment_approved?'Matrícula pendente':s.blocked?'Limite atingido':s.unjustified_count>=s.late_limit-1?'Em atenção':'Regular'}</span>`;
+function classesOptions(value='',all=true){return `${all?'<option value="">Todas as turmas</option>':'<option value="">Selecione</option>'}${state.classes.map(c=>`<option value="${esc(c.id)}" ${c.id===value?'selected':''}>${esc(c.grade+' • '+c.name)}${c.active?'':' (inativa)'}</option>`).join('')}`;}
+const dataForm=form=>Object.fromEntries(new FormData(form));
+function openModal(title,html,submit){$('modalBody').onclick=null;$('modalTitle').textContent=title;$('modalBody').innerHTML=html;$('modalError').hidden=true;$('modal').showModal();const form=$('modalBody').querySelector('form');if(form&&submit)form.onsubmit=async e=>{e.preventDefault();if(busy)return;busy=true;const btn=form.querySelector('[type=submit]');if(btn)btn.disabled=true;try{await submit(dataForm(form));$('modal').close();msg('Alteração salva.');await render();}catch(err){msg(errorText(err),'error','modalError');}finally{busy=false;if(btn)btn.disabled=false;}};}
+const field=(label,name,type='text',value='',extra='')=>`<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" ${extra} required></label>`;
+const reasonField='<label>Justificativa<textarea name="reason" minlength="5" maxlength="500" required></textarea></label>';
+const save='<button class="primary" type="submit">Salvar</button>';
+async function reasonAction(title,action,args){openModal(title,`<form>${reasonField}${save}</form>`,d=>write(action,{...args,reason:d.reason}));}
+function auth(next='login'){authMode=next;$('authView').hidden=false;$('dashboard').hidden=true;const signup=next==='signup',reset=next==='reset',recover=next==='recover';$('signupFields').hidden=!signup;$('studentSignup').hidden=access!=='aluno';$('consentField').hidden=!signup;$('emailField').hidden=reset;$('passwordField').hidden=recover;const form=$('authForm');form.elements.email.required=!reset;form.elements.password.required=!recover;form.elements.password.minLength=signup||reset?10:1;form.elements.password.autocomplete=signup||reset?'new-password':'current-password';form.elements.birth.disabled=!signup||access!=='aluno';$('authTitle').textContent={login:'Entre na sua conta',signup:'Criar acesso',recover:'Recuperar senha',reset:'Definir nova senha'}[next];$('authSubtitle').textContent=signup?(access==='aluno'?'A matrícula precisa estar autorizada pela escola. Seus dados serão conferidos com esse cadastro.':'Use o e-mail previamente autorizado pela Direção.'):recover?'Você receberá um link no e-mail cadastrado.':access==='aluno'?'Acompanhe seus registros e comunicados escolares.':'Acesso da Secretaria e da Direção.';$('authSubmit').textContent={login:'Entrar',signup:'Cadastrar e confirmar e-mail',recover:'Enviar link',reset:'Salvar nova senha'}[next];$('authMessage').hidden=true;}
+$('authForm').onsubmit=async e=>{e.preventDefault();const btn=$('authSubmit');if(btn.disabled)return;btn.disabled=true;const d=dataForm(e.target),email=d.email?.trim().toLowerCase(),redirect=new URL('./',location.href).href;try{let result;if(authMode==='signup'){if(!d.consent)throw Error('Leia o aviso de privacidade.');if(d.name.trim().length<3)throw Error('Informe o nome completo.');if(access==='aluno'&&(!SCHOOL_EMAIL.test(email)||!d.ra||!d.birth||!d.grade))throw Error('Informe RA, e-mail institucional, série, turma e nascimento.');result=await db.auth.signUp({email,password:d.password,options:{emailRedirectTo:redirect,data:{full_name:d.name.trim(),ra:d.ra?.trim().toLowerCase(),grade:d.grade,birth_date:d.birth}}});if(result.error)throw result.error;msg('Cadastro solicitado. Confira seu e-mail e confirme o acesso. Se já possui conta, entre ou recupere a senha.','success','authMessage');}
+else if(authMode==='recover'){result=await db.auth.resetPasswordForEmail(email,{redirectTo:redirect});if(result.error)throw result.error;msg('Se o endereço estiver cadastrado, você receberá o link de recuperação.','success','authMessage');}
+else if(authMode==='reset'){result=await db.auth.updateUser({password:d.password});if(result.error)throw result.error;recovering=false;await db.auth.signOut();auth();msg('Senha alterada. Entre com a nova senha.','success','authMessage');}
+else{result=await db.auth.signInWithPassword({email,password:d.password});if(result.error)throw result.error;await loadSession();}}catch(err){msg(errorText(err),'error','authMessage');}finally{btn.disabled=false;}};
+document.querySelectorAll('[data-auth]').forEach(b=>b.onclick=()=>auth(b.dataset.auth));
+document.querySelectorAll('[data-access]').forEach(b=>b.onclick=()=>{access=b.dataset.access;document.querySelectorAll('[data-access]').forEach(x=>x.classList.toggle('selected',x===b));auth();});
+$('privacyLink').onclick=()=>openModal('Aviso de privacidade','<p>Usamos nome, RA, e-mail institucional, nascimento e turma para conferir a matrícula e oferecer acesso aos registros escolares. Somente a equipe autorizada pode registrar e corrigir ocorrências; estudantes consultam apenas seus próprios dados.</p><p>Os dados ficam no Supabase. Não há exclusão automática de histórico. Procure a secretaria para solicitar acesso, correção ou informações sobre retenção e o responsável pela privacidade. A escola deve disponibilizar sua política institucional antes do uso real.</p><p>A leitura deste aviso não substitui a base legal definida pela escola.</p>');
+$('closeModal').onclick=()=>$('modal').close();
+async function loadSession(){if(authLoading||recovering)return;authLoading=true;try{const {data,error}=await db.auth.getUser();if(error||!data.user){state.me=null;auth();return;}state.me=await read('me');state.classes=await read('classes');$('authView').hidden=true;$('dashboard').hidden=false;$('schoolLabel').textContent=SCHOOL_NAME;$('userName').textContent=state.me.full_name;$('userRole').textContent=roleName(state.me.role);$('avatar').textContent=state.me.full_name[0];$('areaName').textContent='PAINEL '+roleName(state.me.role).toUpperCase();$('nav').innerHTML=allowed().map(k=>`<a href="#/${k}" data-page="${k}"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${paths[k][2]}"/></svg></span>${paths[k][0]}</a>`).join('');await route();}catch(err){state.me=null;auth();msg(errorText(err),'error','authMessage');}finally{authLoading=false;}}
+function clearSession(){renderToken++;searchToken++;state.me=null;state.rows=[];state.classes=[];state.search=[];state.selected=null;state.request=null;state.historyStudent='';historyFilter={};studentsFilter={};$('view').replaceChildren();$('modal').close();$('modalBody').replaceChildren();$('flash').hidden=true;auth();}
+$('logout').onclick=async()=>{const {error}=await db.auth.signOut();if(error){msg(errorText(error),'error');return;}clearSession();};
+$('menu').onclick=()=>{const open=$('sidebar').classList.toggle('open');$('menu').setAttribute('aria-expanded',String(open));};
+try{document.body.classList.toggle('dark',localStorage.getItem('presenca-theme')==='dark');}catch{}
+$('theme').onclick=()=>{const dark=document.body.classList.toggle('dark');try{localStorage.setItem('presenca-theme',dark?'dark':'light');}catch{}};
+function connection(){$('connection').hidden=navigator.onLine;}window.addEventListener('online',connection);window.addEventListener('offline',connection);connection();
+window.addEventListener('hashchange',()=>{if(state.me)void route();});
+async function route(){const p=location.hash.replace('#/','');state.page=allowed().includes(p)?p:(state.me.role==='secretaria'?'entry':'overview');state.offset=0;state.selected=null;state.request=null;searchToken++;$('view').replaceChildren();$('sidebar').classList.remove('open');$('menu').setAttribute('aria-expanded','false');$('nav').querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.dataset.page===state.page));$('pageTitle').textContent=paths[state.page][0];$('pageDescription').textContent=paths[state.page][1];await render();}
+$('refresh').onclick=async()=>{try{state.me=await read('me');state.classes=await read('classes');await render();}catch(e){msg(errorText(e),'error');}};
+function historyArgs(){return {student:state.historyStudent,from:$('fromDate')?.value||'',to:$('toDate')?.value||'',class:$('historyClass')?.value||'',status:$('historyStatus')?.value||'',offset:state.offset};}
+let historyFilter={},studentsFilter={};
+async function render(){if(!state.me)return;const token=++renderToken,page=state.page;const view=$('view');view.setAttribute('aria-busy','true');if(!view.childElementCount)view.innerHTML='<p class="empty">Carregando informações…</p>';try{let html='',rows=[];
+if(page==='overview'){const [d,notes]=await Promise.all([read('dashboard'),read('announcements')]);const metrics=staff()?[['Alunos',d.students,'Base escolar'],['Hoje',d.today,'Ocorrências'],['Na semana',d.week,'Desde segunda-feira'],['No mês',d.month,'Mês atual'],['Em atenção',d.warning,'A um atraso do limite'],['Limite atingido',d.blocked,'Acompanhamento da Direção']]:[['Atrasos válidos',d.count,'Contagem do período'],['Limite atual',d.limit,'Definido pela escola'],['Histórico total',d.historical,'Todas as ocorrências'],['Perdoados',d.forgiven,'Mantidos no histórico']];html=`<div class="welcome"><h2>Olá, ${esc(state.me.full_name.split(' ')[0])}.</h2><p>${staff()?'Organize os registros de hoje e acompanhe quem precisa de atenção.':`${esc(state.me.grade)} · RA ${esc(state.me.ra)} · ${d.blocked?'Limite atingido: procure a Direção.':'Acompanhe sua situação escolar.'}`}</p></div><div class="metrics ${staff()?'six':''}">${metrics.map(([l,n,c])=>`<article class="metric"><span>${l}</span><strong>${n}</strong><small>${c}</small></article>`).join('')}</div>`;
+if(staff()){const max=Math.max(1,...d.trend.map(t=>t.total));html+=`<div class="grid-two"><section class="panel"><h3>Atrasos nos últimos 14 dias</h3><div class="bar-chart" role="img" aria-label="${esc(d.trend.map(t=>dateBR(t.day)+': '+t.total).join('; '))}">${d.trend.map(t=>`<div class="bar-col"><strong>${t.total}</strong><meter min="0" max="${max}" value="${t.total}" aria-label="${esc(dateBR(t.day))}"></meter><span>${t.day.slice(8)}</span></div>`).join('')}</div></section><section class="panel"><h3>Por turma · mês atual</h3>${table(['Turma','Alunos','Atrasos'],d.classes.map(c=>[esc(c.grade||'Sem turma'),c.students,c.total]))}</section></div>`;}else if(!state.me.enrollment_approved)html+='<p class="notice">Seu cadastro anterior foi preservado. A Direção precisa validar a matrícula antes de novos registros.</p>';
+html+=`<section class="panel"><h3>Comunicados da escola</h3>${notes.filter(n=>n.active).slice(0,3).map(n=>`<article class="announcement"><h3>${esc(n.title)}</h3><p>${esc(n.body)}</p></article>`).join('')||'<p class="empty">Nenhum comunicado publicado.</p>'}${button('Política de privacidade da escola','privacy-notice')}</section>`;
+}else if(page==='entry'){html=`<section class="panel entry-panel"><h3>Quem chegou?</h3><form id="entryForm"><label>Pesquisar aluno por nome ou RA<input id="entrySearch" type="search" autocomplete="off" placeholder="Comece a digitar…" aria-controls="entryResults" aria-expanded="false" role="combobox"></label><div id="entryResults" class="results" role="listbox" aria-label="Alunos encontrados"></div><div id="selectedStudent"></div><label>Observação opcional<textarea id="entryReason" maxlength="500" rows="2"></textarea></label><button class="primary" id="recordBtn" type="submit" disabled>Registrar atraso</button></form><p class="muted">Use ↑ e ↓ para selecionar e Enter para continuar. Após selecionar, Enter registra o atraso.</p><div id="lastRecord"></div></section>`;
+}else if(page==='students'||page==='archive'){rows=await read('students',{...studentsFilter,offset:state.offset,archived:page==='archive'?'true':'false'});html=`<section class="panel"><form id="studentsFilter" class="filters"><label class="search-field">Nome ou RA<input name="search" id="studentSearch" type="search" value="${esc(studentsFilter.search||'')}" placeholder="Pesquisar pelo início do nome ou RA"></label><label>Turma<select name="class">${classesOptions(studentsFilter.class)}</select></label><label>Situação<select name="situation"><option value="">Todas</option><option value="regular">Regular</option><option value="warning">Em atenção</option><option value="blocked">Limite atingido</option></select></label><button type="submit">Filtrar</button></form><div id="studentRows">${studentTable(rows,page==='archive')}</div>${pager(rows)}</section>`;
+}else if(page==='history'){rows=await read('history',{...historyFilter,student:state.historyStudent,offset:state.offset});html=`<section class="panel"><form id="historyFilters" class="filters"><label>De<input id="fromDate" type="date" value="${esc(historyFilter.from||'')}"></label><label>Até<input id="toDate" type="date" value="${esc(historyFilter.to||'')}"></label>${staff()?`<label>Turma<select id="historyClass">${classesOptions(historyFilter.class)}</select></label>`:''}<label>Situação<select id="historyStatus"><option value="">Todas</option><option value="active">Válidos</option><option value="forgiven">Perdoados</option><option value="void">Anulados</option></select></label><button type="submit">Filtrar</button>${button('Exportar CSV','export')}${state.historyStudent&&staff()?button('Todos os alunos','all-history'):''}</form>${table(['Data',...(staff()?['Aluno']:[]),'Situação','Observação','Responsável',...(staff()?['Ações']:[])],rows.map(r=>[dateBR(r.occurred_at),...(staff()?[`${esc(r.full_name)}<small>${esc(r.grade)}</small>`]:[]),`<span class="pill ${r.status==='active'?'warn':''}">${r.status==='forgiven'?'Perdoado':r.status==='void'?'Anulado':r.justified?'Justificado':'Válido'}</span>`,`${esc(r.reason||'—')}${r.change_reason?`<small>Alteração: ${esc(r.change_reason)}</small>`:''}`,esc(r.operator_name||'Registro legado'),...(staff()?[`<div class="toolbar">${r.can_undo?button('Desfazer','undo',r.id):''}${admin()&&r.status!=='void'?button('Corrigir / anular','correct',r.id):''}${admin()&&r.status==='active'?button('Perdoar','forgive',r.id):''}</div>`]:[])]))}${pager(rows)}</section>`;
+}else if(page==='classes'){rows=await read('classes');html=`<section class="panel"><div class="toolbar">${button('Nova turma','class-new')}</div>${table(['Série','Turma','Situação','Ações'],rows.map(c=>[esc(c.grade),esc(c.name),c.active?'Ativa':'Inativa',button('Editar','class-edit',c.id)]))}</section>`;
+}else if(page==='enrollments'){rows=await read('enrollments',{offset:state.offset});html=`<section class="panel"><div class="toolbar">${button('Autorizar matrícula','enrollment-new')}</div><p>A matrícula autoriza o aluno a criar uma conta. O e-mail precisa corresponder ao cadastro escolar.</p>${table(['Aluno','RA','Turma','Acesso','Ações'],rows.map(r=>[esc(r.full_name),esc(r.ra),esc(r.grade+' • '+r.class_name),r.profile_id?'Conta vinculada':r.active?'Aguardando cadastro':'Inativa',button('Editar','enrollment-edit',r.id)]))}${pager(rows)}</section>`;
+}else if(page==='team'){rows=await read('team',{offset:state.offset});html=`<section class="panel"><div class="toolbar">${button('Autorizar funcionário','invite')}</div><p>O funcionário cria sua própria senha e confirma o e-mail após a autorização.</p>${table(['Nome','Cargo','Situação','Ações'],rows.map(r=>[esc(r.full_name),roleName(r.role),r.active?(r.verified?'Ativo':'E-mail pendente'):'Suspenso',r.id===state.me.id?'Sua conta':button('Gerenciar','role',r.id)]))}${pager(rows)}</section>`;
+}else if(page==='adjustments'){rows=await read('adjustments',{offset:state.offset});html=`<section class="panel">${table(['Data','Aluno','Ação','Justificativa'],rows.map(r=>[dateBR(r.created_at),esc(r.full_name),esc({chance:'Nova chance',forgive:'Perdão',correct:'Correção',undo:'Desfeito',approve:'Matrícula validada',reset_student:'Novo período',archive:'Arquivado',restore:'Restaurado',edit_student:'Dados corrigidos'}[r.action]||r.action),esc(r.reason)]))}${pager(rows)}</section>`;
+}else if(page==='announcements'){rows=await read('announcements',{offset:state.offset});html=`<section class="panel">${admin()?button('Publicar comunicado','announcement-new'):''}${rows.map(r=>`<article class="announcement"><h3>${esc(r.title)}</h3><p>${esc(r.body)}</p><small>${dateBR(r.created_at)}${!r.active?' · Arquivado':''}</small>${admin()?button('Editar','announcement-edit',r.id):''}</article>`).join('')||'<p class="empty">Nenhum comunicado.</p>'}${pager(rows)}</section>`;
+}else if(page==='audit'){rows=await read('audit',{offset:state.offset});html=`<section class="panel">${table(['Data','Operação','Responsável','Detalhe'],rows.map(r=>[dateBR(r.created_at),esc(r.action),esc(r.actor_name||'Sistema'),esc(r.detail||'—')]))}${pager(rows)}</section>`;
+}else if(page==='privacy'){rows=await read('privacy',{offset:state.offset});html=`<section class="panel">${button('Registrar solicitação ou incidente','privacy-new')}${table(['Data','Tipo','Situação','Descrição','Ações'],rows.map(r=>[dateBR(r.created_at),r.kind==='incidente'?'Incidente':'Solicitação',esc(r.status.replace('_',' ')),esc(r.description),button('Acompanhar','privacy-edit',r.id)]))}${pager(rows)}</section>`;
+}else if(page==='period'){const [settings,resets]=await Promise.all([read('settings'),read('resets',{offset:state.offset})]);rows=resets;state.settings=settings;html=`<div class="grid-two"><section class="panel"><h3>Regras e privacidade</h3><p>O limite padrão vale para novos cadastros e novos períodos. Limites individuais atuais são preservados.</p><form id="settingsForm">${field('Limite padrão de atrasos','limit','number',settings.default_limit,'min="1" max="100"')}${field('Responsável pelo tratamento de dados','controller','text',settings.controller,'maxlength="200"')}${field('Contato de privacidade','contact','text',settings.privacy_contact,'maxlength="200"')}<label>Aviso institucional<textarea name="notice" maxlength="4000" required>${esc(settings.privacy_notice)}</textarea></label><label>Política de retenção<textarea name="retention" maxlength="2000" required>${esc(settings.retention_policy)}</textarea></label>${save}</form></section><section class="panel"><h3>Período letivo</h3><p>Encerrar o período zera a contagem atual e preserva todas as ocorrências.</p><form id="periodForm">${field('Agendar encerramento','date','date')}<button class="primary" type="submit">Agendar</button></form><div class="toolbar">${button('Encerrar agora','reset-period','','danger')}</div><p>Agendamentos automáticos precisam do agendador configurado no Supabase.</p>${table(['Data','Situação','Ações'],resets.map(r=>[dateBR(r.scheduled_for),r.executed_at?'Executado':r.cancelled_at?'Cancelado':'Pendente',!r.executed_at&&!r.cancelled_at?button('Cancelar','cancel-reset',r.id):'—']))}${pager(rows)}</section></div>`;}
+if(token!==renderToken)return;view.innerHTML=html;state.rows=rows;bindPager(rows);bindPage();}catch(e){if(token===renderToken){view.innerHTML=`<section class="panel"><h3>Não foi possível carregar os dados</h3><p>${esc(errorText(e))}</p>${button('Tentar novamente','retry')}</section>`;}}finally{if(token===renderToken)view.removeAttribute('aria-busy');}}
+function studentTable(rows,archived){return table(['Aluno','Turma','Contagem / limite','Situação','Ações'],rows.map(s=>[`${esc(s.full_name)}<small>RA ${esc(s.ra)}</small>`,esc(s.grade),`${s.unjustified_count} / ${s.late_limit}<small>${s.historical_count} ocorrências no histórico</small>`,status(s),`<div class="toolbar">${button('Histórico','history',s.id)}${admin()?archived?button('Restaurar','restore',s.id):button('Gerenciar','student-manage',s.id):''}</div>`]));}
+function bindPage(){if(state.page==='entry'){bindEntry();return;}if($('studentsFilter')){$('studentsFilter').elements.situation.value=studentsFilter.situation||'';$('studentsFilter').onsubmit=e=>{e.preventDefault();studentsFilter=dataForm(e.target);state.offset=0;void render();};$('studentSearch').oninput=async e=>{const token=++searchToken;studentsFilter=dataForm($('studentsFilter'));state.offset=0;try{const rows=await read('students',{...studentsFilter,archived:state.page==='archive'?'true':'false',offset:0});if(token!==searchToken||!$('studentRows'))return;state.rows=rows;const pageLabel=$('view').querySelector('.pager span');if(pageLabel)pageLabel.textContent='Página 1';$('studentRows').innerHTML=studentTable(rows,state.page==='archive');bindPager(rows);}catch(err){msg(errorText(err),'error');}};}
+if($('historyFilters')){$('historyStatus').value=historyFilter.status||'';$('historyFilters').onsubmit=e=>{e.preventDefault();historyFilter=historyArgs();state.offset=0;void render();};}
+if($('settingsForm'))$('settingsForm').onsubmit=e=>{e.preventDefault();void run(()=>write('settings',dataForm(e.target)));};
+if($('periodForm'))$('periodForm').onsubmit=e=>{e.preventDefault();void run(()=>rpc('schedule_period_reset',{p_date:dataForm(e.target).date}));};}
+function bindEntry(){state.selected=null;state.request=null;const search=$('entrySearch');search.focus();search.oninput=async()=>{state.selected=null;state.request=null;$('selectedStudent').innerHTML='';$('recordBtn').disabled=true;const term=search.value.trim(),token=++searchToken;if(!term){$('entryResults').innerHTML='';search.setAttribute('aria-expanded','false');return;}try{const rows=await read('students',{search:term});if(token!==searchToken||!$('entryResults'))return;state.search=rows;state.index=-1;$('entryResults').innerHTML=rows.map((s,i)=>`<button class="result" type="button" id="result-${i}" role="option" aria-selected="false" data-pick="${i}"><span>${esc(s.full_name)}<small>${esc(s.ra)} · ${esc(s.grade)}</small><span>${s.unjustified_count}/${s.late_limit}</span></button>`).join('')||'<p class="empty">Nenhum aluno encontrado.</p>';search.setAttribute('aria-expanded','true');}catch(e){msg(errorText(e),'error');}};
+search.onkeydown=e=>{if(e.isComposing)return;if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();state.index=Math.max(0,Math.min(state.search.length-1,state.index+(e.key==='ArrowDown'?1:-1)));document.querySelectorAll('[data-pick]').forEach((b,i)=>b.setAttribute('aria-selected',String(i===state.index)));search.setAttribute('aria-activedescendant','result-'+state.index);}else if(e.key==='Enter'&&!state.selected){e.preventDefault();if(state.search.length)pick(Math.max(0,state.index));}};
+$('entryResults').onclick=e=>{const b=e.target.closest('[data-pick]');if(b)pick(Number(b.dataset.pick));};
+$('entryForm').onsubmit=async e=>{e.preventDefault();if(busy||!state.selected)return;const s=state.selected;busy=true;$('recordBtn').disabled=true;state.request??=crypto.randomUUID();try{const r=await write('record',{student:s.id,request:state.request,reason:$('entryReason').value.trim()});msg(r.duplicate?'Este registro já havia sido confirmado.':'Atraso registrado.');state.selected=null;state.request=null;state.search=[];$('entryForm').reset();$('selectedStudent').innerHTML='';$('entryResults').innerHTML='';$('lastRecord').innerHTML=`<p>Último registro: ${esc(s.full_name)}</p>${button('Desfazer em até 2 minutos','undo',r.id)}`;search.focus();}catch(err){msg(errorText(err),'error');$('recordBtn').disabled=false;}finally{busy=false;}};}
+function pick(i){const s=state.search[i];if(!s)return;state.selected=s;state.request=crypto.randomUUID();$('entrySearch').value=s.full_name;$('entrySearch').setAttribute('aria-expanded','false');$('entryResults').innerHTML='';$('selectedStudent').innerHTML=`<div class="selected-student"><h3>${esc(s.full_name)}</h3><p>${esc(s.grade)} · RA ${esc(s.ra)}</p><p><strong>${s.unjustified_count} de ${s.late_limit} atrasos</strong> · ${status(s)}</p></div>`;$('recordBtn').disabled=s.blocked||!s.active||!s.verified||!s.enrollment_approved;if(!$('recordBtn').disabled)$('recordBtn').focus();}
+async function run(fn,refresh=true){if(busy)return;busy=true;const buttons=[...$('view').querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);try{const r=await fn();msg(r?.notice||'Operação concluída.');if(refresh)await render();}catch(e){msg(errorText(e),'error');}finally{busy=false;buttons.filter(b=>b.isConnected).forEach(b=>b.disabled=false);bindPager(state.rows);}}
+$('view').onclick=e=>{const b=e.target.closest('[data-action]');if(!b||b.disabled)return;void action(b.dataset.action,b.dataset.id).catch(err=>msg(errorText(err),'error'));};
+async function action(a,id){const row=state.rows.find(r=>String(r.id)===id);
+if(a==='prev'||a==='next'){state.offset=Math.max(0,state.offset+(a==='next'?25:-25));await render();return;}
+if(a==='privacy-notice'){const policy=await read('settings');openModal('Privacidade da escola',`<p class="prewrap">${esc(policy.privacy_notice)}</p><p>Responsável: ${esc(policy.controller||'Consulte a secretaria')}</p><p>Contato: ${esc(policy.privacy_contact||'Consulte a secretaria')}</p><p class="prewrap">${esc(policy.retention_policy)}</p>`);return;}
+if(a==='retry'){await render();return;}
+if(a==='history'){state.historyStudent=id;historyFilter={};if(state.page==='history'){state.offset=0;await render();}else location.hash='/history';return;}
+if(a==='all-history'){state.historyStudent='';state.offset=0;await render();return;}
+if(['chance','undo','correct','forgive','archive','restore','approve','reset_student'].includes(a)){const title={chance:'Conceder mais um atraso de limite',undo:'Desfazer registro recente',correct:'Anular ocorrência incorreta',forgive:'Perdoar atraso',archive:'Arquivar aluno',restore:'Restaurar aluno',approve:'Validar matrícula existente',reset_student:'Iniciar novo período individual'}[a];await reasonAction(title,a,['undo','correct','forgive'].includes(a)?{event:id}:{student:id});return;}
+if(a==='student-manage'){openModal(row.full_name,`<dl class="details"><div><dt>RA</dt><dd>${esc(row.ra)}</dd></div><div><dt>Contagem</dt><dd>${row.unjustified_count}/${row.late_limit}</dd></div></dl><div class="toolbar">${button('Editar dados','edit-student',id)}${button('Nova chance','chance',id)}${!row.enrollment_approved?button('Validar matrícula','approve',id):''}${button('Novo período','reset_student',id)}${button('Arquivar','archive',id,'danger')}</div><p>Perdão e correção são feitos sobre cada ocorrência no Histórico.</p>`);$('modalBody').onclick=e=>{const b=e.target.closest('[data-action]');if(b){$('modal').close();void action(b.dataset.action,b.dataset.id);}};return;}
+if(a==='edit-student'){const detail=await read('student_admin',{student:id});openModal('Corrigir dados escolares',`<form>${field('Nome completo','name','text',row.full_name,'maxlength="120"')}${field('RA','ra','text',detail.ra,'pattern="[0-9]{7,16}(sp)?"')}${field('Data de nascimento','birth','date',detail.birth_date)}<label>Turma<select name="class" required>${classesOptions(row.class_id,false)}</select></label>${reasonField}${save}</form>`,d=>write('edit_student',{student:id,...d}));return;}
+if(a==='class-new'||a==='class-edit'){const r=row||{};openModal('Série e turma',`<form>${field('Série','grade','text',r.grade||'','maxlength="70"')}${field('Turma','name','text',r.name||'','maxlength="20"')}<label>Situação<select name="active"><option value="true">Ativa</option><option value="false" ${r.active===false?'selected':''}>Inativa</option></select></label>${save}</form>`,async d=>{await write('class',{id:id||null,...d});state.classes=await read('classes');});return;}
+if(a==='enrollment-new'||a==='enrollment-edit'){const r=row||{};openModal('Matrícula autorizada',`<form><div class="form-grid">${field('Nome completo','name','text',r.full_name||'','maxlength="120"')}${field('RA','ra','text',r.ra||'','pattern="[0-9]{7,16}(sp)?"')}${field('E-mail institucional','email','email',r.email||'')}${field('Data de nascimento','birth','date',r.birth_date||'')}<label>Turma<select name="class" required>${classesOptions(r.class_id,false)}</select></label><label>Situação<select name="active"><option value="true">Ativa</option><option value="false" ${r.active===false?'selected':''}>Inativa</option></select></label></div>${save}</form>`,d=>{if(!SCHOOL_EMAIL.test(d.email))throw Error('Use o e-mail institucional do aluno.');return write('enrollment',{id:id||null,...d});});return;}
+if(a==='invite'){openModal('Autorizar funcionário',`<form>${field('E-mail autorizado','email','email')}<label>Cargo<select name="role"><option value="secretaria">Secretaria</option><option value="admin">Direção</option></select></label><p>A autorização dura 14 dias. O funcionário deve abrir o portal, escolher Acesso institucional e criar a própria conta.</p>${save}</form>`,d=>rpc('create_staff_invite',{p_email:d.email,p_role:d.role}));return;}
+if(a==='role'){openModal('Permissões de '+row.full_name,`<form><label>Cargo<select name="role"><option value="secretaria">Secretaria</option><option value="admin" ${row.role==='admin'?'selected':''}>Direção</option></select></label><label>Situação<select name="active"><option value="true">Ativo</option><option value="false" ${!row.active?'selected':''}>Suspenso</option></select></label>${reasonField}${save}</form>`,d=>write('role',{user:id,...d}));return;}
+if(a==='announcement-new'||a==='announcement-edit'){const r=row||{};openModal('Comunicado escolar',`<form>${field('Título','title','text',r.title||'','maxlength="120"')}<label>Mensagem<textarea name="body" minlength="3" maxlength="2000" required>${esc(r.body||'')}</textarea></label><label>Público<select name="audience"><option value="todos">Todos</option><option value="aluno" ${r.audience==='aluno'?'selected':''}>Alunos</option><option value="equipe" ${r.audience==='equipe'?'selected':''}>Equipe</option></select></label><label>Publicação<select name="active"><option value="true">Visível</option><option value="false" ${r.active===false?'selected':''}>Arquivado</option></select></label>${save}</form>`,d=>write('announcement',{id:id||null,...d}));return;}
+if(a==='privacy-new'||a==='privacy-edit'){const r=row||{};openModal('Solicitação ou incidente',`<form><label>Tipo<select name="kind"><option value="solicitacao">Solicitação</option><option value="incidente" ${r.kind==='incidente'?'selected':''}>Incidente</option></select></label><label>Descrição<textarea name="description" minlength="5" maxlength="2000" required ${id?'readonly':''}>${esc(r.description||'')}</textarea></label><label>Situação<select name="status"><option value="aberto">Aberto</option><option value="em_analise" ${r.status==='em_analise'?'selected':''}>Em análise</option><option value="concluido" ${r.status==='concluido'?'selected':''}>Concluído</option></select></label><label>Providências<textarea name="resolution" maxlength="2000">${esc(r.resolution||'')}</textarea></label>${save}</form>`,d=>write('privacy',{id:id||null,...d}));return;}
+if(a==='reset-period'){openModal('Encerrar período agora?',`<p>Os contadores de todos os alunos não arquivados serão reiniciados. O histórico será preservado.</p><form>${field('Digite ENCERRAR para confirmar','confirm')}${save}</form>`,d=>{if(d.confirm!=='ENCERRAR')throw Error('Digite ENCERRAR.');return rpc('reset_period_now',{});});return;}
+if(a==='cancel-reset'){await run(()=>rpc('cancel_period_reset',{p_id:Number(id)}));return;}
+if(a==='export'){await run(async()=>{let all=[],offset=0;for(;;){const batch=await read('history',{...historyFilter,student:state.historyStudent,offset});all.push(...batch);if(batch.length<25)break;offset+=25;if(offset>=100000)throw Error('Selecione um intervalo de datas menor para exportar.');}const csv='\ufeff'+[['Data','Aluno','Turma','Situação','Observação','Responsável'],...all.map(r=>[dateBR(r.occurred_at),r.full_name,r.grade,r.status,r.reason,r.operator_name])].map(r=>r.map(csvCell).join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='presenca-historico.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},false);return;}}
+// Limpa callbacks antigos dos modais para evitar ações reaproveitadas.
+// Cada abertura reinicia os eventos específicos do modal.
+db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY'){recovering=true;auth('reset');}else if(event==='SIGNED_OUT')clearSession();else if(event==='SIGNED_IN'&&!recovering&&!state.me)setTimeout(()=>void loadSession(),0);});
+if(recovering)auth('reset');else await loadSession();
