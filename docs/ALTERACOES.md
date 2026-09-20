@@ -75,3 +75,13 @@ Não há exclusão automática de dados, credenciais administrativas embutidas, 
 - Cadastros autônomos passam a aguardar a vinculação com matrícula feita pela escola. Nenhum dado autodeclarado concede cargo institucional ou autoriza acesso escolar.
 - A migração `sql/04_v4_1.sql` mantém os registros anteriores, protege tabelas pela RLS e evita armazenar textos redundantes em novas auditorias de rotina. O tamanho real depende da quantidade de alunos, uso, índices e Auth.
 - **Implantação parcial:** banco remoto atualizado. O deploy automático da Edge Function foi bloqueado pela integração; precisa ser feito antes de publicar a nova interface do GitHub Pages.
+
+## 5.0.0 — Interface móvel e importação institucional
+
+- Navegação móvel inferior com gaveta de funções, cartões de registros e modais otimizados para toque.
+- Leitor local de Excel (`.xlsx`) e CSV, prévia, validação, modelos e importação em lotes de até 25 linhas.
+- Matrículas e turmas são conferidas pelo servidor. Ocorrências importadas usam identificadores estáveis para evitar duplicação e mantêm a data histórica.
+- Importação requer autenticação e permissão institucional no banco; não publica planilhas ou senhas no GitHub Pages.
+- Animações de baixo custo com respeito à preferência por movimento reduzido.
+- Termos e privacidade passaram a explicar a importação institucional de dados.
+- Relatório técnico em `docs/RELATORIO_MOBILE_E_PERFORMANCE.md` separa testes locais de medição Lighthouse em produção.

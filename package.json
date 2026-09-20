@@ -1,11 +1,11 @@
 {
   "name": "presenca-plus",
-  "version": "4.1.2",
+  "version": "5.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/unit.test.js tests/legal.test.js",
+    "test": "node --test tests/unit.test.js tests/legal.test.js tests/import.test.js",
     "test:browser": "node tests/browser.mjs",
-    "check": "node --check assets/app.js && node --check assets/utils.js && node --check assets/boot.js"
+    "check": "node --check assets/app.js && node --check assets/utils.js && node --check assets/boot.js && node --check assets/spreadsheet.js && node --check assets/import-ui.js"
   }
 }

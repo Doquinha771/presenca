@@ -6,7 +6,7 @@
 
 **Portal web de acompanhamento escolar e gestão de registros de atraso.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-4.1.2-205f50)](./docs/ALTERACOES.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.0.0-205f50)](./docs/ALTERACOES.md)
 [![Plataforma](https://img.shields.io/badge/plataforma-Web-396c82)](./index.html)
 [![Banco](https://img.shields.io/badge/dados-Supabase-3c7659)](https://supabase.com/)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-institucional%20restrita-6c7075)](./LICENSE)
@@ -35,6 +35,8 @@ O **Presença+** foi desenvolvido por um **grupo de estudantes do 3º ano A da E
 | Direção | Administração de permissões, ajustes justificados, períodos e auditoria. |
 | Identidade | Solicitações pendentes de alunos, convites institucionais, confirmação de e-mail e provisionamento de contas pela secretaria. |
 | Privacidade | Documentos públicos, controles de acesso no banco e solicitação de revisão de registros. |
+| Mobile | Navegação inferior dedicada, menu de funções, cartões de histórico e formulários responsivos. |
+| Importação | Excel (.xlsx) e CSV para turmas, matrículas e histórico de atrasos, com prévia, validações, controle por cargo e processamento em lotes pequenos. |
 
 ## Arquitetura
 
@@ -50,6 +52,8 @@ Supabase Auth + Edge Functions + PostgreSQL
          v
 Políticas RLS / funções com validação de autorização
 ```
+
+A leitura de arquivos Excel e CSV é feita localmente pelo navegador. Apenas os campos conferidos e autorizados são enviados ao banco em lotes. Dados brutos de planilhas não são publicados nem armazenados no GitHub Pages.
 
 A interface estática não contém senhas administrativas ou chaves de serviço.
 `config.js` armazena somente a URL e a chave **publicável** do projeto Supabase.
@@ -67,7 +71,7 @@ institucionais. Não há backend local ou armazenamento offline de registros.
 ├── privacidade.html              # Política de Privacidade
 ├── LICENSE                       # Licença institucional restrita
 ├── config.js                     # Configuração pública do Supabase
-├── assets/                       # CSS, JavaScript e identidade visual
+├── assets/                       # CSS, JavaScript, importador sob demanda e identidade visual
 ├── sql/                          # Esquema e migrações do banco
 ├── supabase/functions/           # Provisionamento autorizado de alunos
 ├── docs/                         # Validação e diretrizes de implantação
@@ -129,3 +133,14 @@ A existência de um repositório público não concede, por si só, licença de
 código aberto, permissão para tratamento de dados escolares nem endosso por
 instituições públicas. Direitos e licenças de componentes de terceiros
 permanecem aplicáveis.
+
+
+## Importação institucional e limites
+
+A Direção pode importar turmas e ocorrências históricas; Direção e secretaria podem importar matrículas. O sistema confere formatos, apresenta prévia, rejeita linhas inválidas e processa até 25 registros por operação. Turmas são cadastradas antes de matrículas, e atrasos históricos exigem conta escolar vinculada e matrícula autorizada. A importação de matrículas **não gera senhas em massa**: a criação de acesso individual permanece subordinada ao fluxo institucional. Arquivos .xls e .xlsm e planilhas com fórmulas não são processados.
+
+As ocorrências importadas preservam a data informada e usam identificadores estáveis para reduzir duplicações em reimportações. Lançamentos anteriores ao início do período de contagem não alteram seus contadores atuais. Registros e relatórios permanecem sujeitos à privacidade e aos limites de acesso já existentes.
+
+## Desempenho e acessibilidade
+
+A navegação móvel tem apresentação independente da interface de desktop. A central de importação e seu leitor XLSX são carregados apenas quando acessados. A interface oferece alvos de toque ampliados, foco visível, estados de carregamento e suporte à preferência por movimento reduzido. As pontuações Lighthouse variam conforme dispositivo, conexão, autenticação e conteúdo; não há garantia de pontuação fixa.
