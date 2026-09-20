@@ -1,3 +1,16 @@
+## Atualização documental — 20/09/2026
+
+Adicionados `README.md` profissional, `LICENSE` de uso institucional restrito,
+`termos.html` e `privacidade.html` com estilo próprio e acesso público antes
+do login. O formulário de cadastro solicita confirmação de leitura, sem
+confundi-la com a base legal para o tratamento de dados escolares. O acesso aos
+documentos permanece disponível no painel. A minuta e o checklist institucional
+(`docs/AVALIACAO_INSTITUCIONAL.md`) dependem de revisão e aprovação da autoridade
+educacional competente antes da utilização de dados reais. Nenhuma migração do
+banco ou modificação de registros escolares foi realizada nesta atualização.
+
+---
+
 # Relatório de alterações — 4.0.0
 
 ## Auditoria do arquivo recebido

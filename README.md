@@ -1,143 +1,167 @@
+<div align="center">
+
+<img src="assets/logo.png" alt="Identidade visual do Presença+" width="72" />
+
 # Presença+
 
-Gestão escolar de atrasos, com Portal do Aluno, Secretaria e Direção. Versão 4.1.0 para GitHub Pages e Supabase.
+**Portal web de acompanhamento escolar e gestão de registros de atraso.**
 
-**Estado: implementação entregue para homologação. A migração não foi executada no seu Supabase e os testes completos de banco e navegador ainda precisam passar. Não tratar esta entrega como produção validada.**
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-4.1.0-205f50)](./docs/ALTERACOES.md)
+[![Plataforma](https://img.shields.io/badge/plataforma-Web-396c82)](./index.html)
+[![Banco](https://img.shields.io/badge/dados-Supabase-3c7659)](https://supabase.com/)
+[![Licença](https://img.shields.io/badge/licen%C3%A7a-institucional%20restrita-6c7075)](./LICENSE)
 
-## Funções
+[**Acessar o portal**](https://doquinha771.github.io/presenca/) · [**Documentação**](./docs/) · [**Termos de Uso**](./termos.html) · [**Privacidade**](./privacidade.html)
+
+</div>
+
+## Sobre
+
+O **Presença+** é uma aplicação web de apoio à rotina escolar. Organiza matrículas,
+registra atrasos, acompanha ocorrências e disponibiliza aos alunos uma consulta
+individual de seus próprios dados. A gestão e a conferência de registros cabem à
+equipe institucional autorizada.
+
+O projeto é **independente** e não deve ser apresentado como sistema oficial da
+Secretaria da Educação. Sua adoção com dados reais requer aprovação institucional,
+procedimentos de segurança, governança de dados e avaliação jurídica prévias.
+
+## Funcionalidades
+
+| Área | Recursos |
+| --- | --- |
+| Aluno | Acesso por conta individual, consulta de atrasos, histórico e comunicados. |
+| Secretaria | Gestão de matrículas autorizadas, cadastro e registros de atraso. |
+| Direção | Administração de permissões, ajustes justificados, períodos e auditoria. |
+| Identidade | Convites institucionais, confirmação de e-mail quando aplicável e provisionamento de contas pela secretaria. |
+| Privacidade | Documentos públicos, controles de acesso no banco e solicitação de revisão de registros. |
+
+## Arquitetura
 
 ```text
-Autenticação Supabase com confirmação de e-mail e recuperação de senha
-Matrícula autorizada antes do cadastro de alunos
-Perfis Aluno, Secretaria e Direção, verificados no servidor
-Registro rápido com busca, seleção por teclado e retorno ao campo de pesquisa
-Limite inicial de cinco atrasos e novas chances individuais de uma unidade
-Perdão e correção por ocorrência, sem apagar o registro original
-Desfazimento pelo operador em até dois minutos
-Proteção contra repetição de requisições e registros simultâneos
-Dashboard com dia, semana, mês, evolução e indicadores por turma
-Histórico paginado, filtros e exportação CSV
-Gestão de matrículas, séries, turmas, funcionários e comunicados
-Arquivo escolar, encerramento de períodos e agendamentos
-Auditoria, solicitações de privacidade e incidentes
-Interface adaptável, navegação lateral e tema escuro
+Navegador (desktop / celular)
+         |
+         v
+GitHub Pages (HTML + CSS + JavaScript)
+         |
+         v
+Supabase Auth + Edge Functions + PostgreSQL
+         |
+         v
+Políticas RLS / funções com validação de autorização
 ```
 
-## Atualizar uma instalação existente
+A interface estática não contém senhas administrativas ou chaves de serviço.
+`config.js` armazena somente a URL e a chave **publicável** do projeto Supabase.
+A criação de contas institucionais é processada na Edge Function
+`provision-student`, cujo acesso exige autenticação e verificação do cargo no
+banco. Operações no PostgreSQL dependem das políticas de acesso e das funções
+institucionais. Não há backend local ou armazenamento offline de registros.
 
-1. Faça um backup pelo procedimento de exportação do banco adotado pela escola. Nenhum backup do banco remoto está incluído neste ZIP.
-2. Rode `sql/00_preflight.sql` no SQL Editor e confirme que a estrutura corresponde à versão anterior do Portal. Guarde as contagens retornadas. Este projeto foi auditado a partir do ZIP, não a partir do banco em produção.
-3. Em homologação, aplique **somente `sql/03_v4.sql`** se `sql/01_portal.sql` já foi aplicado anteriormente. Não execute novamente o script 01 em uma instalação existente.
-4. Confira `select * from public.portal_migrations;`. Deve existir a versão `4.0.0`. A migração é transacional e executada uma vez; se já foi aplicada, não repita.
-5. Execute os testes, valide os três perfis e só então faça o mesmo procedimento de migração no banco de produção.
-6. Publique o frontend 4.0 após o SQL. Combine uma janela curta de atualização: as RPCs antigas de registro foram desativadas para impedir o uso das regras antigas.
-7. Na Direção, confira os alunos antigos e use **Alunos → Gerenciar → Validar matrícula**. Os acessos e históricos anteriores são preservados; novos registros exigem validação institucional.
+## Estrutura do projeto
 
-Se o banco tiver outro esquema ou alterações fora dos scripts enviados, não tente recriá-lo. Compare o resultado do preflight e adapte a migração antes de aplicá-la. Nenhuma tabela escolar é removida por `03_v4.sql`.
-
-## Primeira instalação em banco vazio
-
-1. Execute `sql/01_portal.sql` uma vez.
-2. Execute `sql/03_v4.sql` uma vez.
-3. No SQL Editor, autorize o endereço real do primeiro responsável:
-
-```sql
-insert into public.staff_invites(email, role)
-values ('SUBSTITUA-PELO-EMAIL-REAL', 'admin');
+```text
+.
+├── index.html                    # Aplicação web
+├── termos.html                   # Termos de Uso e Responsabilidades
+├── privacidade.html              # Política de Privacidade
+├── LICENSE                       # Licença institucional restrita
+├── config.js                     # Configuração pública do Supabase
+├── assets/                       # CSS, JavaScript e identidade visual
+├── sql/                          # Esquema e migrações do banco
+├── supabase/functions/           # Provisionamento autorizado de alunos
+├── docs/                         # Validação e diretrizes de implantação
+└── tests/                        # Testes automatizados
 ```
 
-4. No portal, escolha **Acesso institucional → Criar conta**, use o endereço autorizado, crie sua senha e confirme o e-mail.
-5. Cadastre séries/turmas e autorize as matrículas. Funcionários adicionais são autorizados pela tela Equipe.
+## Instalação e publicação
 
-Não há senha administrativa padrão. Contas com e-mail `.invalid` não recebem confirmação ou recuperação; para o fluxo normal, use uma caixa de e-mail real. Não é preciso colocar chave administrativa no frontend.
+**Pré-requisito:** acesso institucional autorizado ao projeto Supabase e ao
+repositório do GitHub Pages. O projeto foi configurado para o endereço
+`https://doquinha771.github.io/presenca/`.
 
-## Configuração do Supabase
+1. Revise `docs/AVALIACAO_INSTITUCIONAL.md` e obtenha a autorização necessária
+   antes de importar informações de alunos ou da equipe.
+2. Configure `config.js` somente com URL e chave publicável do projeto
+   Supabase. Não publique `sb_secret_`, `service_role` nem senhas.
+3. Para banco novo, siga a ordem de instalação documentada em
+   `docs/ALTERACOES.md`. Para banco existente, **não execute novamente**
+   `sql/01_portal.sql` nem migrações já aplicadas. Confirme a versão em
+   `public.portal_migrations` e tenha um procedimento de backup/recuperação.
+4. Publique a Edge Function `supabase/functions/provision-student/index.ts`
+   sob o nome `provision-student`, com verificação JWT habilitada.
+5. Publique os arquivos estáticos na raiz do GitHub Pages. Em
+   **Settings → Pages**, selecione `Deploy from a branch`, `main`, `/ (root)`.
+   As páginas `termos.html` e `privacidade.html` precisam estar na mesma raiz
+   de `index.html`.
+6. Verifique as contas de teste, os perfis autorizados, os links jurídicos e os
+   fluxos de cadastro, sem usar registros escolares reais na homologação.
 
-O arquivo `config.js` preserva o projeto `svidahhpqozfaletpcbq` e a chave publicável enviada no arquivo original. A presença dessa configuração não comprova que o banco já recebeu a migração.
+> **Nota:** as migrações SQL não são executadas automaticamente pelo GitHub
+> Pages. `tests/bootstrap.sql` é exclusivo para um banco descartável de testes
+> e nunca deve ser aplicado no Supabase da escola.
 
-No painel do Supabase:
+## Perfis e acesso
 
-- Habilite confirmação de e-mail e mantenha autenticação anônima desabilitada.
-- Configure Site URL e Redirect URLs com o endereço exato do GitHub Pages, incluindo o repositório e a barra final. Exemplo: `https://doquinha771.github.io/presenca/` se esse for o repositório publicado.
-- Configure o envio de e-mails para usuários reais e os limites de requisições do Supabase Auth. O aplicativo não implementa um limitador fictício no navegador.
-- Mantenha somente o schema `public` exposto na Data API; **não exponha `private`**.
-- Para os encerramentos automáticos, execute `sql/02_agendamento_opcional.sql` após a migração 4.0. Sem o agendador, encerramentos imediatos funcionam e agendamentos aguardam execução.
-- Revise os avisos dos Security Advisors após a migração e teste as permissões em homologação.
+- **Aluno:** consulta exclusivamente os próprios registros após a autorização
+  de matrícula e as etapas de autenticação aplicáveis.
+- **Secretaria:** administra matrículas e operações permitidas ao cargo.
+- **Direção:** administra permissões, justificativas e configurações.
 
-Se mudar o projeto, atualize a URL e a chave publicável em `config.js` e o domínio permitido por `connect-src` no `index.html`. Nunca use chave secreta ou `service_role` nesses arquivos.
+O aluno matriculado pela secretaria pode receber uma conta provisionada pela
+função administrativa. O responsável institucional deve entregar a senha
+provisória por canal individual e orientar sua alteração. Solicitações
+espontâneas dependem de validação institucional. Nunca use o RA ou a data de
+nascimento como senha inicial.
 
-## Publicar no GitHub Pages
+## Proteção de dados e uso institucional
 
-Coloque `index.html`, `config.js`, `.nojekyll` e `assets/` na raiz do repositório. Não coloque uma pasta externa contendo esses arquivos sem ajustar a origem do Pages.
+O Presença+ poderá tratar nome, RA, e-mail escolar, turma, nascimento para
+conferência de matrícula, registros de atraso e histórico de alterações.
+A caixa de leitura no cadastro é uma etapa informativa da interface e **não**
+representa consentimento genérico, contrato com o poder público ou registro
+auditável de aceitação no banco.
+As políticas do site são **minutas para avaliação**, não prova de autorização
+oficial, certificação de conformidade ou substituto para o contrato de
+tratamento de dados eventualmente exigido pela autoridade educacional.
 
-Em **Settings → Pages**, escolha **Deploy from a branch → main → /(root)**. Alternativamente, publique apenas os arquivos estáticos pelo processo de Pages já adotado pelo repositório. O workflow incluído executa testes, não publica nem altera seu Supabase.
+**Antes do uso com dados reais:** identifique o controlador e os eventuais
+operadores; documente a base legal e a finalidade; confira a necessidade de
+cada campo; estabeleça retenção, canais de atendimento e resposta a incidentes;
+revise RLS, permissões e os contratos de nuvem; avalie a transferência
+internacional de dados. Consulte [Termos](./termos.html),
+[Privacidade](./privacidade.html) e o
+[checklist institucional](./docs/AVALIACAO_INSTITUCIONAL.md).
 
-As URLs de navegação usam `#/history`, `#/students` etc. Os arquivos usam caminhos relativos, funcionando em `/presenca/` e no domínio raiz. Atualizar a página mantém a rota. Não há servidor Python, Node, SQLite, LAN ou serviço local para operar a aplicação.
-
-O SDK Supabase está fixado em `2.57.0` via CDN. Falha da CDN ou da rede mostra uma mensagem de erro e opção de tentar novamente. O aplicativo é online: não registra nem armazena dados escolares offline.
-
-## Uso diário
-
-**Direção:** cadastrar turmas → autorizar matrículas → validar alunos anteriores → autorizar funcionários. O aluno cria a conta usando o e-mail, RA e nascimento que correspondem à matrícula autorizada. Nome e turma oficiais são copiados do cadastro da escola, não dos metadados enviados pelo aluno.
-
-**Secretaria:** digitar o início do nome ou RA → escolher o aluno → registrar. Setas e Enter também funcionam. Após sucesso, a pesquisa recebe foco. O botão Desfazer exige justificativa e só vale por dois minutos para o operador do registro. Depois disso, a Direção corrige pelo Histórico.
-
-**Direção, no Histórico:** Perdoar exclui a ocorrência da contagem atual quando ela pertence ao período conhecido; Corrigir/anular marca uma ocorrência incorreta; ambas mantêm o original e registram a justificativa. Nova chance fica no gerenciamento do aluno e aumenta o limite em exatamente uma unidade.
-
-**Aluno:** consulta identificação, contagem, limite, histórico, perdões e comunicados próprios. Não registra atrasos, altera turma ou concede permissões.
-
-## Contadores de versões anteriores
-
-O sistema anterior podia zerar contadores sem marcar o período das ocorrências. A migração preserva o contador existente como saldo consolidado (`baseline_count`) e registra o início da nova contagem (`count_from`). Não tenta deduzir quais ocorrências antigas haviam sido zeradas.
-
-Perdão ou anulação de uma ocorrência anterior ao início conhecido altera o histórico, mas não reduz esse saldo consolidado automaticamente. A operação informa essa situação. Após conferência institucional, a Direção pode iniciar um novo período individual ou coletivo; o histórico fica preservado. Não existe perda silenciosa de contadores na migração.
+Os registros escolares não devem ser armazenados no repositório do GitHub ou
+em arquivos públicos do site. A disponibilização do código-fonte **não** torna
+públicos nem licenciáveis os dados da instituição.
 
 ## Desenvolvimento e testes
 
-A aplicação não requer build. Node, PostgreSQL e navegador são ferramentas de desenvolvimento/testes, não serviços de produção.
-
-```sh
+```bash
 npm test
 npm run check
 ```
 
-Os sete testes unitários passaram nesta entrega. O workflow `.github/workflows/verify.yml` também prepara um PostgreSQL descartável, aplica os scripts, testa regras/permissões e concorrência e executa testes de navegador com respostas simuladas da API.
-
-Para testes de interface em máquina de desenvolvimento:
-
-```sh
-npm install --no-save --package-lock=false playwright@1.58.2
-npx playwright install chromium
-npm run test:browser
-```
-
-`tests/browser.mjs` inicia um servidor efêmero apenas durante a verificação, simula a API e encerra ao terminar. Isso não é backend do produto. Nunca publique `tests/browser-fixture.mjs` como SDK da aplicação.
-
-Para validar SQL, utilize um banco descartável PostgreSQL 16 chamado `presenca_test`, configure as variáveis `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` e `PGDATABASE` no ambiente do processo e execute:
-
-```sh
-psql -v ON_ERROR_STOP=1 -f tests/bootstrap.sql
-psql -v ON_ERROR_STOP=1 -f sql/01_portal.sql
-psql -v ON_ERROR_STOP=1 -f sql/03_v4.sql
-psql -v ON_ERROR_STOP=1 -f sql/04_v4_1.sql
-psql -v ON_ERROR_STOP=1 -f tests/database.sql
-node tests/concurrency.mjs
-```
-
-**Nunca execute `tests/bootstrap.sql` ou `tests/concurrency.mjs` no banco escolar.** O bootstrap substitui apenas as interfaces mínimas de Auth em um banco de teste vazio; não simula entrega de e-mail, tokens ou o serviço Supabase Auth completo. Concorrência cria dados fictícios persistentes somente no banco descartável.
-
-Consulte `docs/VALIDACAO.md`, `docs/PERMISSOES.md` e `docs/ALTERACOES.md` para resultados, cobertura e limitações.
+Consulte `package.json` e `docs/VALIDACAO.md` para outros testes. A suíte SQL
+utiliza banco PostgreSQL descartável. Testes locais não comprovam o
+funcionamento de autenticação real ou a adequação jurídica de uma implantação.
 
 ## Estado do projeto
 
-Versão 4.1.0, exclusivamente web, configurada para GitHub Pages e Supabase. Migração 4.1 aplicada ao banco do Presença+ em 20/09/2026. A implantação da Edge Function de provisionamento foi bloqueada pela integração e permanece PENDENTE. Os arquivos do GitHub Pages precisam ser publicados pelo responsável. Não utilizar a criação automática de contas antes de implantar a função e validar o fluxo com uma matrícula de teste.
+| Item | Situação |
+| --- | --- |
+| Versão do frontend | 4.1.0, com documentação jurídica 1.0 |
+| Plataforma | Web responsiva / GitHub Pages |
+| Banco e autenticação | Supabase (projeto institucional a ser validado) |
+| Implantação institucional | Depende de aprovação formal e validação jurídica e técnica |
+| Termos e política | Minutas integradas ao site, aguardando identificação dos responsáveis e canais oficiais |
 
-## Atualização 4.1: alunos e tamanho do banco
+## Licença
 
-1. Faça backup e confirme que o banco tem a versão `4.1.0` em `public.portal_migrations`. No banco Presença+ vinculado a este projeto, a migração já foi aplicada. `sql/04_v4_1.sql` serve para instalações que ainda não receberam a atualização; não o execute novamente no banco já migrado.
-2. **Pendente:** implante a função `supabase/functions/provision-student/index.ts` como `provision-student` com verificação de JWT habilitada. Ela deve receber os secrets padrão do Supabase; nunca coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend, no README ou no GitHub. Dashboard > Edge Functions > Deploy a new function > Via Editor; salve com o nome `provision-student`, copie `index.ts`, mantenha JWT habilitado e implante. Verifique a autorização de funcionários antes do uso.
-3. Publique os arquivos estáticos no GitHub Pages. O formulário de matrícula institucional cria a conta Auth com senha provisória aleatória, exibida uma única vez ao funcionário autenticado. A escola deve entregar a senha ao aluno por canal privado; o aluno deve alterá-la.
-4. Alunos que solicitam acesso por conta própria precisam confirmar o e-mail escolar E aguardar a matrícula ser aprovada pela instituição. O portal não utiliza RA, nome ou data de nascimento como prova de autorização.
-5. A mensagem genérica `Database error saving new user` pode representar falhas adicionais de Auth. Consulte os logs de autenticação e do Postgres se ela persistir.
-
-A migração 4.1 preserva os registros antigos, mantém RLS e não exclui informações escolares. Reduz apenas textos redundantes de auditoria **em eventos novos**, sem eliminar motivos de correções. Monitorar `pg_database_size(current_database())` periodicamente: o tamanho combinado de projetos da mesma organização também conta para a política de uso justo do Supabase.
+Distribuição conforme a **[Licença Institucional Restrita](./LICENSE)**.
+A existência de um repositório público não concede, por si só, licença de
+código aberto, permissão para tratamento de dados escolares nem endosso por
+instituições públicas. Direitos e licenças de componentes de terceiros
+permanecem aplicáveis.
