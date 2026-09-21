@@ -13,7 +13,7 @@
     padding:calc(15px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
   }
   body.portal-layout .page-header {
-    grid-template-columns:minmax(0,1fr) minmax(116px,auto);
+    grid-template-columns:minmax(0,1fr) minmax(142px,148px);
     grid-template-areas:"copy profile" "toolbar toolbar";
     gap:11px 7px;
     margin:0 0 11px;
@@ -36,10 +36,11 @@
   }
   body.portal-layout .page-header #pageProfile {
     grid-area:profile;display:grid;grid-template-columns:36px minmax(0,1fr);
-    grid-template-rows:auto auto;column-gap:8px;row-gap:6px;
-    align-items:center;justify-items:stretch;min-width:0;width:132px;max-width:132px;
+    grid-template-rows:auto auto auto;column-gap:8px;row-gap:3px;
+    align-items:start;justify-items:stretch;min-width:0;width:146px;max-width:146px;
     padding:0;margin:0;background:transparent;border:0;
   }
+  body.portal-layout .page-header #menu {display:none!important;}
   body.portal-layout .profile-glance .profile-avatar {
     grid-column:1;grid-row:1;margin:0;width:36px;height:36px;
     border-radius:50%;display:grid;place-items:center;
@@ -50,23 +51,23 @@
   }
   body.portal-layout .profile-glance .profile-meta>strong {
     grid-column:2;grid-row:1;align-self:start;justify-self:start;
-    margin-top:3px;color:#17373a;text-align:left;font-size:12px;
-    line-height:1.15;font-weight:800;max-height:28px;overflow:hidden;
-    overflow-wrap:normal;word-break:normal;
+    margin-top:0;color:#17373a;text-align:left;font-size:11.5px;
+    line-height:1.15;font-weight:800;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;overflow-wrap:normal;word-break:normal;
   }
   body.portal-layout .profile-glance .profile-subline {
-    grid-column:2;grid-row:1;align-self:end;display:flex;align-items:center;
-    justify-self:start;gap:5px;padding-bottom:1px;max-width:88px;
+    grid-column:2;grid-row:2;align-self:start;display:flex;align-items:center;
+    justify-self:start;gap:5px;padding:0;max-width:100%;
     font-size:10px;color:#586872;text-align:left;white-space:nowrap;
   }
   body.portal-layout .profile-glance .profile-subline>span:first-child {
-    min-width:0;max-width:74px;overflow:hidden;text-overflow:ellipsis;
+    min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;
   }
   body.portal-layout .profile-glance .status-dot {
     display:block;flex:none;width:8px;height:8px;background:#37af7d;border-radius:50%;
   }
   body.portal-layout .profile-glance .profile-chip {
-    grid-column:1/-1;grid-row:2;justify-self:stretch;width:100%;
+    grid-column:1/-1;grid-row:3;justify-self:stretch;width:100%;
     min-width:0;min-height:23px;margin:0;padding:3px 6px 3px 8px;
     border:0;border-radius:13px;display:flex;align-items:center;gap:5px;
     background:#e7f4ef;color:#4e6468;font-size:9px;font-weight:550;
@@ -78,7 +79,7 @@
   body.portal-layout .profile-glance .profile-chip-icon {display:inline-flex;flex:none;color:#213a42}
   body.portal-layout .profile-glance .profile-chip-icon svg {width:13px;height:13px}
   body.portal-layout .page-header>.toolbar {
-    grid-area:toolbar;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-area:toolbar;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
     width:100%;gap:8px;margin:1px 0 0;
   }
   body.portal-layout .page-header>.toolbar button {
@@ -125,18 +126,8 @@
   body.portal-layout .student-home .hero-progress span {
     height:100%;min-width:38px;border-radius:99px;background:#b2ecd8;
   }
-  body.portal-layout .student-home .hero-quote {
-    display:flex;align-items:center;gap:9px;max-width:178px;width:48%;min-height:36px;
-    margin:0;padding:6px 9px;border-radius:8px;
-    background:rgba(255,255,255,.105);color:#fff;font-size:10px;
-    line-height:1.33;font-weight:400;
-  }
-  body.portal-layout .student-home .hero-quote-icon {
-    display:grid;place-items:center;flex:none;width:16px;height:19px;
-    color:#c6f7e5;font:900 24px/1 Georgia,serif;
-  }
   body.portal-layout .student-home .hero-side {
-    position:absolute;right:13px;bottom:17px;z-index:1;display:block;
+    position:absolute;right:13px;bottom:15px;z-index:1;display:block;
     width:112px;margin:0;padding:0;color:#fff;
   }
   body.portal-layout .student-home .hero-side strong {
@@ -145,6 +136,9 @@
   }
   body.portal-layout .student-home .school-line {
     display:flex;align-items:center;gap:4px;white-space:nowrap;
+  }
+  body.portal-layout .student-home .school-line-secondary {
+    display:block;margin-left:15px;
   }
   body.portal-layout .student-home .school-line svg {
     flex:none;width:11px;height:11px;stroke:#c5f4e5;fill:none;
@@ -338,12 +332,11 @@
 }
 @media (max-width:359px) {
   body.portal-layout #content {padding-left:11px;padding-right:11px}
-  body.portal-layout .page-header #pageProfile {width:119px;max-width:119px;grid-template-columns:32px minmax(0,1fr);column-gap:6px}
+  body.portal-layout .page-header #pageProfile {width:132px;max-width:132px;grid-template-columns:32px minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:6px}
   body.portal-layout .profile-glance .profile-avatar {width:32px;height:32px}
   body.portal-layout .student-home .hero-copy p {font-size:10.5px}
   body.portal-layout .student-home .hero-side {right:9px;width:106px}
-  body.portal-layout .student-home .hero-quote {max-width:164px;font-size:9.4px}
-  body.portal-layout #view>.student-metrics .metric-card {grid-template-columns:32px minmax(0,1fr) 9px;column-gap:7px;padding-left:8px;padding-right:6px}
+    body.portal-layout #view>.student-metrics .metric-card {grid-template-columns:32px minmax(0,1fr) 9px;column-gap:7px;padding-left:8px;padding-right:6px}
   body.portal-layout .metric-card .metric-icon {width:32px;height:35px}
   body.portal-layout .metric-card .metric-copy span {font-size:9px}
   body.portal-layout .metric-card .metric-copy small {font-size:8px}
