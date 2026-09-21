@@ -535,7 +535,8 @@
   body.portal-layout.desktop-overview-mode .page-header .page-utility {display:none;}
   body.portal-layout.desktop-overview-mode .page-header .page-side {display:none;}
   body.portal-layout.desktop-overview-mode .page-header>.toolbar {position:absolute;left:0;bottom:0;}
-  body.portal-layout.desktop-overview-mode .dashboard-metrics {grid-template-columns:repeat(3,minmax(0,1fr));}
+  body.portal-layout.desktop-overview-mode .dashboard-metrics {grid-template-columns:repeat(2,minmax(0,1fr));}
+  body.portal-layout.desktop-overview-mode .dashboard-metrics .desktop-metric {min-width:0;}
   body.portal-layout.desktop-overview-mode .desktop-overview-grid,body.portal-layout.desktop-overview-mode .desktop-info-grid {grid-template-columns:minmax(0,1fr);}
 }
 @media (min-width: 1000px) {
@@ -548,4 +549,35 @@
    stroke-linejoin:round;
  }
  body.portal-layout.desktop-overview-mode .page-header .profile-glance .status-dot {display:none;}
+}
+
+/* Mobile: a largura do nome jamais pode aumentar o cabeçalho além da viewport.
+   A área de perfil usa display:contents na folha mobile; sem limitar o item
+   de grid, nomes compridos estouram o segundo trilho e o documento inteiro. */
+@media (max-width: 779px) {
+  body.portal-layout .page-header .page-side,
+  body.portal-layout .page-header #pageProfile,
+  body.portal-layout .page-header #pageProfile .profile-meta {
+    min-width: 0;
+    max-width: 100%;
+  }
+  body.portal-layout .page-header #pageProfile .profile-meta > strong {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    justify-self: stretch;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  body.portal-layout .page-header #pageProfile .profile-subline,
+  body.portal-layout .page-header #pageProfile .profile-subline > span:first-child {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }

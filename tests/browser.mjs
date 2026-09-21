@@ -31,6 +31,17 @@ try{
  await page.evaluate(()=>window.__fail=true);await page.locator('#refresh').click();await page.getByText(/Falha de conexão/).waitFor();checks++;
  await context.close();
  for(const role of ['aluno','secretaria','admin']){const {context,page}=await setup(role,390);for(const route of role==='admin'?['overview','students','history','period','reports']:role==='secretaria'?['entry','history','reports']:['overview','history','announcements']){await page.goto(base+'#/'+route);await page.locator('#dashboard').waitFor({state:'visible'});await page.waitForFunction(n=>document.querySelector('#nav a.active')?.dataset.page===n,route);await page.waitForFunction(()=>!document.querySelector('#view').hasAttribute('aria-busy'));assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),role+'/'+route+' overflow');checks++;}if(role==='aluno'){await page.goto(base+'#/reports');await page.waitForFunction(()=>document.querySelector('#nav a.active')?.dataset.page==='overview');assert.equal(await page.locator('#nav [data-page=reports]').count(),0);checks++;await page.goto(base+'#/team');await page.waitForFunction(()=>document.querySelector('#nav a.active')?.dataset.page==='overview');assert.equal(await page.locator('#nav [data-page="team"]').count(),0);checks++;}if(role==='admin'){await page.goto(base+'#/overview');await page.waitForFunction(()=>document.querySelector('.metrics'));await page.screenshot({path:path.join(root,'tests/mobile.png'),fullPage:true});}await page.reload();await page.locator('#dashboard').waitFor();checks++;await context.setOffline(true);await page.locator('#connection').waitFor({state:'visible'});checks++;await context.close();}
+ // Regressão: nomes longos no perfil não podem criar rolagem lateral no painel da Direção.
+ for(const width of [320,390,430,780,900]){
+  const {context,page}=await setup('admin',width);
+  await page.goto(base+'#/overview');
+  await page.waitForFunction(()=>!document.getElementById('view').hasAttribute('aria-busy'));
+  const dimensions=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,profileRight:document.querySelector('#pageProfile').getBoundingClientRect().right}));
+  assert.ok(dimensions.document<=dimensions.viewport+1,`admin/overview ${width}px overflow: ${dimensions.document}px`);
+  if(width<780)assert.ok(dimensions.profileRight<=dimensions.viewport+1,`admin/overview ${width}px perfil fora da tela`);
+  checks++;
+  await context.close();
+ }
  {const {context,page}=await setup('aluno',390,true);await page.locator('[data-auth="signup"]').click();await page.locator('[name="name"]').fill('João Pedro');await page.locator('[name="ra"]').fill('0000111');await page.locator('[name="grade"]').fill('3º A');await page.locator('[name="birth"]').fill('2007-12-27');await page.locator('[name="email"]').fill('0000111@al.educacao.sp.gov.br');await page.locator('[name="password"]').fill('Teste-123456');await page.locator('[name="consent"]').check();await page.locator('#authSubmit').click();await page.waitForFunction(()=>window.__signup);assert.equal(await page.evaluate(()=>window.__signup.options.data.ra),'0000111');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:path.join(root,'tests/login.png'),fullPage:true});checks++;await context.close();}
  assert.deepEqual(errors,[]);console.log(`${checks} verificações de navegador passaram (rede Supabase simulada).`);
 }finally{await browser.close();server.close();}
