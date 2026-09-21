@@ -131,3 +131,72 @@ button:active:not(:disabled){transform:scale(.985)}
 .student-section .section-head h3{display:flex;align-items:center;gap:10px;font-size:1.15rem}.section-icon{width:30px;height:30px;color:#173e39}.empty-overview{background:linear-gradient(180deg,#f8fbfa,#f5f8f6);border:1px solid var(--line);border-radius:16px;padding:26px 18px;text-align:left;color:var(--muted)}.empty-overview strong{display:block;color:var(--ink);margin:10px 0 6px;font-size:1rem}.empty-overview p{margin:0;font-size:.92rem;line-height:1.5}.empty-overview-icon{width:52px;height:52px;border-radius:14px;background:var(--surface);border:1px solid var(--line);color:#677975}
 @media(max-width:779px){.page-header{margin-bottom:18px}.page-header h1{font-size:3rem;line-height:1.02;margin:10px 0 6px}.page-header p{font-size:1rem;margin-top:0}.page-header .eyebrow{font-size:1rem;letter-spacing:.12em}.profile-glance{padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}.profile-avatar{width:58px;height:58px;font-size:1.35rem}.profile-meta strong{font-size:1.1rem}.profile-meta span{font-size:.95rem}.profile-chip{font-size:.9rem;padding:7px 12px}.page-header>.toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.page-header>.toolbar button{min-height:74px;border-radius:22px;font-size:.96rem;font-weight:800;display:grid;place-items:center;text-align:center}.student-home{padding:28px 22px;border-radius:24px}.student-home .hero-copy p{max-width:none}.student-home .hero-side strong,.student-home .hero-side small{text-align:left}.student-home .hero-progress{max-width:170px;height:8px}.student-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.metric-card{padding:18px 14px;min-height:164px;border-radius:22px}.metric-card .metric-icon{width:54px;height:54px;border-radius:16px}.metric-card .metric-copy strong{font-size:2.1rem}.metric-card .metric-copy span{font-size:.95rem}.metric-arrow svg{width:22px;height:22px}.student-section{border-radius:24px;padding:22px 18px}.empty-overview{border-radius:18px;padding:22px 18px}.quote-strip{border-radius:18px;font-size:1.03rem;padding:22px 18px}}
 @media(max-width:520px){.page-header h1{font-size:2.45rem}.page-header>.toolbar button{min-height:66px;font-size:.9rem}.profile-glance{border-radius:20px}.student-home .hero-copy h2{font-size:2.1rem}.metric-card{grid-template-columns:1fr auto;grid-template-areas:'icon arrow' 'copy copy';align-items:start}.metric-card .metric-icon{grid-area:icon}.metric-card .metric-copy{grid-area:copy}.metric-card .metric-arrow{grid-area:arrow;justify-self:end;margin-top:8px}.metric-card .metric-copy strong{font-size:2rem}.student-metrics{gap:14px}.student-section .section-head{align-items:flex-start}.student-section .section-head h3{font-size:1.08rem;line-height:1.3}.student-section .link-lite{font-size:.88rem}}
+
+/* Mobile home tuned to match the reference more closely */
+@media(max-width:779px){
+  body{background:#f4f7f4}
+  #content{padding:20px 14px 12px}
+  .page-header{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'copy profile' 'toolbar toolbar';gap:14px;align-items:start;margin-bottom:16px}
+  .page-header .page-copy{grid-area:copy;padding-top:2px}
+  .page-header .page-copy .eyebrow{display:block;font-size:1rem;letter-spacing:.12em;font-weight:800;margin-bottom:6px}
+  .page-header .page-copy h1{font-size:4rem;line-height:.94;letter-spacing:-.065em;margin:0 0 12px;color:#0c3932}
+  .page-header .page-copy p{font-size:1rem;line-height:1.45;margin:0;color:#5d746d;max-width:260px}
+  .page-header #pageProfile{grid-area:profile;justify-self:end;align-self:start;background:transparent;border:0;box-shadow:none;padding:0;display:grid;gap:10px;justify-items:end;max-width:220px}
+  .profile-glance .profile-avatar{width:64px;height:64px;border-radius:50%;background:#e8f2ed;color:#174f46;font-size:1.65rem;margin-left:auto}
+  .profile-glance .profile-meta{justify-items:end;text-align:right;gap:6px}
+  .profile-glance .profile-meta strong{font-size:1.12rem;line-height:1.05;color:#0d3932}
+  .profile-glance .profile-subline{display:flex;align-items:center;gap:10px;font-size:.95rem;color:#60736c}
+  .profile-chip{border:0;background:#eaf2ee;color:#526861;padding:8px 12px;border-radius:999px;font-size:.95rem;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+  .profile-chip-copy{box-shadow:none}
+  .profile-chip-icon{display:inline-flex;color:#35544d}.profile-chip-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .page-header>.toolbar{grid-area:toolbar;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;width:100%}
+  .page-header>.toolbar button{position:relative;min-height:82px;border-radius:24px;padding:14px 10px 14px 10px;background:#fff;border:1px solid #dbe4df;box-shadow:0 4px 18px rgba(18,47,38,.04);font-size:1.06rem;font-weight:800;color:#183f38;display:flex;align-items:center;justify-content:center;gap:10px}
+  #menu::before{content:'☰';font-size:1.45rem;line-height:1}
+  #theme::before{content:'☼';font-size:1.35rem;line-height:1}
+  #refresh::before{content:'↻';font-size:1.45rem;line-height:1}
+  .student-home{min-height:290px;border-radius:28px;padding:28px 22px;background:linear-gradient(135deg,rgba(10,102,79,.95),rgba(10,95,79,.92)),url('./school-hero.svg') center/cover no-repeat;box-shadow:0 12px 40px rgba(17,63,50,.10)}
+  .student-home .hero-copy h2{font-size:3.2rem;line-height:.96;letter-spacing:-.06em;margin:0 0 14px;color:#fff}
+  .student-home .hero-copy p{font-size:1rem;line-height:1.5;color:#eef8f3;max-width:280px;margin-bottom:16px}
+  .student-home .hero-progress{height:8px;width:155px;max-width:155px;margin-bottom:16px;background:rgba(225,245,236,.18)}
+  .student-home .hero-progress span{background:#d7f2e6}
+  .student-home .hero-quote{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:10px;max-width:285px;padding:16px 16px;border-radius:16px;background:rgba(255,255,255,.10);font-size:.96rem;line-height:1.45;color:#eff9f4}
+  .student-home .hero-side{margin-top:auto;justify-items:end;align-self:end}
+  .student-home .hero-side strong{font-size:1.08rem;line-height:1.35;max-width:230px;color:#fff;text-align:right}
+  .student-home .hero-side small{display:block;font-size:.85rem;line-height:1.45;color:#dcebe4;max-width:230px;text-align:right}
+  .student-home .hero-quote-icon{width:30px;height:30px}
+  .student-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}
+  .metric-card{background:#fff;border:1px solid #dbe4df;border-radius:24px;padding:16px 16px 14px;min-height:160px;box-shadow:0 6px 20px rgba(17,63,50,.03)}
+  .metric-card .metric-icon{width:52px;height:52px;border-radius:16px}
+  .metric-card .metric-copy span{font-size:.95rem;font-weight:700;color:#183f38}
+  .metric-card .metric-copy strong{font-size:2.3rem;letter-spacing:-.05em;color:#12322e}
+  .metric-card .metric-copy small{font-size:.83rem;line-height:1.35;color:#677c76}
+  .metric-card .metric-arrow{align-self:center;color:#1d4139;opacity:1}
+  .metric-arrow svg{width:22px;height:22px;stroke-width:2}
+  .student-section{background:#fff;border:1px solid #dbe4df;border-radius:24px;padding:20px 18px;box-shadow:0 6px 20px rgba(17,63,50,.03);margin-bottom:16px}
+  .student-section .section-head{margin-bottom:14px}
+  .student-section .section-head h3{font-size:1.22rem;line-height:1.2;color:#12342f;display:flex;align-items:center;gap:12px}
+  .student-section .link-lite{font-size:.96rem;font-weight:800;text-decoration:none;color:#175b4b}
+  .section-icon{width:34px;height:34px}
+  .section-icon svg{width:28px;height:28px;stroke:#173e39;stroke-width:1.9}
+  .empty-overview{background:#f8fbfa;border:0;border-radius:18px;padding:24px 18px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+  .empty-overview-icon{width:54px;height:54px;border-radius:16px;background:#fff;border:1px solid #dbe4df}
+  .empty-overview strong{font-size:1.02rem;margin:0 0 6px}
+  .empty-overview p{font-size:.92rem;line-height:1.5}
+  .quote-strip{background:#eaf5f0;border:0;border-radius:18px;padding:22px 18px;color:#175b4b;box-shadow:none}
+  .quote-strip strong{font-size:1.06rem;font-weight:800}
+  #mobileNav{padding:14px 10px 20px;gap:8px}
+  #mobileNav a{min-height:104px;border-radius:26px;font-size:.98rem;font-weight:800;color:#5f746d}
+  #mobileNav a.active{background:#eaf5f0;color:#175b4b}
+  #mobileNav a .nav-icon{width:28px}.app-footer{padding:18px 16px 28px;font-size:.92rem}
+  .app-footer nav{font-size:1.02rem;margin-top:10px}
+}
+@media(max-width:520px){
+  .page-header .page-copy h1{font-size:3.35rem}
+  .profile-glance .profile-avatar{width:58px;height:58px;font-size:1.45rem}
+  .page-header>.toolbar button{min-height:76px;font-size:.98rem}
+  .student-home{min-height:280px;padding:24px 18px}
+  .student-home .hero-copy h2{font-size:2.85rem}
+  .student-home .hero-copy p{font-size:.98rem}
+  .student-metrics{gap:14px}
+  .metric-card{min-height:154px;padding:15px 14px}
+}

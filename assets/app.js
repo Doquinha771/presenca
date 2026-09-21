@@ -15,13 +15,15 @@ const allowed=()=>state.me?.role==='aluno'?['overview','history','announcements'
 let announcementFilter={query:'',type:'todos'};
 
 
-function uiIcon(name){const map={clock:'M12 7v5l3 3M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18Z',limit:'M8 16V9m4 7V5m4 11v-8',history:'M8 7h8M8 12h8M8 17h6M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z',forgiven:'m9 12 2 2 4-5M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18Z',announcement:'M5 8h14v8H9l-4 3V8Z',calendar:'M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1Z',chevron:'M9 6l6 6-6 6',quote:'M8.5 13H6.75A2.75 2.75 0 0 1 4 10.25V10a4 4 0 0 1 4-4m7.5 7h-1.75A2.75 2.75 0 0 1 11 10.25V10a4 4 0 0 1 4-4'};return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${map[name]||map.history}"/></svg>`;}
+function uiIcon(name){const map={clock:'M12 7v5l3 3M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18Z',limit:'M8 16V9m4 7V5m4 11v-8',history:'M8 7h8M8 12h8M8 17h6M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z',forgiven:'m9 12 2 2 4-5M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18Z',announcement:'M5 8h14v8H9l-4 3V8Z',calendar:'M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1Z',copy:'M9 9h10v10H9zM5 5h10v2H7v8H5z',chevron:'M9 6l6 6-6 6',quote:'M8.5 13H6.75A2.75 2.75 0 0 1 4 10.25V10a4 4 0 0 1 4-4m7.5 7h-1.75A2.75 2.75 0 0 1 11 10.25V10a4 4 0 0 1 4-4'};return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${map[name]||map.history}"/></svg>`;}
 function renderPageProfile(){
  const el=$("pageProfile");
  if(!el||!state.me)return;
  const subtitle=studentView()?esc(state.me.grade||"Turma não informada"):esc(roleName(state.me.role));
- const chip=studentView()&&state.me.ra?`<span class="profile-chip">RA ${esc(state.me.ra)}</span>`:`<span class="profile-chip">Acesso ativo</span>`;
- el.innerHTML=`<div class="profile-avatar">${esc(initials(state.me.full_name))}</div><div class="profile-meta"><strong>${esc(state.me.full_name)}</strong><span>${subtitle} <span class="status-dot" aria-hidden="true"></span></span>${chip}</div>`;
+ const chip=studentView()&&state.me.ra?`<button type="button" class="profile-chip profile-chip-copy" data-copy-ra="${esc(state.me.ra)}" aria-label="Copiar RA">RA ${esc(state.me.ra)} <span class="profile-chip-icon">${uiIcon('copy')}</span></button>`:`<span class="profile-chip">Acesso ativo</span>`;
+ el.innerHTML=`<div class="profile-avatar">${esc(initials(state.me.full_name))}</div><div class="profile-meta"><strong>${esc(state.me.full_name)}</strong><span class="profile-subline"><span>${subtitle}</span><span class="status-dot" aria-hidden="true"></span></span>${chip}</div>`;
+ const copyBtn=el.querySelector('[data-copy-ra]');
+ if(copyBtn)copyBtn.onclick=async()=>{try{await navigator.clipboard.writeText(copyBtn.dataset.copyRa||'');msg('RA copiado.','success');}catch{msg('Não foi possível copiar o RA neste dispositivo.','error');}};
 }
 function historyBadge(r){return `<span class="pill ${r.status==='void'?'ghost':r.status==='forgiven'?'ok':r.status==='active'?'warn':''}">${r.status==='forgiven'?'Perdoado':r.status==='void'?'Anulado':r.justified?'Justificado':'Válido'}</span>`;}
 function renderStudentHistory(rows){
