@@ -48,10 +48,15 @@ select pg_temp.check_true(public.portal_read('me')->>'role'='aluno','perfil alun
 select pg_temp.check_true(not(public.portal_read('me')?'birth_date'),'nascimento não exposto');
 select pg_temp.denied($q$select public.portal_read('history','{"student":"a4000000-0000-4000-8000-000000000004"}')$q$,'Acesso negado');
 select pg_temp.denied($q$select public.portal_read('team')$q$,'Somente a Direção');
+select pg_temp.denied($q$select public.portal_export('students')$q$,'Exportação restrita à equipe institucional');
 select pg_temp.denied($q$select public.portal_write('chance','{"student":"a4000000-0000-4000-8000-000000000003","reason":"invasao"}')$q$,'Operação institucional');
 select pg_temp.denied($q$update public.profiles set role='admin' where id=auth.uid()$q$,'permission denied');
 select pg_temp.denied($q$select birth_date from public.profiles$q$,'permission denied');
 set local request.jwt.claim.sub='a4000000-0000-4000-8000-000000000002';
+select pg_temp.check_true(jsonb_array_length(public.portal_export('students','{"grade":"3º ano teste","class":"a4000000-0000-4000-8000-000000000010"}')) >= 1,'Secretaria exporta lista filtrada por série e turma');
+select pg_temp.check_true(jsonb_array_length(public.portal_export('enrollments','{"grade":"3º ano teste"}')) >= 2,'Secretaria exporta matrículas por série');
+select pg_temp.denied($q$select public.portal_export('invalido')$q$,'Tipo de relatório inválido');
+select pg_temp.denied($q$select public.portal_export('students','{"offset":200000}')$q$,'Limite de exportação atingido');
 select pg_temp.denied($q$select public.portal_write('chance','{"student":"a4000000-0000-4000-8000-000000000003","reason":"nao pode"}')$q$,'Operação reservada');
 select pg_temp.denied($q$select public.record_lateness('a4000000-0000-4000-8000-000000000003',false,'')$q$,'permission denied');
 reset role;
@@ -98,6 +103,7 @@ select pg_temp.denied($q$select public.portal_read('students')$q$,'Sessão sem a
 reset role;
 set local role anon;
 select pg_temp.denied($q$select public.portal_read('dashboard')$q$,'permission denied');
+select pg_temp.denied($q$select public.portal_export('students')$q$,'permission denied');
 reset role;
 select pg_temp.check_true(not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and not c.relrowsecurity),'RLS habilitado em todas as tabelas do projeto');
 rollback;

@@ -41,6 +41,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -f sql/04_v4_1.sql
           psql -v ON_ERROR_STOP=1 -f sql/05_v4_1_2.sql
           psql -v ON_ERROR_STOP=1 -f sql/06_desativar_importacao.sql
+          psql -v ON_ERROR_STOP=1 -f sql/07_exportacoes_institucionais.sql
           psql -v ON_ERROR_STOP=1 -f tests/database.sql
           node tests/concurrency.mjs
       - name: Instalar navegador para testes

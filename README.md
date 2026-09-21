@@ -36,7 +36,7 @@ O **Presença+** foi desenvolvido por um **grupo de estudantes do 3º ano A da E
 | Identidade | Solicitações pendentes de alunos, convites institucionais, confirmação de e-mail e provisionamento de contas pela secretaria. |
 | Privacidade | Documentos públicos, controles de acesso no banco e solicitação de revisão de registros. |
 | Mobile | Navegação inferior dedicada, menu de funções, cartões de histórico e formulários responsivos. |
-| Relatórios | Exportação Excel (.xlsx) com indicadores e atrasos consolidados por turma e por dia, sem identificadores individuais. |
+| Relatórios | Resumo agregado e exportações Excel (.xlsx) de alunos, histórico e matrículas com filtros de turma, série e período, mediante autorização institucional. |
 
 ## Arquitetura
 
@@ -53,7 +53,7 @@ Supabase Auth + Edge Functions + PostgreSQL
 Políticas RLS / funções com validação de autorização
 ```
 
-A exportação Excel é gerada apenas no dispositivo do profissional autenticado, a partir de totais agregados disponibilizados pelo painel institucional. O arquivo não contém nomes, RA, e-mail, data de nascimento ou justificativas individuais. Não há importador de planilhas.
+O resumo agregado é gerado a partir do painel. Listas e históricos identificáveis usam exclusivamente `portal_export`, função do Supabase com verificação de perfil institucional, paginação e registro de solicitação em auditoria. As planilhas são montadas no navegador autorizado; não há importador de planilhas. Confira `docs/EXPORTACOES.md` para a migração necessária.
 
 A interface estática não contém senhas administrativas ou chaves de serviço.
 `config.js` armazena somente a URL e a chave **publicável** do projeto Supabase.
@@ -120,7 +120,7 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do projeto | 5.1.0 (interface e relatórios), banco compatível com 4.1.2 |
+| Versão do projeto | 5.2 (interface unificada e relatórios institucionais), banco exige migração 07 para exportações identificáveis |
 | Plataforma | Web responsiva / GitHub Pages |
 | Banco e autenticação | Supabase |
 | Natureza do serviço | Projeto estudantil coletivo de TCC, com apoio da secretaria escolar, sem condição de sistema oficial da rede estadual |
@@ -137,10 +137,10 @@ permanecem aplicáveis.
 
 ## Relatórios escolares e impressão
 
-A equipe institucional pode gerar um arquivo Excel (`.xlsx`) de uso interno com totais de atrasos de hoje, da semana e do mês, quantidades consolidadas por turma no mês corrente e tendência dos últimos 14 dias. A exportação não inclui informações de alunos individualmente identificáveis nem contém senhas, RA, e-mails, datas de nascimento ou observações. O arquivo é gerado no navegador e não é armazenado no Supabase.
+A equipe institucional pode gerar o **resumo agregado** ou uma **lista de alunos**, **histórico por turma ou série** e **relação de matrículas** em Excel. Listas individuais podem conter nome e RA; matrículas também incluem e-mail institucional. Senhas, datas de nascimento e justificativas individuais não são exportadas. Filtros são executados pelo Supabase; o arquivo é montado no navegador e não é salvo no Storage. É necessário o RPC da migração `sql/07_exportacoes_institucionais.sql`.
 
 Contagens por turma são dados agregados, mas podem permitir inferências em grupos muito pequenos. Os relatórios destinam-se apenas ao uso interno e não devem ser publicados sem avaliação de privacidade.
 
 ## Desempenho e acessibilidade
 
-A navegação móvel tem apresentação independente da interface de desktop. O gerador XLSX é carregado somente quando o usuário institucional exporta um relatório. A interface oferece alvos de toque ampliados, foco visível, estados de carregamento e suporte à preferência por movimento reduzido. As pontuações Lighthouse variam conforme dispositivo, conexão, autenticação e conteúdo; não há garantia de pontuação fixa.
+A navegação móvel e o desktop compartilham a linguagem visual da página Visão geral, com dimensionamento específico para cada dispositivo. O gerador XLSX é carregado somente quando o usuário institucional exporta um relatório. A interface oferece alvos de toque ampliados, foco visível, estados de carregamento e suporte à preferência por movimento reduzido. As pontuações Lighthouse variam conforme dispositivo, conexão, autenticação e conteúdo; não há garantia de pontuação fixa.

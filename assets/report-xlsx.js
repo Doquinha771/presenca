@@ -48,3 +48,33 @@ export function createReportWorkbook(d,now=new Date()){
  return zip(files);
 }
 export function saveReportWorkbook(data){const blob=createReportWorkbook(data),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='presenca-relatorio-escolar.xlsx';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);}
+
+// Documentos detalhados restritos: somente linhas entregues pelo RPC portal_export
+// com autorização verificada no PostgreSQL; nenhum dado vem de formulários/DOM.
+const institutionalColumns={
+ students:[['name','Nome completo'],['ra','RA'],['grade','Série / ano'],['class_name','Turma / sala'],['active_count','Atrasos válidos'],['late_limit','Limite atual'],['situation','Situação']],
+ history:[['occurred_on','Data / hora'],['name','Nome completo'],['ra','RA'],['grade','Série / ano'],['class_name','Turma / sala'],['situation','Situação'],['justified','Justificado']],
+ enrollments:[['name','Nome completo'],['ra','RA'],['email','E-mail institucional'],['grade','Série / ano'],['class_name','Turma / sala'],['situation','Situação'],['created_on','Matrícula cadastrada em']]
+};
+export function createInstitutionalWorkbook(kind,records,filters={},now=new Date()){
+ const columns=institutionalColumns[kind];
+ if(!columns||!Array.isArray(records)||records.length>10200)throw Error('Dados de exportação inválidos ou extensos demais.');
+ const names=['Identificação','Registros'];
+ const heading={students:'LISTA DE ALUNOS',history:'HISTÓRICO DE ATRASOS',enrollments:'MATRÍCULAS'}[kind];
+ const info=[['PRESENÇA+ · '+heading],['Documento de uso interno · Contém dados escolares identificáveis.'],['Gerado em',now.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})],['Série',filters.grade||'Todas'],['Turma',filters.className||'Todas'],['Período inicial',filters.from||'Não definido'],['Período final',filters.to||'Não definido'],['Situação',filters.status||filters.scope||'Todas'],['Quantidade de registros',records.length],['Segurança','Não publicar nem compartilhar fora dos canais autorizados da escola.']];
+ const values=[columns.map(([,label])=>label),...records.map(r=>columns.map(([key])=>{
+   const value=r?.[key];return key==='active_count'||key==='late_limit'?Math.max(0,Number(value)||0):String(value??'').slice(0,500);
+ }))];
+ const tabs=[info,values],files=[];
+ files.push(['[Content_Types].xml',XML+`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${names.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`]);
+ files.push(['_rels/.rels',XML+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>']);
+ files.push(['xl/workbook.xml',XML+`<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><bookViews><workbookView/></bookViews><sheets>${names.map((name,i)=>`<sheet name="${xml(name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`]);
+ files.push(['xl/_rels/workbook.xml.rels',XML+`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${names.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`]);
+ files.push(['xl/styles.xml',XML+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0"/><xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>']);
+ tabs.forEach((rows,i)=>files.push([`xl/worksheets/sheet${i+1}.xml`,sheet(rows,i===0?[63,60]:columns.map(([,label])=>label==='Nome completo'?37:label==='E-mail institucional'?49:label==='Data / hora'?24:21))]));
+ return zip(files);
+}
+export function saveInstitutionalWorkbook(kind,records,filters={}){
+ const blob=createInstitutionalWorkbook(kind,records,filters),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=`presenca-${kind}-${new Date().toISOString().slice(0,10)}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+}

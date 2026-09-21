@@ -84,3 +84,12 @@ Não há exclusão automática de dados, credenciais administrativas embutidas, 
 - Exportação baseada no resumo mensal já disponibilizado pela RPC `dashboard`, sem varrer histórico individual.
 - Módulo XLSX pequeno, sem dependência externa e carregado sob demanda.
 - Script SQL preventivo desativa a função de importação antiga caso tenha sido instalada, sem afetar registros escolares.
+
+
+## 5.2 — Interface compartilhada e Excel institucional
+
+- Cabeçalho, perfil, botões, navegação móvel e visual dos cartões da Visão geral aplicados às demais telas e adaptados ao desktop; login preservado.
+- Filtros de série, turma, situação, datas e categoria de exportação. Listas de alunos, histórico e matrículas em XLSX, além do resumo agregado.
+- Novo RPC institucional com autorização no PostgreSQL, auditoria de solicitação, paginação de 200 registros, limites e índices para as pesquisas.
+- A migração `sql/07_exportacoes_institucionais.sql` deve estar no Supabase para ativar as três novas exportações.
+- Exportação não inclui senha, data de nascimento nem texto das observações individuais. Histórico por turma utiliza matrícula atual.

@@ -1,0 +1,60 @@
+/* Estrutura consistente para aluno, secretaria e direção, sem afetar o login. */
+body.portal-layout{--portal-radius:19px;background:var(--bg);color:var(--ink)}
+body.portal-layout #content{width:100%;max-width:1440px;margin:0 auto;min-width:0}
+body.portal-layout #view{min-width:0}
+body.portal-layout #view>.panel,body.portal-layout #view>.grid-two>.panel{border-radius:var(--portal-radius);border:1px solid var(--line);box-shadow:0 5px 22px rgba(13,55,44,.035);padding:clamp(17px,2.2vw,27px)}
+body.portal-layout .filters-card,body.portal-layout .announcement-shell,body.portal-layout .report-hero{background:var(--surface)}
+body.portal-layout #view>.panel+.panel{margin-top:14px}
+body.portal-layout #view h3{letter-spacing:-.025em}
+body.portal-layout .filters,body.portal-layout .report-filter-grid{gap:12px}
+body.portal-layout .report-form{display:grid;gap:15px;margin:20px 0 10px}
+body.portal-layout .report-filter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+body.portal-layout .report-filter-grid>[hidden]{display:none!important}
+body.portal-layout .report-download{justify-self:start;min-width:230px}
+body.portal-layout .report-shortcut{margin:4px 0 16px}
+body.portal-layout .page-header>.toolbar svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+body.portal-layout .page-header>.toolbar button{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+body.portal-layout.dark .page-header .page-copy h1,body.portal-layout.dark .page-header .page-copy .eyebrow{color:var(--ink)}
+body.portal-layout.dark .page-header .page-copy p,body.portal-layout.dark .report-note{color:var(--muted)}
+body.portal-layout.dark .report-form label{color:var(--ink)}
+body.portal-layout.dark .report-counters>div{background:var(--soft)}
+@media(min-width:780px){
+ body.portal-layout .page-header{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'copy profile' 'toolbar toolbar';gap:14px 22px;align-items:start;padding:10px 0 20px;margin-bottom:22px}
+ body.portal-layout .page-header .page-copy{grid-area:copy}
+ body.portal-layout .page-header #pageProfile{grid-area:profile;max-width:min(320px,40vw);min-width:0}
+ body.portal-layout .page-header>.toolbar{grid-area:toolbar;display:flex;flex-wrap:wrap;justify-content:flex-start;gap:10px}
+ body.portal-layout .page-header>.toolbar button{min-height:44px;padding:8px 20px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 12px rgba(17,60,48,.04)}
+ body.portal-layout .page-header h1{font-size:clamp(2rem,3.2vw,2.8rem);letter-spacing:-.045em}
+ body.portal-layout .page-header .eyebrow{font-size:.78rem;letter-spacing:.14em}
+ body.portal-layout .page-header .page-copy p{max-width:650px}
+ body.portal-layout .profile-glance{box-shadow:none}
+ body.portal-layout .student-home{min-height:280px;border-radius:var(--portal-radius)}
+ body.portal-layout .student-metrics{gap:14px}
+ body.portal-layout .metric-card{border-radius:var(--portal-radius)}
+ body.portal-layout .student-section{border-radius:var(--portal-radius)}
+}
+@media(max-width:779px){
+ body.portal-layout #content{width:100%;max-width:620px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+ body.portal-layout #view>.panel,body.portal-layout #view>.grid-two>.panel{border-radius:15px;padding:15px 13px;margin-bottom:11px}
+ body.portal-layout .report-form .report-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ body.portal-layout .report-form .report-filter-grid label{font-size:11px}
+ body.portal-layout .report-form .report-filter-grid input,body.portal-layout .report-form .report-filter-grid select{font-size:13px;min-height:42px;padding:9px}
+ body.portal-layout .report-download{width:100%;justify-self:stretch;min-width:0}
+ body.portal-layout .report-counters{margin:10px 0}
+ body.portal-layout .report-shortcut button{width:100%}
+ body.portal-layout .report-hero .section-head{align-items:flex-start;flex-wrap:wrap}
+ body.portal-layout .report-note{font-size:12px;line-height:1.5}
+ body.portal-layout .panel .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+ body.portal-layout .panel .toolbar button{flex:1 1 auto;min-width:0}
+ body.portal-layout .history-card,body.portal-layout .announcement-card{border-radius:15px;padding:14px}
+ body.portal-layout .announcement-shell{gap:10px}
+ body.portal-layout .filters{align-items:end}
+ body.portal-layout .page-header .page-copy h1{overflow-wrap:break-word}
+ body.portal-layout .app-footer{line-height:1.5}
+ body.portal-layout.dark #content>#mobileNav:not([hidden]){background:var(--surface);border-color:var(--line)}
+ body.portal-layout.dark #content>#mobileNav a,body.portal-layout.dark #content>#mobileNav button{color:var(--muted)}
+ body.portal-layout.dark #content>#mobileNav a.active{background:var(--soft);color:var(--accent)}
+ body.portal-layout.dark .page-header>.toolbar button{background:var(--surface);border-color:var(--line);color:var(--ink)}
+ body.portal-layout.dark #view>.panel{background:var(--surface);border-color:var(--line)}
+}
+@media(max-width:380px){body.portal-layout .report-form .report-filter-grid{grid-template-columns:minmax(0,1fr)}body.portal-layout .page-header .page-copy h1{font-size:22px}}
