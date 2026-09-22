@@ -66,6 +66,6 @@ test('origem coletiva, apoio escolar e limites do uso acadêmico aparecem nos do
     assert.match(page,/dados (fictícios|sintéticos)/);
     assert.doesNotMatch(page,/validar com a instituição|Minuta para aprovação/i);
   }
-  assert.match(home,/Projeto estudantil de inovação com apoio da secretaria escolar/);
+  assert.match(home,/feito pelos alunos do 3-A e com apoio da direção\./);
   assert.doesNotMatch(read('README.md'),/## Instalação|## Download/);
 });

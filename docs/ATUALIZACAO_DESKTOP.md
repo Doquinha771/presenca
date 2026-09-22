@@ -12,3 +12,7 @@ A interface institucional foi adaptada à estrutura visual do painel administrat
 ## Verificação
 
 Executar `npm test && npm run check && npm run test:browser` em um ambiente com Playwright e Chromium instalados. Os testes de navegador verificam a navegação integrada e o transbordamento horizontal nas larguras 320 a 2560 px. O funcionamento conectado ao Supabase real exige testes no ambiente autorizado da escola.
+
+## Banco ativo e relatórios
+
+Em 22/09/2026, a função de exportação prevista no ZIP e nove índices auxiliares foram aplicados ao projeto Supabase conectado. Os scripts versionados estão em `sql/07_exportacoes_institucionais.sql` e `sql/08_indices_integridade.sql`. Ver `docs/AUDITORIA_BANCO_20260922.md` para detalhes e verificações pendentes.

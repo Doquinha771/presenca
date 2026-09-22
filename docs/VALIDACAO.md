@@ -11,7 +11,7 @@ Os testes estruturais não executam PostgreSQL e não comprovam a correção das
 
 ## Tentado, mas bloqueado
 
-- `node tests/browser.mjs`: bloqueado antes de abrir página, pois o Chromium do Playwright não está instalado. Nenhuma captura de tela ou aprovação visual foi produzida.
+- `node tests/browser.mjs`: a integração Node/Playwright não está disponível neste ambiente e o navegador de sistema bloqueia a navegação local por política administrativa. Nenhuma aprovação visual em navegador foi produzida para esta atualização.
 - PostgreSQL/psql e Supabase CLI indisponíveis no ambiente.
 - Acesso conectado ao Supabase retornou lista vazia de projetos. Nenhuma inspeção ou migração do banco real foi executada.
 - Rede do ambiente não permitiu obter dependências adicionais. A migração está versionada numericamente em `sql/03_v4.sql`; não foi gerada pelo CLI indisponível.

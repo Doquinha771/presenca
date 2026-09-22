@@ -34,3 +34,21 @@ test('casca preserva permissões, backend Supabase e menu móvel',()=>{
  assert.doesNotMatch(css,/https?:\/\//);
  assert.doesNotMatch(css,/position:fixed;inset:0/);
 });
+
+
+test('interface ergonômica mantém rodapé ao fundo, perfil único e ícones Uicons',()=>{
+ const ergonomic=readFileSync(new URL('../assets/ergonomia.css',import.meta.url),'utf8');
+ assert.match(html,/assets\/ergonomia\.css/);
+ assert.match(html,/cdn-uicons\.flaticon\.com\/4\.0\.0/);
+ assert.match(html,/feito pelos alunos do 3-A e com apoio da direção\./);
+ assert.match(html,/Ícones Uicons por Flaticon/);
+ assert.match(html,/id="pageProfile"[^>]*hidden aria-hidden="true"/);
+ assert.match(ergonomic,/#pageProfile\{display:none!important\}/);
+ assert.match(ergonomic,/\.app-footer\{[^}]*margin:auto 0 0/);
+ assert.match(ergonomic,/#sidebar\{[^}]*position:sticky/);
+ assert.match(ergonomic,/#nav\{[^}]*overflow-y:auto/);
+ assert.match(app,/function renderSidebarNav\(\)/);
+ assert.match(app,/priorityPages=\{/);
+ assert.match(app,/fi fi-rr-/);
+ assert.doesNotMatch(app,/<svg viewBox=/);
+});
