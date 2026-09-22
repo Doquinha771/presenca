@@ -2,23 +2,35 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-const css=readFileSync(new URL('../assets/desktop-overview-fix.css',import.meta.url),'utf8');
+const css=readFileSync(new URL('../assets/desktop-shell.css',import.meta.url),'utf8');
 const app=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
-test('correção desktop é carregada depois das folhas antigas',()=>{
- assert.ok(html.indexOf('portal-layout.css')<html.indexOf('desktop-overview-fix.css'));
- assert.match(css,/desktop-overview-mode \.page-header \{/);
- assert.match(css,/grid-template-areas: 'copy utility side'/);
- assert.match(css,/grid-template-rows: 176px/);
+
+test('desktop carrega uma única casca após as folhas legadas',()=>{
+ assert.match(html,/portal-layout\.css.*desktop-shell\.css/);
+ assert.doesNotMatch(html,/desktop-overview-fix\.css/);
+ assert.match(app,/classList\.toggle\('staff-shell',staff\(\)\)/);
+ assert.match(css,/@media \(min-width:780px\)/);
+ assert.match(css,/@media \(min-width:780px\) and \(max-width:1100px\)/);
+ assert.match(css,/grid-template-columns:clamp\(210px,19vw,292px\) minmax\(0,1fr\)/);
+ assert.match(css,/#view \.table-scroll\{[^}]*overflow-x:auto/);
+ assert.match(css,/#view table\{[^}]*min-width:580px/);
 });
-test('pesquisa e ícones têm alinhamento horizontal, perfil e data não se invertem',()=>{
- assert.match(css,/\.global-search \.search-shell \{[\s\S]*?flex-direction:row/);
- assert.match(css,/\.page-side \.profile-glance \{[\s\S]*?order:0/);
- assert.match(css,/\.page-side \.status-glance \{[\s\S]*?order:1/);
- assert.match(css,/\.page-header > \.toolbar \{[\s\S]*?position:absolute/);
+
+test('matrículas e alunos são uma única área sem duplicar item de menu',()=>{
+ assert.match(app,/visiblePages=\(\)=>allowed\(\)\.filter\(page=>page!=='enrollments'\)/);
+ assert.match(app,/p==='enrollments'\?'students':p/);
+ assert.match(app,/function studentTabs\(\)/);
+ assert.match(app,/data-action="students-tab"/);
+ assert.match(app,/function enrollmentTable\(rows\)/);
+ assert.match(app,/a==='students-tab'/);
+ assert.match(app,/openModal\(id\?'Editar matrícula':'Cadastrar aluno e criar acesso'/);
+ assert.match(app,/autoEmail/);
 });
-test('banner é gradiente local sem imagem e painel mobile permanece fora do override principal',()=>{
- assert.match(css,/background:linear-gradient\(115deg,#0a4c42/);
- assert.ok(!css.includes('url('));
- assert.match(css,/@media \(min-width: 1000px\)/);
- assert.match(app,/classList\.toggle\('desktop-overview-mode',staff\(\)&&state\.page==='overview'\)/);
+
+test('casca preserva permissões, backend Supabase e menu móvel',()=>{
+ assert.match(app,/const allowed=\(\)=>/);
+ assert.match(app,/const read=\(kind,args=\{\}\)=>rpc\('portal_read'/);
+ assert.match(app,/renderMobileNav\(\)/);
+ assert.doesNotMatch(css,/https?:\/\//);
+ assert.doesNotMatch(css,/position:fixed;inset:0/);
 });
