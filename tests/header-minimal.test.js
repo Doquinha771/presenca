@@ -42,3 +42,12 @@ test('carregamento não procura elemento de cabeçalho que não existe',()=>{
  assert.doesNotMatch(app,/\$\(['\"]areaName['\"]\)/);
  assert.match(app,/\$\('dashboard'\)\.hidden=false/);
 });
+
+
+test('aba Matrículas e turmas possui um único controle e cabeçalho cosmético não derruba a sessão',()=>{
+ const currentApp=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
+ const duplicate=(currentApp.match(/button\('Matrículas e turmas','students-tab','enrollments'\)/g)||[]).length;
+ assert.equal(duplicate,0);
+ assert.match(currentApp,/const pageDescription=\$\('pageDescription'\);if\(pageDescription\)pageDescription\.textContent/);
+ assert.match(currentApp,/if\(schoolLabel\)schoolLabel\.textContent=SCHOOL_NAME/);
+});
