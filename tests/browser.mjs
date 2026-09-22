@@ -9,7 +9,7 @@ let chromium;try{({chromium}=require('playwright'));}catch{({chromium}=require(p
 const root=path.resolve(new URL('..',import.meta.url).pathname);
 const server=http.createServer(async(req,res)=>{try{const relative=decodeURIComponent(new URL(req.url,'http://x').pathname).replace(/^\/presenca\//,'/');const file=path.resolve(root,'.'+(relative==='/'?'/index.html':relative));if(!file.startsWith(root+path.sep))throw Error();const body=await fs.readFile(file);res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.png')?'image/png':'text/html');res.end(body);}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${server.address().port}/presenca/`;
-const browser=await chromium.launch({headless:true,args:['--no-sandbox']});let checks=0;const errors=[];
+const browser=await chromium.launch({headless:true,args:['--no-sandbox'],...(process.env.PRESENCA_BROWSER_PATH?{executablePath:process.env.PRESENCA_BROWSER_PATH}:{})});let checks=0;const errors=[];
 async function setup(role='admin',width=1366,signedOut=false){const context=await browser.newContext({viewport:{width,height:900}});await context.addInitScript(({role,signedOut})=>{window.__testRole=role;window.__signedOut=signedOut;},{role,signedOut});await context.route('https://cdn.jsdelivr.net/**',r=>r.fulfill({contentType:'text/javascript',body:fixture}));const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(base);await page.locator(signedOut?'#authView':'#dashboard').waitFor({state:'visible'});return {context,page};}
 try{
  const {context,page}=await setup();

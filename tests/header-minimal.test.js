@@ -36,3 +36,9 @@ test('cabeçalho compacto é o último CSS e permanece fixo em desktop e celular
  assert.match(css,/#pageUtility[\s\S]*?display:none!important/);
  assert.match(css,/#pageDescription[\s\S]*?position:absolute/);
 });
+
+// Regressão: o texto removido do cabeçalho não pode continuar sendo acessado no boot.
+test('carregamento não procura elemento de cabeçalho que não existe',()=>{
+ assert.doesNotMatch(app,/\$\(['\"]areaName['\"]\)/);
+ assert.match(app,/\$\('dashboard'\)\.hidden=false/);
+});
