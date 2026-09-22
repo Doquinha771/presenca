@@ -40,23 +40,14 @@ function renderSidebarNav(){
 // A identificação fica somente na barra lateral, sem um segundo perfil no cabeçalho.
 function renderPageProfile(){const el=$('pageProfile');if(el){el.replaceChildren();el.hidden=true;}}
 
+// O cabeçalho concentra somente o ícone da área, o tema e a atualização.
+// A pesquisa fica exclusivamente no formulário da página correspondente.
 function renderHeaderChrome(){
- const utility=$("pageUtility"), status=$("pageStatusCard"), campus=$("sidebarCampus");
- if(!state.me)return;
- const staffOverview=staff()&&state.page==='overview';
- const staffSearch=staff()&&(state.page==='overview'||state.page==='history');
- if(campus)campus.replaceChildren();
- if(utility){
-   if(staffSearch)utility.innerHTML=`<form id="globalSearchForm" class="global-search"><label class="search-shell"><span class="search-icon">${uiIcon('search')}</span><input id="globalSearchInput" type="search" placeholder="Buscar aluno ou RA na base escolar..." aria-label="Buscar aluno ou RA na base escolar" autocomplete="off"></label><button type="button" class="bell-button" aria-label="Ver comunicados da escola">${uiIcon('bell')}</button></form>`;
-   else utility.innerHTML='';
-   utility.querySelector('.bell-button')?.addEventListener('click',()=>{location.hash='#/announcements';});
-   const form=$("globalSearchForm");
-   if(form)form.onsubmit=e=>{e.preventDefault();const q=$("globalSearchInput")?.value?.trim()||'';if(!q)return;studentsTab='list';studentsFilter={...studentsFilter,search:q};location.hash='#/students';};
- }
- if(status){
-   if(staffOverview)status.innerHTML=`<div class="status-card-icon">${uiIcon('calendar')}</div><div class="status-card-copy"><strong>${esc(longDateBR())}</strong><small>Ano letivo em andamento</small></div>`;
-   else status.innerHTML='';
- }
+ const title=$('pageTitle');
+ if(title&&state.me){const label=paths[state.page][0];title.innerHTML=uiIcon(state.page);title.setAttribute('aria-label',label);title.title=label;}
+ const utility=$('pageUtility');if(utility){utility.replaceChildren();utility.hidden=true;}
+ const status=$('pageStatusCard');if(status){status.replaceChildren();status.hidden=true;}
+ const campus=$('sidebarCampus');if(campus)campus.replaceChildren();
 }
 function historyBadge(r){return `<span class="pill ${r.status==='void'?'ghost':r.status==='forgiven'?'ok':r.status==='active'?'warn':''}">${r.status==='forgiven'?'Perdoado':r.status==='void'?'Anulado':r.justified?'Justificado':'Válido'}</span>`;}
 async function hydrateHistoryRa(rows){
@@ -199,7 +190,7 @@ try{document.body.classList.toggle('dark',localStorage.getItem('presenca-theme')
 $('theme').onclick=()=>{const dark=document.body.classList.toggle('dark');try{localStorage.setItem('presenca-theme',dark?'dark':'light');}catch{}};
 function connection(){$('connection').hidden=navigator.onLine;}window.addEventListener('online',connection);window.addEventListener('offline',connection);connection();
 window.addEventListener('hashchange',()=>{if(state.me)void route();});
-async function route(){const p=location.hash.replace('#/','');if((p==='enrollments'||p==='classes')&&allowed().includes(p))studentsTab='enrollments';else if(p==='students')studentsTab='list';state.page=allowed().includes(p)?(['enrollments','classes'].includes(p)?'students':p):(state.me.role==='secretaria'?'entry':'overview');state.offset=0;state.selected=null;state.request=null;state.report=null;searchToken++;$('view').replaceChildren();closeNavigation();$('mobileNav').querySelectorAll('[data-page]').forEach(a=>{a.classList.toggle('active',a.dataset.page===state.page);a.setAttribute('aria-current',a.dataset.page===state.page?'page':'false');});$('nav').querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.dataset.page===state.page));$('pageTitle').textContent=paths[state.page][0];$('pageDescription').textContent=paths[state.page][1];renderPageProfile();renderHeaderChrome();
+async function route(){const p=location.hash.replace('#/','');if((p==='enrollments'||p==='classes')&&allowed().includes(p))studentsTab='enrollments';else if(p==='students')studentsTab='list';state.page=allowed().includes(p)?(['enrollments','classes'].includes(p)?'students':p):(state.me.role==='secretaria'?'entry':'overview');state.offset=0;state.selected=null;state.request=null;state.report=null;searchToken++;$('view').replaceChildren();closeNavigation();$('mobileNav').querySelectorAll('[data-page]').forEach(a=>{a.classList.toggle('active',a.dataset.page===state.page);a.setAttribute('aria-current',a.dataset.page===state.page?'page':'false');});$('nav').querySelectorAll('a').forEach(a=>a.classList.toggle('active',a.dataset.page===state.page));$('pageDescription').textContent=paths[state.page][1];renderPageProfile();renderHeaderChrome();
  const home=studentView()&&state.page==='overview';
  document.body.classList.toggle('student-overview-mode',home);document.body.classList.toggle('desktop-overview-mode',staff()&&state.page==='overview');document.body.classList.toggle('staff-shell',staff());document.body.classList.toggle('history-page',staff()&&state.page==='history');
  // Mesma estrutura de cabeçalho e navegação em todas as telas e perfis.
