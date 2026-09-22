@@ -17,9 +17,12 @@ test('desktop carrega uma única casca após as folhas legadas',()=>{
 });
 
 test('matrículas e alunos são uma única área sem duplicar item de menu',()=>{
- assert.match(app,/visiblePages=\(\)=>allowed\(\)\.filter\(page=>page!=='enrollments'\)/);
- assert.match(app,/p==='enrollments'\?'students':p/);
+ assert.match(app,/visiblePages=\(\)=>allowed\(\)\.filter\(page=>page!=='enrollments'&&page!=='classes'\)/);
+ assert.match(app,/\['enrollments','classes'\]\.includes\(p\)\?'students':p/);
  assert.match(app,/function studentTabs\(\)/);
+ assert.match(app,/\['classes','Séries e turmas'\]/);
+ assert.match(app,/studentsTab==='classes'/);
+ assert.doesNotMatch(app, /\['classes','team','adjustments'\]/);
  assert.match(app,/data-action="students-tab"/);
  assert.match(app,/function enrollmentTable\(rows\)/);
  assert.match(app,/a==='students-tab'/);
