@@ -22,18 +22,26 @@ try{
  await page.locator('[data-action="students-tab"][data-id="list"]').click();
  await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='list');
  assert.equal(await page.locator('.hub-top [data-action="enrollment-new"]').count(),1);
- // Série/turma agora é uma terceira aba dentro de Alunos, sem outro item lateral.
- await page.locator('[data-action="students-tab"][data-id="classes"]').click();
- await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='classes');
+ // O gerenciamento de turmas está dentro de Matrículas, não em uma terceira tela.
+ await page.locator('[data-action="students-tab"][data-id="enrollments"]').click();
+ await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='enrollments');
  assert.equal(await page.locator('#nav [data-page="classes"]').count(),0);
- assert.equal(await page.locator('#nav [data-page="students"]').count(),1);
- assert.equal(await page.locator('.hub-top [data-action="class-new"]').count(),1);
- assert.equal(await page.locator('[data-action="class-edit"]').count(),1);
- await page.locator('[data-action="class-edit"]').click();
- assert.equal(await page.locator('#modalTitle').innerText(),'Série e turma');
+ assert.equal(await page.locator('#studentClassManager').count(),1);
+ assert.equal(await page.locator('#studentClassManager [data-action="class-new"]').count(),1);
+ assert.equal(await page.locator('#studentClassManager [data-action="class-edit"]').count(),1);
+ await page.locator('#studentClassManager [data-action="class-edit"]').click();
+ assert.equal(await page.locator('#modalTitle').innerText(),'Editar série e turma');
+ assert.equal(await page.locator('#modal [name="grade"]').inputValue(),'3º ano');
  await page.locator('#modal').evaluate(el=>el.close());
  await page.goto(base+'#/classes');
- await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='classes');
+ await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='enrollments');
+ assert.equal(await page.locator('#studentClassManager').count(),1);
+ await page.locator('.hub-top [data-action="enrollment-new"]').click();
+ await page.locator('#modal input[name="name"]').first().fill('Novo Aluno');
+ await page.locator('#inlineClassToggle').click();
+ assert.equal(await page.locator('#inlineClassForm').isVisible(),true);
+ assert.equal(await page.locator('#modal input[name="name"]').first().inputValue(),'Novo Aluno');
+ await page.locator('#modal').evaluate(el=>el.close());
  await page.goto(base+'#/students');
  await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='list');
  checks++;
@@ -54,9 +62,10 @@ try{
  await page.evaluate(()=>window.__fail=true);await page.locator('#refresh').click();await page.getByText(/Falha de conexão/).waitFor();checks++;
  await context.close();
  for(const role of ['aluno','secretaria','admin']){const {context,page}=await setup(role,390);for(const route of role==='admin'?['overview','students','history','period','reports']:role==='secretaria'?['entry','history','reports']:['overview','history','announcements']){await page.goto(base+'#/'+route);await page.locator('#dashboard').waitFor({state:'visible'});await page.waitForFunction(n=>document.querySelector('#nav a.active')?.dataset.page===n,route);await page.waitForFunction(()=>!document.querySelector('#view').hasAttribute('aria-busy'));assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),role+'/'+route+' overflow');checks++;}if(role==='secretaria'){
- await page.goto(base+'#/students');await page.locator('[data-action="students-tab"][data-id="classes"]').click();
- await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='classes');
- assert.equal(await page.locator('.hub-top [data-action="class-new"]').count(),0);
+ await page.goto(base+'#/students');await page.locator('[data-action="students-tab"][data-id="enrollments"]').click();
+ await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='enrollments');
+ assert.equal(await page.locator('#studentClassManager').count(),1);
+ assert.equal(await page.locator('[data-action="class-new"]').count(),0);
  assert.equal(await page.locator('[data-action="class-edit"]').count(),0);checks++;
  }
  if(role==='aluno'){await page.goto(base+'#/reports');await page.waitForFunction(()=>document.querySelector('#nav a.active')?.dataset.page==='overview');assert.equal(await page.locator('#nav [data-page=reports]').count(),0);checks++;await page.goto(base+'#/team');await page.waitForFunction(()=>document.querySelector('#nav a.active')?.dataset.page==='overview');assert.equal(await page.locator('#nav [data-page="team"]').count(),0);checks++;}if(role==='admin'){await page.goto(base+'#/overview');await page.waitForFunction(()=>document.querySelector('.metrics'));await page.screenshot({path:path.join(root,'tests/mobile.png'),fullPage:true});}await page.reload();await page.locator('#dashboard').waitFor();checks++;await context.setOffline(true);await page.locator('#connection').waitFor({state:'visible'});checks++;await context.close();}

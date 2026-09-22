@@ -128,3 +128,25 @@ body.portal-layout .class-hub-title p{margin:0;font-size:.83rem;line-height:1.45
 body.portal-layout .class-hub-content .table-scroll{min-width:0;max-width:100%;overflow-x:auto;}
 body.portal-layout .student-tabs button{min-width:0;}
 @media(max-width:779px){body.portal-layout .student-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));}body.portal-layout .student-tabs button{width:100%;}}
+
+/* Matrículas e turmas são uma única área de trabalho dentro de Alunos. */
+body.portal-layout .student-hub-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;min-width:0}
+body.portal-layout .student-hub .student-hub-actions button[data-action="students-tab"]{background:var(--surface);color:var(--accent);border:1px solid var(--line)}
+body.portal-layout .student-registration-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:8px;margin:2px 0 15px}
+body.portal-layout .student-registration-flow p{margin:0;padding:10px 12px;background:var(--soft);border:1px solid var(--line);border-radius:10px;line-height:1.5;color:var(--ink);font-size:.83rem}
+body.portal-layout .student-registration-flow strong{color:var(--accent)}
+body.portal-layout .student-hub .class-hub-content{margin:0 0 18px;padding:14px;border:1px solid var(--line);border-radius:13px;min-width:0;background:var(--surface)}
+body.portal-layout .student-hub .class-hub-content .table-scroll{max-height:270px;overflow:auto;scrollbar-width:thin}
+body.portal-layout .class-hub-title{align-items:center;flex-wrap:wrap}
+body.portal-layout .class-hub-title>div{min-width:0;flex:1 1 175px}
+body.portal-layout .class-hub-title .class-count{display:inline-flex;min-width:26px;min-height:26px;align-items:center;justify-content:center;padding:0 6px;border-radius:8px;color:var(--accent);background:var(--soft);font-size:.8rem;font-weight:700}
+body.portal-layout .enrollment-hub-content{padding-top:12px;border-top:1px solid var(--line);min-width:0}
+#modal .enrollment-class-picker{grid-column:1/-1;display:flex;align-items:flex-end;gap:9px;min-width:0;flex-wrap:wrap}
+#modal .enrollment-class-picker label{flex:1 1 210px;min-width:0}
+#modal .enrollment-class-picker button{flex:0 1 auto;min-height:43px;white-space:normal}
+#modal .inline-class-form:not([hidden]){display:grid;gap:12px;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--soft)}
+#modal .inline-class-form h3{margin:0;font-size:1rem}
+#modal .inline-class-form p{margin:0;font-size:.84rem;line-height:1.45}
+#modal .inline-class-form .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+#modal .inline-class-form input{min-width:0;width:100%;background:var(--surface);color:var(--ink)}
+@media(max-width:779px){body.portal-layout .student-hub .student-hub-actions{width:100%}body.portal-layout .student-hub .student-hub-actions button{flex:1 1 180px;width:auto}body.portal-layout .student-hub .class-hub-content{padding:10px}body.portal-layout .student-hub .class-hub-title button{flex:1 1 130px}#modal .enrollment-class-picker button{width:100%}}

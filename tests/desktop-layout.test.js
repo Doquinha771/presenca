@@ -20,8 +20,13 @@ test('matrículas e alunos são uma única área sem duplicar item de menu',()=>
  assert.match(app,/visiblePages=\(\)=>allowed\(\)\.filter\(page=>page!=='enrollments'&&page!=='classes'\)/);
  assert.match(app,/\['enrollments','classes'\]\.includes\(p\)\?'students':p/);
  assert.match(app,/function studentTabs\(\)/);
- assert.match(app,/\['classes','Séries e turmas'\]/);
- assert.match(app,/studentsTab==='classes'/);
+ assert.match(app,/function classManager\(\)/);
+ assert.match(app,/\$\{classManager\(\)\}/);
+ assert.match(app,/\['enrollments','Matrículas e turmas'\]/);
+ assert.doesNotMatch(app,/studentsTab==='classes'/);
+ assert.match(app,/id=\"inlineClassForm\"/);
+ assert.match(app,/select.innerHTML=classesOptions\(chosen.id,false\)/);
+ assert.match(app,/state.classes.find\(c=>c.id===id\)/);
  assert.doesNotMatch(app, /\['classes','team','adjustments'\]/);
  assert.match(app,/data-action="students-tab"/);
  assert.match(app,/function enrollmentTable\(rows\)/);
