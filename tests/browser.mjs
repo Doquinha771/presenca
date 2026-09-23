@@ -14,34 +14,33 @@ async function setup(role='admin',width=1366,signedOut=false){const context=awai
 try{
  const {context,page}=await setup();
  for(const name of ['overview','entry','students','history','enrollments','classes','team','adjustments','announcements','archive','period','audit','privacy','reports']){await page.goto(base+'#/'+name);await page.waitForFunction(n=>document.querySelector('#nav a.active')?.dataset.page===(['enrollments','classes'].includes(n)?'students':n),name);await page.waitForFunction(()=>!document.getElementById('view').hasAttribute('aria-busy'));assert.equal(await page.locator('#view').getByText('Não foi possível carregar os dados',{exact:true}).count(),0);checks++;}
- // Matrículas não duplicam o menu. A rota antiga continua abrindo a aba integrada.
+ // Três abas exclusivas; classes ficam dentro de Alunos e as fichas só aparecem à equipe.
  await page.goto(base+'#/enrollments');
  await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='enrollments');
  assert.equal(await page.locator('#nav [data-page="enrollments"]').count(),0);
  assert.equal(await page.locator('#nav [data-page="students"]').count(),1);
+ assert.equal(await page.locator('.student-tabs button').count(),3);
+ assert.equal(await page.locator('[data-action="students-tab"][data-id="enrollments"]').count(),1);
+ assert.equal(await page.locator('#studentClassManager').count(),0);
+ assert.equal(await page.locator('#applicationsTitle').count(),1);
+ assert.equal(await page.locator('.application-card').count(),1);
+ await page.locator('[data-action="enrollment-from-application"]').click();
+ assert.equal(await page.locator('#modal [name="ra"]').inputValue(),'0000222');
+ assert.equal(await page.locator('#modal [name="email"]').inputValue(),'0000222@al.educacao.sp.gov.br');
+ await page.locator('#modal').evaluate(el=>el.close());
+ await page.locator('[data-action="students-tab"][data-id="classes"]').click();
+ await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='classes');
+ assert.equal(await page.locator('#studentClassManager').count(),1);
+ assert.equal(await page.locator('#studentClassManager [data-action="class-edit"]').count(),1);
+ assert.equal(await page.locator('[data-action="class-new"]').count(),1);
+ await page.locator('#studentClassManager [data-action="class-edit"]').click();
+ assert.equal(await page.locator('#modalTitle').innerText(),'Editar série e turma');
+ await page.locator('#modal').evaluate(el=>el.close());
  await page.locator('[data-action="students-tab"][data-id="list"]').click();
  await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='list');
  assert.equal(await page.locator('.hub-top [data-action="enrollment-new"]').count(),1);
- // O gerenciamento de turmas está dentro de Matrículas, não em uma terceira tela.
- await page.locator('[data-action="students-tab"][data-id="enrollments"]').click();
- await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='enrollments');
- assert.equal(await page.locator('#nav [data-page="classes"]').count(),0);
- assert.equal(await page.locator('#studentClassManager').count(),1);
- assert.equal(await page.locator('#studentClassManager [data-action="class-new"]').count(),1);
- assert.equal(await page.locator('#studentClassManager [data-action="class-edit"]').count(),1);
- await page.locator('#studentClassManager [data-action="class-edit"]').click();
- assert.equal(await page.locator('#modalTitle').innerText(),'Editar série e turma');
- assert.equal(await page.locator('#modal [name="grade"]').inputValue(),'3º ano');
- await page.locator('#modal').evaluate(el=>el.close());
  await page.goto(base+'#/classes');
- await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='enrollments');
- assert.equal(await page.locator('#studentClassManager').count(),1);
- await page.locator('.hub-top [data-action="enrollment-new"]').click();
- await page.locator('#modal input[name="name"]').first().fill('Novo Aluno');
- await page.locator('#inlineClassToggle').click();
- assert.equal(await page.locator('#inlineClassForm').isVisible(),true);
- assert.equal(await page.locator('#modal input[name="name"]').first().inputValue(),'Novo Aluno');
- await page.locator('#modal').evaluate(el=>el.close());
+ await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='classes');
  await page.goto(base+'#/students');
  await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='list');
  checks++;
@@ -62,8 +61,8 @@ try{
  await page.evaluate(()=>window.__fail=true);await page.locator('#refresh').click();await page.getByText(/Falha de conexão/).waitFor();checks++;
  await context.close();
  for(const role of ['aluno','secretaria','admin']){const {context,page}=await setup(role,390);for(const route of role==='admin'?['overview','students','history','period','reports']:role==='secretaria'?['entry','history','reports']:['overview','history','announcements']){await page.goto(base+'#/'+route);await page.locator('#dashboard').waitFor({state:'visible'});await page.waitForFunction(n=>document.querySelector('#nav a.active')?.dataset.page===n,route);await page.waitForFunction(()=>!document.querySelector('#view').hasAttribute('aria-busy'));assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),role+'/'+route+' overflow');checks++;}if(role==='secretaria'){
- await page.goto(base+'#/students');await page.locator('[data-action="students-tab"][data-id="enrollments"]').click();
- await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='enrollments');
+ await page.goto(base+'#/students');await page.locator('[data-action="students-tab"][data-id="classes"]').click();
+ await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='classes');
  assert.equal(await page.locator('#studentClassManager').count(),1);
  assert.equal(await page.locator('[data-action="class-new"]').count(),0);
  assert.equal(await page.locator('[data-action="class-edit"]').count(),0);checks++;

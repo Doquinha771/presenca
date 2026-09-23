@@ -57,10 +57,7 @@ O resumo agregado é gerado a partir do painel. Listas e históricos identificá
 
 A interface estática não contém senhas administrativas ou chaves de serviço.
 `config.js` armazena somente a URL e a chave **publicável** do projeto Supabase.
-A criação automática de contas de alunos matriculados é processada na Edge Function
-`provision-student`, cujo acesso exige autenticação e verificação do cargo no
-banco. Operações no PostgreSQL dependem das políticas de acesso e das funções
-institucionais. Não há backend local ou armazenamento offline de registros.
+Na nova matrícula, a Secretaria registra os dados escolares e o aluno cria sua própria conta e senha, confirmando o e-mail escolar. Matrículas já vinculadas a uma conta usam a recuperação de senha do Supabase Auth. O banco vincula automaticamente um cadastro ao registro escolar quando RA e e-mail institucional correspondem. Pré-cadastros sem matrícula aparecem como fichas à equipe, sem conceder acesso a dados escolares. A Edge Function `provision-student` permanece apenas como compatibilidade para procedimentos anteriores e não é chamada pelo novo cadastro. Operações no PostgreSQL dependem das políticas de acesso e das funções institucionais. Não há backend local ou armazenamento offline de registros.
 
 ## Estrutura do projeto
 

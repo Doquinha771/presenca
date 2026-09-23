@@ -150,3 +150,13 @@ body.portal-layout .enrollment-hub-content{padding-top:12px;border-top:1px solid
 #modal .inline-class-form .toolbar{display:flex;flex-wrap:wrap;gap:8px}
 #modal .inline-class-form input{min-width:0;width:100%;background:var(--surface);color:var(--ink)}
 @media(max-width:779px){body.portal-layout .student-hub .student-hub-actions{width:100%}body.portal-layout .student-hub .student-hub-actions button{flex:1 1 180px;width:auto}body.portal-layout .student-hub .class-hub-content{padding:10px}body.portal-layout .student-hub .class-hub-title button{flex:1 1 130px}#modal .enrollment-class-picker button{width:100%}}
+
+/* Fichas de pré-cadastro exibidas apenas à equipe institucional. */
+body.portal-layout .application-section{border-top:1px solid var(--line);padding-top:20px;margin-top:20px;min-width:0;}
+body.portal-layout .application-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px;margin-top:12px;}
+body.portal-layout .application-card{min-width:0;padding:16px;border:1px solid var(--line);background:var(--surface);border-radius:12px;display:flex;flex-direction:column;gap:12px;}
+body.portal-layout .application-card-head{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:start;}
+body.portal-layout .application-card dl{margin:0;display:grid;gap:8px;}
+body.portal-layout .application-card dt{font-size:.76rem;color:var(--muted);}
+body.portal-layout .application-card dd{margin:0;overflow-wrap:anywhere;font-weight:650;}
+body.portal-layout .application-card button{align-self:start;max-width:100%;}

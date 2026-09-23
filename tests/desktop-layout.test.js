@@ -22,8 +22,9 @@ test('matrículas e alunos são uma única área sem duplicar item de menu',()=>
  assert.match(app,/function studentTabs\(\)/);
  assert.match(app,/function classManager\(\)/);
  assert.match(app,/\$\{classManager\(\)\}/);
- assert.match(app,/\['enrollments','Matrículas e turmas'\]/);
- assert.doesNotMatch(app,/studentsTab==='classes'/);
+ assert.match(app,/\['enrollments','Matrículas e acessos'\]/);
+ assert.match(app,/\['classes','Séries e turmas'\]/);
+ assert.match(app,/studentsTab==='classes'/);
  assert.match(app,/id=\"inlineClassForm\"/);
  assert.match(app,/select.innerHTML=classesOptions\(chosen.id,false\)/);
  assert.match(app,/state.classes.find\(c=>c.id===id\)/);
@@ -31,7 +32,7 @@ test('matrículas e alunos são uma única área sem duplicar item de menu',()=>
  assert.match(app,/data-action="students-tab"/);
  assert.match(app,/function enrollmentTable\(rows\)/);
  assert.match(app,/a==='students-tab'/);
- assert.match(app,/openModal\(id\?'Editar matrícula':'Cadastrar aluno e criar acesso'/);
+ assert.match(app,/openModal\(editing\?'Editar matrícula':'Cadastrar matrícula escolar'/);
  assert.match(app,/autoEmail/);
 });
 
