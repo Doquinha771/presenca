@@ -106,4 +106,10 @@ select pg_temp.denied($q$select public.portal_read('dashboard')$q$,'permission d
 select pg_temp.denied($q$select public.portal_export('students')$q$,'permission denied');
 reset role;
 select pg_temp.check_true(not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and not c.relrowsecurity),'RLS habilitado em todas as tabelas do projeto');
+-- Keepalive público não expõe dados e deve funcionar sem sessão autenticada.
+set local role anon;
+select pg_temp.check_true(public.project_keepalive() is not null,'keepalive anônimo executa consulta mínima');
+reset role;
+select pg_temp.check_true((select not p.prosecdef from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='project_keepalive'),'keepalive usa security invoker');
+\i tests/annual-db.sql
 rollback;

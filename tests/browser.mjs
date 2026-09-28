@@ -10,7 +10,7 @@ const root=path.resolve(new URL('..',import.meta.url).pathname);
 const server=http.createServer(async(req,res)=>{try{const relative=decodeURIComponent(new URL(req.url,'http://x').pathname).replace(/^\/presenca\//,'/');const file=path.resolve(root,'.'+(relative==='/'?'/index.html':relative));if(!file.startsWith(root+path.sep))throw Error();const body=await fs.readFile(file);res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.png')?'image/png':'text/html');res.end(body);}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${server.address().port}/presenca/`;
 const browser=await chromium.launch({headless:true,args:['--no-sandbox'],...(process.env.PRESENCA_BROWSER_PATH?{executablePath:process.env.PRESENCA_BROWSER_PATH}:{})});let checks=0;const errors=[];
-async function setup(role='admin',width=1366,signedOut=false){const context=await browser.newContext({viewport:{width,height:900}});await context.addInitScript(({role,signedOut})=>{window.__testRole=role;window.__signedOut=signedOut;},{role,signedOut});await context.route('https://cdn.jsdelivr.net/**',r=>r.fulfill({contentType:'text/javascript',body:fixture}));const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(base);await page.locator(signedOut?'#authView':'#dashboard').waitFor({state:'visible'});return {context,page};}
+async function setup(role='admin',width=1366,signedOut=false,annual=false){const context=await browser.newContext({viewport:{width,height:900}});await context.addInitScript(({role,signedOut,annual})=>{window.__testRole=role;window.__signedOut=signedOut;window.__annualFixture=annual;window.__pendingStudent=annual&&role==='aluno';},{role,signedOut,annual});await context.route('https://cdn.jsdelivr.net/**',r=>r.fulfill({contentType:'text/javascript',body:fixture}));const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(base);await page.locator(signedOut?'#authView':'#dashboard').waitFor({state:'visible'});return {context,page};}
 try{
  const {context,page}=await setup();
  for(const name of ['overview','entry','students','history','enrollments','classes','team','adjustments','announcements','archive','period','audit','privacy','reports']){await page.goto(base+'#/'+name);await page.waitForFunction(n=>document.querySelector('#nav a.active')?.dataset.page===(['enrollments','classes'].includes(n)?'students':n),name);await page.waitForFunction(()=>!document.getElementById('view').hasAttribute('aria-busy'));assert.equal(await page.locator('#view').getByText('Não foi possível carregar os dados',{exact:true}).count(),0);checks++;}
@@ -68,6 +68,29 @@ try{
  assert.equal(await page.locator('[data-action="class-edit"]').count(),0);checks++;
  }
  if(role==='aluno'){await page.goto(base+'#/reports');await page.waitForFunction(()=>document.querySelector('#nav a.active')?.dataset.page==='overview');assert.equal(await page.locator('#nav [data-page=reports]').count(),0);checks++;await page.goto(base+'#/team');await page.waitForFunction(()=>document.querySelector('#nav a.active')?.dataset.page==='overview');assert.equal(await page.locator('#nav [data-page="team"]').count(),0);checks++;}if(role==='admin'){await page.goto(base+'#/overview');await page.waitForFunction(()=>document.querySelector('.metrics'));await page.screenshot({path:path.join(root,'tests/mobile.png'),fullPage:true});}await page.reload();await page.locator('#dashboard').waitFor();checks++;await context.setOffline(true);await page.locator('#connection').waitFor({state:'visible'});checks++;await context.close();}
+ // Renovação anual: aluno pendente entra na conta sem acessar painel escolar.
+ {
+  const {context:pendingContext,page:pendingPage}=await setup('aluno',390,false,true);
+  await pendingPage.locator('#annualPendingTitle').waitFor();
+  assert.match(await pendingPage.locator('#view').innerText(),/Última matrícula/i);
+  assert.equal(await pendingPage.locator('[data-action="annual-history"]').count(),1);
+  await pendingPage.locator('[data-action="annual-history"]').click();
+  await pendingPage.waitForFunction(()=>location.hash==='#/history');
+  await pendingPage.locator('.history-card').first().waitFor();
+  await pendingContext.close();checks++;
+ }
+ // Secretaria enxerga a fila dentro de Alunos, com série prevista e turma selecionável.
+ {
+  const {context:yearContext,page:yearPage}=await setup('secretaria',1280,false,true);
+  await yearPage.goto(base+'#/students');
+  await yearPage.locator('[data-action="renewal-show"]').click();
+  await yearPage.locator('#renewalTitle').waitFor();
+  assert.equal(await yearPage.locator('[data-action="annual-renew"]').count(),1);
+  await yearPage.locator('[data-action="annual-renew"]').click();
+  assert.equal(await yearPage.locator('#renewalClass option').count(),2);
+  assert.match(await yearPage.locator('#renewalHint').innerText(),/Série calculada automaticamente/i);
+  await yearContext.close();checks++;
+ }
  // A casca desktop deve ser a mesma em resoluções diferentes, sem rolagem horizontal da página.
  for(const width of [780,900,1024,1100,1280,1366,1600,1920,2560]){
   const {context,page}=await setup('admin',width);

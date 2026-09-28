@@ -6,7 +6,7 @@
 
 **Portal web de acompanhamento escolar e gestão de registros de atraso.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.0.0-205f50)](./docs/ALTERACOES.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.3.0-205f50)](./docs/ALTERACOES.md)
 [![Plataforma](https://img.shields.io/badge/plataforma-Web-396c82)](./index.html)
 [![Banco](https://img.shields.io/badge/dados-Supabase-3c7659)](https://supabase.com/)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-institucional%20restrita-6c7075)](./LICENSE)
@@ -32,7 +32,8 @@ O **Presença+** foi desenvolvido por um **grupo de estudantes do 3º ano A da E
 | --- | --- |
 | Aluno | Acesso por conta individual, consulta de atrasos, histórico e comunicados. |
 | Secretaria | Gestão de matrículas autorizadas, cadastro e registros de atraso. |
-| Direção | Administração de permissões, ajustes justificados, períodos e auditoria. |
+| Direção | Administração de permissões, ajustes justificados, períodos, calendário letivo e auditoria. |
+| Ano letivo | Agendamento da virada, renovação com aprovação ou reprovação, conclusão e transferência, com histórico preservado. |
 | Identidade | Solicitações pendentes de alunos, convites institucionais, confirmação de e-mail e provisionamento de contas pela secretaria. |
 | Privacidade | Documentos públicos, controles de acesso no banco e solicitação de revisão de registros. |
 | Mobile | Navegação inferior dedicada, menu de funções, cartões de histórico e formulários responsivos. |
@@ -82,11 +83,7 @@ Na nova matrícula, a Secretaria registra os dados escolares e o aluno cria sua 
 - **Secretaria:** administra matrículas e operações permitidas ao cargo.
 - **Direção:** administra permissões, justificativas e configurações.
 
-O aluno sem matrícula autorizada pode solicitar uma conta, mas permanece sem acesso aos registros escolares até a conferência institucional. O aluno matriculado pela secretaria pode receber uma conta provisionada pela
-função administrativa. O responsável institucional deve entregar a senha
-provisória por canal individual e orientar sua alteração. Solicitações
-espontâneas dependem de validação institucional. Nunca use o RA ou a data de
-nascimento como senha inicial.
+O aluno sem matrícula autorizada pode solicitar uma conta, mas permanece sem acesso aos registros escolares até a conferência institucional. A Secretaria registra a matrícula oficial e o aluno cria a própria conta e senha, usando seu e-mail escolar confirmado. Se a conta já existir, utiliza a recuperação de senha. O pré-cadastro espontâneo permanece pendente até a Secretaria verificar os dados oficiais. Durante a virada do ano, um aluno anteriormente matriculado pode acessar a mesma conta e seu histórico, embora as funções que dependem da matrícula atual só sejam liberadas após a renovação. Não use RA ou data de nascimento como senha inicial.
 
 ## Proteção de dados e uso institucional
 
@@ -107,6 +104,14 @@ O trabalho acadêmico e o apoio da secretaria não autorizam a publicação de d
 em arquivos públicos do site. A disponibilização do código-fonte **não** torna
 públicos nem licenciáveis os dados da instituição.
 
+O fluxo de renovação anual e suas ressalvas estão documentados em `docs/VIRADA_ANO_LETIVO_20260923.md`. A mudança de versão não encerra o calendário atual automaticamente.
+
+## Continuidade do Supabase Free
+
+O repositório possui um workflow agendado que gera três consultas mínimas por dia no RPC `project_keepalive`. O RPC não lê nem modifica dados escolares e utiliza apenas a chave publicável já presente no cliente. A rotina existe como proteção adicional contra pausa automática por baixa atividade no plano Free; o uso real do portal continua sendo a principal atividade do banco. O workflow também pode ser executado manualmente pelo GitHub Actions.
+
+A rotina não substitui monitoramento nem garante disponibilidade permanente do plano gratuito. Se o workflow agendado for desativado pelo GitHub ou se o projeto ultrapassar outras limitações do plano, a equipe deve verificar o painel do Supabase.
+
 ## Qualidade e testes
 
 O repositório contém verificações automatizadas de validação de dados, acesso, integridade do frontend e documentos institucionais. Consulte `docs/VALIDACAO.md` para os critérios de homologação. A suíte SQL
@@ -117,7 +122,7 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do projeto | 5.2 (interface unificada e relatórios institucionais), banco exige migração 07 para exportações identificáveis |
+| Versão do projeto | 5.3.1 (virada anual + keepalive do Supabase), requer as migrações 07, 09, 10 e 11 conforme o estado do banco |
 | Plataforma | Web responsiva / GitHub Pages |
 | Banco e autenticação | Supabase |
 | Natureza do serviço | Projeto estudantil coletivo de TCC, com apoio da secretaria escolar, sem condição de sistema oficial da rede estadual |
