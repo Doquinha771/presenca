@@ -6,12 +6,12 @@
 
 **Portal web de acompanhamento escolar e gestão de registros de atraso.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.3.0-205f50)](./docs/ALTERACOES.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.3.4-205f50)](./docs/ALTERACOES.md)
 [![Plataforma](https://img.shields.io/badge/plataforma-Web-396c82)](./index.html)
 [![Banco](https://img.shields.io/badge/dados-Supabase-3c7659)](https://supabase.com/)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-institucional%20restrita-6c7075)](./LICENSE)
 
-[**Acessar o portal**](https://doquinha771.github.io/presenca/) · [**Termos de Uso**](./termos.html) · [**Privacidade**](./privacidade.html)
+[**Acessar o portal**](https://doquinha771.github.io/presenca/) · [**Ficha acadêmica**](./projeto.html) · [**Termos de Uso**](./termos.html) · [**Privacidade**](./privacidade.html)
 
 </div>
 
@@ -22,9 +22,9 @@ registra atrasos, acompanha ocorrências e disponibiliza aos alunos uma consulta
 individual de seus próprios dados. A gestão e a conferência de registros cabem à
 equipe institucional autorizada.
 
-O **Presença+** foi desenvolvido por um **grupo de estudantes do 3º ano A da E.E. Amador e Catharina Saporito Augusto**, no contexto do Trabalho de Conclusão de Curso (TCC) do curso técnico de Desenvolvimento de Sistemas. O projeto conta com o apoio da secretaria escolar e a participação da comunidade educacional, com foco em resolver uma necessidade concreta da instituição.
+O **Presença+** é um **projeto aplicado de Trabalho de Conclusão de Curso**, desenvolvido por um **grupo de estudantes do 3º ano A da E.E. Amador e Catharina Saporito Augusto**, no contexto do Trabalho de Conclusão de Curso (TCC) do curso técnico de Desenvolvimento de Sistemas. O projeto conta com o apoio da secretaria escolar e a participação da comunidade educacional, com foco em resolver uma necessidade concreta da instituição.
 
-É uma iniciativa de **inovação tecnológica no ambiente escolar** e uma ferramenta de apoio à rotina da escola. Não substitui os sistemas, os canais nem as decisões oficiais da Secretaria da Educação do Estado de São Paulo. O apoio à iniciativa não dispensa as regras de tratamento de dados pessoais dos estudantes.
+A versão atual é tratada como **solução funcional em validação acadêmica**, com desenvolvimento incremental, documentação, testes automatizados e critérios de segurança, usabilidade e privacidade. É uma iniciativa de **inovação tecnológica no ambiente escolar** e uma ferramenta de apoio à rotina da escola. Não substitui os sistemas, os canais nem as decisões oficiais da Secretaria da Educação do Estado de São Paulo. O apoio à iniciativa não dispensa as regras de tratamento de dados pessoais dos estudantes.
 
 ## Funcionalidades
 
@@ -67,6 +67,7 @@ Na nova matrícula, a Secretaria registra os dados escolares e o aluno cria sua 
 ├── index.html                    # Aplicação web
 ├── termos.html                   # Termos de Uso e Responsabilidades
 ├── privacidade.html              # Política de Privacidade
+├── projeto.html                  # Ficha acadêmica do TCC
 ├── LICENSE                       # Licença institucional restrita
 ├── config.js                     # Configuração pública do Supabase
 ├── assets/                       # CSS, JavaScript, exportador sob demanda e identidade visual
@@ -122,11 +123,11 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do projeto | 5.3.3 (identidade TCC integrada às interfaces, Termos, Privacidade e diretrizes internas), mantendo virada anual e keepalive do Supabase |
+| Versão do projeto | 5.3.4 (identidade acadêmica aprimorada, ficha do projeto, metodologia, maturidade e evidências técnicas), mantendo virada anual e keepalive do Supabase |
 | Plataforma | Web responsiva / GitHub Pages |
 | Banco e autenticação | Supabase |
-| Natureza do serviço | Projeto estudantil coletivo de TCC, com apoio da secretaria escolar, sem condição de sistema oficial da rede estadual |
-| Termos e política | Documentos 2.2 integrados ao site, com seção específica sobre TCC, protótipo, privacidade e limites do uso acadêmico |
+| Natureza do serviço | Projeto aplicado de TCC do 3º A, solução funcional em validação acadêmica com apoio escolar, sem condição de sistema oficial da rede estadual |
+| Termos e política | Documentos 2.3 integrados ao site, com contexto acadêmico, estágio de validação, privacidade e limites do uso acadêmico |
 
 ## Licença
 

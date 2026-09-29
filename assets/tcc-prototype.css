@@ -1,4 +1,4 @@
-/* Presença+ — identidade visual de protótipo acadêmico (TCC / 3º A) */
+/* Presença+ — identidade acadêmica do projeto aplicado (TCC / 3º A / 2026) */
 :root{
   --tcc-stamp-bg:rgba(255,255,255,.88);
   --tcc-stamp-fg:#174f46;
@@ -25,7 +25,7 @@ body.dark{
 .tcc-project-stamp{
   position:fixed;right:18px;bottom:18px;z-index:72;pointer-events:none;
   display:grid;grid-template-columns:auto auto;grid-template-areas:'main room' 'sub sub';
-  align-items:center;gap:1px 8px;min-width:154px;padding:10px 12px;
+  align-items:center;gap:1px 8px;min-width:188px;padding:10px 12px;
   border:1px solid var(--tcc-stamp-border);border-radius:12px;background:var(--tcc-stamp-bg);
   color:var(--tcc-stamp-fg);box-shadow:0 7px 24px rgba(11,45,34,.08);
   backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
@@ -33,11 +33,16 @@ body.dark{
 }
 .tcc-project-stamp strong{grid-area:main;font-size:.82rem;letter-spacing:.09em;font-weight:850}
 .tcc-project-stamp span{grid-area:room;font-size:.76rem;font-weight:800;justify-self:end}
-.tcc-project-stamp small{grid-area:sub;color:currentColor;opacity:.68;font-size:.58rem;letter-spacing:.12em;font-weight:750;text-transform:uppercase}
+.tcc-project-stamp small{grid-area:sub;color:currentColor;opacity:.72;font-size:.56rem;letter-spacing:.09em;font-weight:750;text-transform:uppercase}
+.academic-project-card{margin:20px auto 0;max-width:430px;padding:14px 16px;border:1px solid var(--tcc-stamp-border);border-left:3px solid var(--tcc-stamp-fg);border-radius:10px;background:color-mix(in srgb,var(--surface,#fff) 94%,var(--tcc-stamp-fg) 6%);text-align:left}
+.academic-project-card .academic-kicker{display:block;margin-bottom:5px;color:var(--tcc-stamp-fg);font-size:.62rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+.academic-project-card strong{display:block;color:var(--ink,#223c36);font-size:.92rem;letter-spacing:-.01em}
+.academic-project-card small{display:block;margin-top:5px;font-size:.7rem;line-height:1.45;color:var(--muted,#60736c)}
+.footer-academic{display:block;margin-top:5px;color:var(--tcc-stamp-fg);font-size:.66rem;font-weight:750;letter-spacing:.055em;text-transform:uppercase}
 /* O selo é uma identificação visual; não muda a hierarquia, não captura cliques e não participa do layout. */
 @media(max-width:779px){
-  .tcc-project-stamp{right:12px;bottom:calc(86px + env(safe-area-inset-bottom));min-width:136px;padding:8px 10px;border-radius:10px;opacity:.88}
-  .tcc-project-stamp strong{font-size:.75rem}.tcc-project-stamp span{font-size:.7rem}.tcc-project-stamp small{font-size:.53rem}
+  .tcc-project-stamp{right:12px;bottom:calc(86px + env(safe-area-inset-bottom));min-width:166px;padding:8px 10px;border-radius:10px;opacity:.88}
+  .tcc-project-stamp strong{font-size:.75rem}.tcc-project-stamp span{font-size:.7rem}.tcc-project-stamp small{font-size:.51rem}.academic-project-card{margin-top:16px;padding:12px 14px}
   .tcc-watermark--tcc{top:25vh;left:-10vw}.tcc-watermark--room{right:-12vw;bottom:24vh}
 }
 #authView:not([hidden])~.tcc-project-stamp,.legal-page .tcc-project-stamp{bottom:18px}

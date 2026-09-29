@@ -1,20 +1,26 @@
-# Identidade visual de protótipo acadêmico — 29/09/2026
+# Identidade acadêmica do Presença+ — TCC 2026
 
-O Presença+ 5.3.2 passa a identificar visualmente todas as interfaces como parte do Trabalho de Conclusão de Curso do 3º A.
+O Presença+ utiliza uma identidade acadêmica que apresenta o sistema como **projeto aplicado de Trabalho de Conclusão de Curso do 3º A**, e não como uma simples demonstração visual.
 
-## Aplicação
+## Posicionamento adotado
 
-- selo discreto e persistente `TCC · 3º A · Protótipo acadêmico`;
-- marcas d’água de fundo `TCC` e `3º A`;
-- aplicado ao carregamento, login, painéis de aluno/secretaria/direção e páginas legais;
-- elementos são `aria-hidden` e `pointer-events:none`, portanto não interferem na navegação, formulários ou leitores de tela;
-- versão móvel reposiciona o selo para não cobrir a navegação inferior;
-- versão impressa mantém identificação leve do protótipo.
+**TCC 2026 · 3º A · Projeto aplicado · Solução funcional em validação acadêmica.**
 
-A identificação é acadêmica e não apresenta o Presença+ como sistema oficial da Secretaria da Educação.
+O termo **protótipo** continua válido para descrever o estágio de avaliação e aperfeiçoamento, mas não deve ser usado como sinônimo de produto incompleto. A apresentação prioriza problema, objetivo, método, implementação, validação, governança e evidências técnicas.
 
-## Integração com Termos, Privacidade e diretrizes
+## Elementos de identidade
 
-A partir da versão 5.3.3, a identidade do TCC deixa de ser apenas um elemento visual. Os Termos de Uso e a Política de Privacidade passam a trazer uma seção própria sobre a natureza acadêmica do protótipo, limites de acesso e uso de dados em apresentações. As diretrizes internas também registram que a autoria estudantil não amplia permissões nem transforma registros reais em material acadêmico.
+- selo discreto `TCC 2026 · 3º A · Projeto aplicado · validação acadêmica`;
+- marcas d’água `TCC` e `3º A` nas interfaces;
+- identificação acadêmica no login, rodapés e páginas legais;
+- página `projeto.html` com a ficha acadêmica do TCC;
+- versão, contexto, escopo, metodologia, critérios de qualidade, governança e estágio de maturidade documentados;
+- elementos visuais sem captura de clique e sem interferência em leitores de tela.
 
-Consulte também `DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md`.
+## Por que essa apresentação é mais adequada
+
+Em vez de usar “protótipo” como aviso de limitação, o projeto demonstra maturidade por artefatos verificáveis: histórico de versões, banco modelado, políticas de acesso, testes automatizados, documentação, migrações, critérios de qualidade e rastreabilidade de decisões.
+
+A identidade acadêmica não apresenta o Presença+ como sistema oficial da Secretaria da Educação e não amplia permissões sobre dados escolares.
+
+Consulte também `projeto.html` e `DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md`.

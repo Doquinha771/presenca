@@ -98,7 +98,17 @@ Não há exclusão automática de dados, credenciais administrativas embutidas, 
 
 - Termos de Uso atualizados para versão 2.2 com seção própria sobre o contexto acadêmico do TCC do 3º A.
 - Política de Privacidade atualizada para versão 2.2, esclarecendo que a condição de protótipo não amplia finalidade, acesso ou uso de dados reais.
-- Rodapés das páginas legais passam a identificar explicitamente `TCC do 3º A · Protótipo acadêmico`.
+- Rodapés das páginas legais passam a identificar explicitamente `TCC 2026 · 3º A · Projeto aplicado · validação acadêmica`.
 - Nova diretriz interna `DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md` para apresentações, testes, suporte técnico e separação entre material acadêmico e registros escolares.
 - Checklist institucional, limites operacionais e documentação de permissões receberam regras específicas para o TCC.
 - Testes legais e de identidade acadêmica ampliados para evitar regressões.
+## 5.3.4 — Identidade acadêmica e maturidade do TCC (29/09/2026)
+
+- O rótulo principal deixa de ser “protótipo acadêmico” e passa a ser `TCC 2026 · 3º A · Projeto aplicado · validação acadêmica`.
+- O termo protótipo permanece apenas para explicar o estágio de avaliação e aperfeiçoamento, sem sugerir ausência de funcionalidade.
+- Nova página `projeto.html` funciona como ficha acadêmica: problema, objetivo, escopo, metodologia, critérios de qualidade, evidências técnicas, governança e maturidade.
+- Login e rodapés passam a apresentar o contexto acadêmico com linguagem de projeto aplicado, preservando o crédito solicitado aos alunos do 3-A e o apoio da direção.
+- Termos de Uso e Política de Privacidade passam à versão 2.3 com explicação clara sobre estágio de validação e limites do uso acadêmico.
+- README e diretrizes internas passam a destacar processo, versionamento, testes, arquitetura e rastreabilidade como evidências avaliáveis do TCC.
+- Nenhuma permissão de banco, fluxo de autenticação ou dado escolar é alterado por esta atualização.
+

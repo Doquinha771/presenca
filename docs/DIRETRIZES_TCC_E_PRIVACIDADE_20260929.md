@@ -1,36 +1,58 @@
-# Diretrizes do TCC, protótipo e privacidade — Presença+
+# Diretrizes acadêmicas, validação e privacidade — Presença+
 
-**Identidade do projeto:** TCC · 3º A · Protótipo acadêmico.
+**Identidade do projeto:** TCC 2026 · 3º A · Projeto aplicado · Solução funcional em validação acadêmica.
 
-Estas diretrizes acompanham a Política de Privacidade e os Termos de Uso. A identificação acadêmica deve permanecer clara nas interfaces, documentos e materiais de apresentação enquanto o Presença+ estiver sendo utilizado como protótipo do Trabalho de Conclusão de Curso.
+Estas diretrizes acompanham a Ficha Acadêmica, a Política de Privacidade e os Termos de Uso. A identidade deve demonstrar autoria, método e maturidade técnica sem sugerir homologação institucional que ainda não exista.
 
-## 1. O que a identificação de TCC significa
+## 1. Como apresentar o projeto
 
-- o Presença+ foi desenvolvido por estudantes do 3º A como Trabalho de Conclusão de Curso;
-- a direção e a secretaria apoiam o desenvolvimento e a avaliação escolar do projeto;
-- o selo de TCC **não** transforma o portal em sistema oficial da Secretaria da Educação;
-- o protótipo continua sujeito a revisão técnica, testes, correções e avaliação institucional.
+O Presença+ deve ser descrito como projeto aplicado de TCC desenvolvido para responder a uma necessidade concreta da rotina escolar. O termo “protótipo” pode ser usado para indicar o estágio de validação e evolução, mas não como rótulo de baixa qualidade ou ausência de funcionalidade.
 
-## 2. O que a identificação de TCC não autoriza
+A apresentação acadêmica deve evidenciar:
 
-A condição acadêmica não autoriza cópia, publicação ou exposição de dados escolares reais. Também não amplia permissões dos desenvolvedores, não cria acesso administrativo e não substitui regras de matrícula, atendimento, correção ou segurança da escola.
+- problema e justificativa;
+- objetivos e público de uso;
+- escopo funcional;
+- arquitetura e modelo de dados;
+- metodologia de desenvolvimento incremental;
+- segurança e separação de papéis;
+- critérios de usabilidade, acessibilidade e desempenho;
+- testes e evidências técnicas;
+- privacidade, governança e limitações;
+- evolução por versões e próximos passos.
 
-## 3. Dados em apresentações e demonstrações
+## 2. O que a identidade de TCC significa
+
+- desenvolvimento realizado por estudantes do 3º A no contexto do Trabalho de Conclusão de Curso;
+- solução funcional com processo documentado de implementação e validação;
+- aplicação prática de conhecimentos de desenvolvimento de sistemas;
+- apoio da direção e participação da equipe escolar no contexto do projeto;
+- evolução contínua orientada por problemas reais de uso.
+
+## 3. O que a identidade acadêmica não significa
+
+A condição acadêmica não equivale a homologação automática pela Secretaria da Educação, certificação jurídica ou autorização para substituir sistemas oficiais. Também não amplia permissões dos desenvolvedores, não cria acesso administrativo e não transforma registros escolares em material de pesquisa, portfólio ou apresentação.
+
+## 4. Evidências adequadas para avaliação do TCC
+
+A banca pode avaliar o projeto por código versionado, documentação, modelo de dados, migrações, testes, decisões de interface, relatórios de validação, matriz de permissões, histórico de versões e demonstrações com dados fictícios. Essas evidências mostram engenharia e evolução sem expor estudantes reais.
+
+## 5. Dados em apresentações e demonstrações
 
 Slides, vídeos, capturas de tela, relatórios, portfólios, demonstrações públicas e materiais do TCC devem usar dados fictícios, sintéticos ou adequadamente anonimizados. Não usar nome, RA, nascimento, e-mail institucional, justificativas, histórico ou credenciais de estudantes reais apenas para demonstrar o sistema.
 
-## 4. Desenvolvimento e suporte técnico
+## 6. Desenvolvimento e suporte técnico
 
 Testes devem preferir bases descartáveis ou dados de demonstração. Se uma correção exigir contato com dados reais, o acesso precisa ser necessário, temporário, compatível com o papel autorizado e limitado ao mínimo indispensável. Credenciais privadas e chaves de serviço nunca devem ser incluídas em GitHub Pages, repositórios, prints ou documentação do TCC.
 
-## 5. Comunicação com alunos e responsáveis
+## 7. Comunicação com alunos e responsáveis
 
-A interface e os documentos legais devem deixar claro que o Presença+ é um protótipo acadêmico de TCC e ferramenta de apoio escolar. Essa informação não deve ser usada para reduzir direitos do estudante, justificar indisponibilidade de canais oficiais ou transferir ao aluno riscos que pertencem à organização do serviço.
+A interface pode informar que o Presença+ é um projeto aplicado de TCC em validação acadêmica. Essa informação não deve ser usada para reduzir direitos, justificar tratamento inseguro, eliminar revisão humana ou transferir ao aluno riscos que pertencem à organização do serviço.
 
-## 6. Separação entre protótipo e registros reais
+## 8. Separação entre projeto e registros reais
 
-O material acadêmico e os registros escolares são contextos diferentes. A autoria do software pertence ao projeto conforme sua licença; os dados dos estudantes não fazem parte do patrimônio acadêmico, da licença do código nem do portfólio dos desenvolvedores.
+O trabalho acadêmico e os registros escolares são contextos diferentes. A autoria do software pertence ao projeto conforme sua licença; os dados dos estudantes não fazem parte do patrimônio acadêmico, da licença do código nem do portfólio dos desenvolvedores.
 
-## 7. Revisão e mudança de condição
+## 9. Mudança de estágio
 
-Se o Presença+ deixar de ser apenas protótipo e passar por adoção institucional formal, as páginas legais, a identidade visual e estas diretrizes devem ser revisadas para refletir a nova condição, responsabilidades, contatos, infraestrutura e regras efetivamente aprovadas.
+Se o Presença+ passar de projeto acadêmico em validação para solução adotada formalmente pela instituição, a identidade visual, documentação, responsabilidades, infraestrutura, canais de atendimento e políticas devem ser revisados para refletir a nova condição.

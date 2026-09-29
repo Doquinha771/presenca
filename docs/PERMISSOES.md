@@ -28,4 +28,4 @@ O produto não aplica exclusão automática de alunos, atrasos ou auditorias. Po
 
 ## Diretriz de acesso para o TCC
 
-A identidade **TCC · 3º A · Protótipo acadêmico** não cria qualquer permissão adicional. Integrantes do grupo desenvolvedor só podem visualizar dados reais quando também possuírem um papel autorizado para aquela operação ou quando houver suporte técnico legitimamente solicitado e restrito ao mínimo necessário. Demonstrações e testes acadêmicos devem usar dados fictícios, sintéticos ou adequadamente anonimizados.
+A identidade **TCC 2026 · 3º A · Projeto aplicado · validação acadêmica** não cria qualquer permissão adicional. Integrantes do grupo desenvolvedor só podem visualizar dados reais quando também possuírem um papel autorizado para aquela operação ou quando houver suporte técnico legitimamente solicitado e restrito ao mínimo necessário. Demonstrações e testes acadêmicos devem usar dados fictícios, sintéticos ou adequadamente anonimizados.

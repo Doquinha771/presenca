@@ -59,7 +59,7 @@ da Secretaria da Educação do Estado de São Paulo.
 
 ## Verificações específicas do TCC
 
-- [ ] A interface e os documentos identificam claramente **TCC · 3º A · Protótipo acadêmico**.
+- [ ] A interface e os documentos identificam claramente **TCC 2026 · 3º A · Projeto aplicado · validação acadêmica**.
 - [ ] Apresentações, prints, vídeos e relatórios acadêmicos usam somente dados fictícios, sintéticos ou adequadamente anonimizados.
 - [ ] A equipe desenvolvedora não recebe acesso adicional a dados reais apenas por ser autora do projeto.
 - [ ] Materiais do TCC não apresentam o Presença+ como sistema oficial, homologado ou adotado pela rede sem ato institucional que sustente essa afirmação.

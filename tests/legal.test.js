@@ -13,7 +13,7 @@ test('documentos legais estão disponíveis antes do login e sem requisições e
     assert.match(page, /<meta[^>]*http-equiv="Content-Security-Policy"/);
     assert.doesNotMatch(page,/<script|<iframe|<form/i);
     assert.doesNotMatch(page, /Minuta para aprovação da instituição|validar com a instituição|aguardando identificação/i);
-    assert.match(page, /Versão 2\.2/);
+    assert.match(page, /Versão 2\.3/);
   }
   assert.ok(existsSync(join(root,'assets/legal.css')));
   assert.match(terms,/privacidade\.html/);
@@ -73,12 +73,14 @@ test('origem coletiva, apoio escolar e limites do uso acadêmico aparecem nos do
 
 test('Termos e Privacidade identificam explicitamente o protótipo de TCC',()=>{
   for(const page of [terms,privacy]){
-    assert.match(page,/TCC · 3º A · Protótipo acadêmico/);
+    assert.match(page,/projeto aplicado/i);
+    assert.match(page,/validação acadêmica/i);
     assert.match(page,/id="contexto-tcc"/);
     assert.match(page,/dados fictícios, sintéticos ou adequadamente anonimizados/);
-    assert.match(page,/não (?:significa homologação automática|cria nova finalidade|amplia o acesso)/i);
+    assert.match(page,/(?:não representa[^<]{0,80}homologação|não cria nova finalidade|não amplia o acesso)/i);
   }
   const guidelines=read('docs/DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md');
-  assert.match(guidelines,/TCC · 3º A · Protótipo acadêmico/);
+  assert.match(guidelines,/projeto aplicado/i);
+  assert.match(guidelines,/validação acadêmica/i);
   assert.match(guidelines,/não cria acesso administrativo/);
 });
