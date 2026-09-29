@@ -97,7 +97,7 @@ A publicação não demonstra, por si só, adoção pelo poder público, certifi
 de conformidade nem a existência de um instrumento de tratamento de dados.
 
 **Governança de dados:** a atuação da equipe estudantil no código e na manutenção não concede acesso ilimitado a registros escolares. As decisões sobre finalidades, permissões e conservação seguem as atribuições dos responsáveis pelo tratamento; devem observar as bases legais, a segurança e os direitos dos titulares. A apresentação do TCC utiliza dados fictícios, sintéticos ou adequadamente anonimizados. O armazenamento internacional em nuvem exige salvaguardas previstas na LGPD. Consulte [Termos](./termos.html),
-[Privacidade](./privacidade.html) e o
+[Privacidade](./privacidade.html), as [diretrizes de TCC e privacidade](./docs/DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md) e o
 [checklist institucional](./docs/AVALIACAO_INSTITUCIONAL.md).
 
 O trabalho acadêmico e o apoio da secretaria não autorizam a publicação de dados reais de alunos. Os registros escolares não devem ser armazenados no repositório do GitHub ou
@@ -122,11 +122,11 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do projeto | 5.3.1 (virada anual + keepalive do Supabase), requer as migrações 07, 09, 10 e 11 conforme o estado do banco |
+| Versão do projeto | 5.3.3 (identidade TCC integrada às interfaces, Termos, Privacidade e diretrizes internas), mantendo virada anual e keepalive do Supabase |
 | Plataforma | Web responsiva / GitHub Pages |
 | Banco e autenticação | Supabase |
 | Natureza do serviço | Projeto estudantil coletivo de TCC, com apoio da secretaria escolar, sem condição de sistema oficial da rede estadual |
-| Termos e política | Documentos 2.1 integrados ao site, com atribuições da equipe escolar e do grupo de estudantes |
+| Termos e política | Documentos 2.2 integrados ao site, com seção específica sobre TCC, protótipo, privacidade e limites do uso acadêmico |
 
 ## Licença
 

@@ -93,3 +93,12 @@ Não há exclusão automática de dados, credenciais administrativas embutidas, 
 - Novo RPC institucional com autorização no PostgreSQL, auditoria de solicitação, paginação de 200 registros, limites e índices para as pesquisas.
 - A migração `sql/07_exportacoes_institucionais.sql` deve estar no Supabase para ativar as três novas exportações.
 - Exportação não inclui senha, data de nascimento nem texto das observações individuais. Histórico por turma utiliza matrícula atual.
+
+## 5.3.3 — TCC integrado às diretrizes e privacidade (29/09/2026)
+
+- Termos de Uso atualizados para versão 2.2 com seção própria sobre o contexto acadêmico do TCC do 3º A.
+- Política de Privacidade atualizada para versão 2.2, esclarecendo que a condição de protótipo não amplia finalidade, acesso ou uso de dados reais.
+- Rodapés das páginas legais passam a identificar explicitamente `TCC do 3º A · Protótipo acadêmico`.
+- Nova diretriz interna `DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md` para apresentações, testes, suporte técnico e separação entre material acadêmico e registros escolares.
+- Checklist institucional, limites operacionais e documentação de permissões receberam regras específicas para o TCC.
+- Testes legais e de identidade acadêmica ampliados para evitar regressões.

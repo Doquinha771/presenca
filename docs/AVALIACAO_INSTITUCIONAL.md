@@ -56,3 +56,11 @@ da Secretaria da Educação do Estado de São Paulo.
 - Resolução ANPD 19/2024 (transferência internacional): https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd/resolucao-cd-anpd-no-19-de-23-de-agosto-de-2024
 - Comunicação de incidentes, ANPD: https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis
 - Guia da ANPD sobre agentes de tratamento: https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes/guia-orientativo-para-definicoes-dos-agentes-de-tratamento-de-dados-pessoais-e-do-encarregado
+
+## Verificações específicas do TCC
+
+- [ ] A interface e os documentos identificam claramente **TCC · 3º A · Protótipo acadêmico**.
+- [ ] Apresentações, prints, vídeos e relatórios acadêmicos usam somente dados fictícios, sintéticos ou adequadamente anonimizados.
+- [ ] A equipe desenvolvedora não recebe acesso adicional a dados reais apenas por ser autora do projeto.
+- [ ] Materiais do TCC não apresentam o Presença+ como sistema oficial, homologado ou adotado pela rede sem ato institucional que sustente essa afirmação.
+- [ ] Eventual mudança de protótipo para uso institucional formal dispara revisão dos Termos, Política de Privacidade, responsabilidades, contatos e infraestrutura.

@@ -25,3 +25,9 @@ A publicação dos Termos de Uso e da Política de Privacidade não é parecer j
 - Decreto SP 65.347/2020: https://www.al.sp.gov.br/repositorio/legislacao/decreto/2020/decreto-65347-09.12.2020.html
 
 **Uso acadêmico:** o grupo de estudantes pode apresentar interface e resultados com dados sintéticos ou adequadamente anonimizados; a autoria do software não autoriza divulgação, cópia ou livre acesso a registros individuais de alunos.
+
+## Identidade acadêmica e limite do protótipo
+
+O Presença+ deve permanecer identificado como **TCC do 3º A · Protótipo acadêmico** enquanto estiver nessa condição. A marcação não é apenas visual: documentos, apresentações e procedimentos de suporte devem preservar a separação entre desenvolvimento acadêmico e tratamento de dados escolares reais. O apoio da direção e da secretaria não equivale a homologação como sistema oficial da rede.
+
+Dados reais não devem ser usados para enriquecer demonstrações, portfólios ou entregas do TCC. Quando um atendimento técnico exigir contato com registros reais, o acesso deve ser mínimo, autorizado e limitado à finalidade do suporte. Consulte `DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md`.
