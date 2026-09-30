@@ -25,7 +25,3 @@ A conta de aluno nasce de uma matrícula autorizada; o trigger ignora cargos env
 A Secretaria vê nome, RA, turma, situação e histórico necessários ao trabalho. E-mails não aparecem em dashboards nem em listagens da equipe; data de nascimento fica limitada aos formulários administrativos. Justificativas escolares também são dados pessoais: registre somente o necessário, evitando detalhes médicos.
 
 O produto não aplica exclusão automática de alunos, atrasos ou auditorias. Política de retenção, responsável e contato devem ser preenchidos pela escola. O módulo de privacidade registra solicitações/incidentes e providências; não substitui análise institucional ou jurídica.
-
-## Diretriz de acesso para o TCC
-
-A identidade **TCC 2026 · 3º A · Projeto aplicado · validação acadêmica** não cria qualquer permissão adicional. Integrantes do grupo desenvolvedor só podem visualizar dados reais quando também possuírem um papel autorizado para aquela operação ou quando houver suporte técnico legitimamente solicitado e restrito ao mínimo necessário. Demonstrações e testes acadêmicos devem usar dados fictícios, sintéticos ou adequadamente anonimizados.

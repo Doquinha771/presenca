@@ -22,8 +22,8 @@ test('matrículas e alunos são uma única área sem duplicar item de menu',()=>
  assert.match(app,/function studentTabs\(\)/);
  assert.match(app,/function classManager\(\)/);
  assert.match(app,/\$\{classManager\(\)\}/);
- assert.match(app,/\['enrollments','Matrículas e acessos'\]/);
- assert.match(app,/\['classes','Séries e turmas'\]/);
+ assert.match(app,/\['enrollments','Matrículas e acessos','enrollments'\]/);
+ assert.match(app,/\['classes','Séries e turmas','classes'\]/);
  assert.match(app,/studentsTab==='classes'/);
  assert.match(app,/id=\"inlineClassForm\"/);
  assert.match(app,/select.innerHTML=classesOptions\(chosen.id,false\)/);

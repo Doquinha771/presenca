@@ -1,3 +1,11 @@
+# 5.3.5 — Interface refinada (29/09/2026)
+
+- Retirada da identidade visual de TCC/protótipo e retorno à casca limpa do portal.
+- Visão geral simplificada e focada em informações e atalhos reais.
+- Área Alunos refinada com ações contextuais, filtros compactos e melhor hierarquia.
+- Formulários, tabelas, modais e breakpoints receberam ajustes de ergonomia.
+- Nenhuma mudança de banco de dados nesta versão.
+
 # Atualização 4.1.2 — solicitação de acesso de aluno
 
 - Conta do aluno sem matrícula previamente aprovada recebe perfil **pendente**, sem acesso aos registros escolares.
@@ -93,22 +101,3 @@ Não há exclusão automática de dados, credenciais administrativas embutidas, 
 - Novo RPC institucional com autorização no PostgreSQL, auditoria de solicitação, paginação de 200 registros, limites e índices para as pesquisas.
 - A migração `sql/07_exportacoes_institucionais.sql` deve estar no Supabase para ativar as três novas exportações.
 - Exportação não inclui senha, data de nascimento nem texto das observações individuais. Histórico por turma utiliza matrícula atual.
-
-## 5.3.3 — TCC integrado às diretrizes e privacidade (29/09/2026)
-
-- Termos de Uso atualizados para versão 2.2 com seção própria sobre o contexto acadêmico do TCC do 3º A.
-- Política de Privacidade atualizada para versão 2.2, esclarecendo que a condição de protótipo não amplia finalidade, acesso ou uso de dados reais.
-- Rodapés das páginas legais passam a identificar explicitamente `TCC 2026 · 3º A · Projeto aplicado · validação acadêmica`.
-- Nova diretriz interna `DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md` para apresentações, testes, suporte técnico e separação entre material acadêmico e registros escolares.
-- Checklist institucional, limites operacionais e documentação de permissões receberam regras específicas para o TCC.
-- Testes legais e de identidade acadêmica ampliados para evitar regressões.
-## 5.3.4 — Identidade acadêmica e maturidade do TCC (29/09/2026)
-
-- O rótulo principal deixa de ser “protótipo acadêmico” e passa a ser `TCC 2026 · 3º A · Projeto aplicado · validação acadêmica`.
-- O termo protótipo permanece apenas para explicar o estágio de avaliação e aperfeiçoamento, sem sugerir ausência de funcionalidade.
-- Nova página `projeto.html` funciona como ficha acadêmica: problema, objetivo, escopo, metodologia, critérios de qualidade, evidências técnicas, governança e maturidade.
-- Login e rodapés passam a apresentar o contexto acadêmico com linguagem de projeto aplicado, preservando o crédito solicitado aos alunos do 3-A e o apoio da direção.
-- Termos de Uso e Política de Privacidade passam à versão 2.3 com explicação clara sobre estágio de validação e limites do uso acadêmico.
-- README e diretrizes internas passam a destacar processo, versionamento, testes, arquitetura e rastreabilidade como evidências avaliáveis do TCC.
-- Nenhuma permissão de banco, fluxo de autenticação ou dado escolar é alterado por esta atualização.
-

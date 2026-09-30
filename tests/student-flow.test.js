@@ -5,7 +5,7 @@ const app=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
 const sql=readFileSync(new URL('../sql/09_autocadastro_fichas_e_turmas.sql',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 test('três abas de Alunos com Séries e Turmas independentes',()=>{
- assert.match(app,/\['list','Lista de alunos'\],\['enrollments','Matrículas e acessos'\],\['classes','Séries e turmas'\]/);
+ assert.match(app,/\['list','Lista de alunos','students'\],\['enrollments','Matrículas e acessos','enrollments'\],\['classes','Séries e turmas','classes'\]/);
  assert.match(app,/page==='students'&&studentsTab==='classes'/);
  assert.match(app,/page==='students'&&studentsTab==='enrollments'/);
  assert.match(app,/\['enrollments','classes'\]\.includes\(p\)\?'students':p/);

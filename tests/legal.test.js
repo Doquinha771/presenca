@@ -13,7 +13,7 @@ test('documentos legais estão disponíveis antes do login e sem requisições e
     assert.match(page, /<meta[^>]*http-equiv="Content-Security-Policy"/);
     assert.doesNotMatch(page,/<script|<iframe|<form/i);
     assert.doesNotMatch(page, /Minuta para aprovação da instituição|validar com a instituição|aguardando identificação/i);
-    assert.match(page, /Versão 2\.3/);
+    assert.match(page, /Versão 2\.1/);
   }
   assert.ok(existsSync(join(root,'assets/legal.css')));
   assert.match(terms,/privacidade\.html/);
@@ -58,29 +58,14 @@ test('política descreve endereço, dados, direitos, ausência de retenção fix
   }
 });
 
-test('origem coletiva, apoio escolar e limites do uso acadêmico aparecem nos documentos',()=>{
+test('origem estudantil, apoio escolar e limites de demonstração aparecem sem branding acadêmico',()=>{
   for(const page of [terms,privacy]){
     assert.match(page,/grupo de estudantes/);
     assert.match(page,/secretaria escolar/);
-    assert.match(page,/Trabalho de Conclusão de Curso/);
     assert.match(page,/dados (fictícios|sintéticos)/);
+    assert.doesNotMatch(page,/Trabalho de Conclusão de Curso|\bTCC\b|protótipo acadêmico/i);
     assert.doesNotMatch(page,/validar com a instituição|Minuta para aprovação/i);
   }
   assert.match(home,/feito pelos alunos do 3-A e com apoio da direção\./);
-  assert.doesNotMatch(read('README.md'),/## Instalação|## Download/);
-});
-
-
-test('Termos e Privacidade identificam explicitamente o protótipo de TCC',()=>{
-  for(const page of [terms,privacy]){
-    assert.match(page,/projeto aplicado/i);
-    assert.match(page,/validação acadêmica/i);
-    assert.match(page,/id="contexto-tcc"/);
-    assert.match(page,/dados fictícios, sintéticos ou adequadamente anonimizados/);
-    assert.match(page,/(?:não representa[^<]{0,80}homologação|não cria nova finalidade|não amplia o acesso)/i);
-  }
-  const guidelines=read('docs/DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md');
-  assert.match(guidelines,/projeto aplicado/i);
-  assert.match(guidelines,/validação acadêmica/i);
-  assert.match(guidelines,/não cria acesso administrativo/);
+  assert.doesNotMatch(read('README.md'),/Trabalho de Conclusão de Curso|\bTCC\b|## Instalação|## Download/i);
 });

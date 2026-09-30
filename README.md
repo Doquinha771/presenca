@@ -6,12 +6,12 @@
 
 **Portal web de acompanhamento escolar e gestão de registros de atraso.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.3.4-205f50)](./docs/ALTERACOES.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.3.5-205f50)](./docs/ALTERACOES.md)
 [![Plataforma](https://img.shields.io/badge/plataforma-Web-396c82)](./index.html)
 [![Banco](https://img.shields.io/badge/dados-Supabase-3c7659)](https://supabase.com/)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-institucional%20restrita-6c7075)](./LICENSE)
 
-[**Acessar o portal**](https://doquinha771.github.io/presenca/) · [**Ficha acadêmica**](./projeto.html) · [**Termos de Uso**](./termos.html) · [**Privacidade**](./privacidade.html)
+[**Acessar o portal**](https://doquinha771.github.io/presenca/) · [**Termos de Uso**](./termos.html) · [**Privacidade**](./privacidade.html)
 
 </div>
 
@@ -22,9 +22,9 @@ registra atrasos, acompanha ocorrências e disponibiliza aos alunos uma consulta
 individual de seus próprios dados. A gestão e a conferência de registros cabem à
 equipe institucional autorizada.
 
-O **Presença+** é um **projeto aplicado de Trabalho de Conclusão de Curso**, desenvolvido por um **grupo de estudantes do 3º ano A da E.E. Amador e Catharina Saporito Augusto**, no contexto do Trabalho de Conclusão de Curso (TCC) do curso técnico de Desenvolvimento de Sistemas. O projeto conta com o apoio da secretaria escolar e a participação da comunidade educacional, com foco em resolver uma necessidade concreta da instituição.
+O **Presença+** foi desenvolvido por estudantes do **3º ano A da E.E. Amador e Catharina Saporito Augusto**, com apoio da equipe escolar, para resolver uma necessidade concreta da rotina da instituição.
 
-A versão atual é tratada como **solução funcional em validação acadêmica**, com desenvolvimento incremental, documentação, testes automatizados e critérios de segurança, usabilidade e privacidade. É uma iniciativa de **inovação tecnológica no ambiente escolar** e uma ferramenta de apoio à rotina da escola. Não substitui os sistemas, os canais nem as decisões oficiais da Secretaria da Educação do Estado de São Paulo. O apoio à iniciativa não dispensa as regras de tratamento de dados pessoais dos estudantes.
+É uma iniciativa de **inovação tecnológica no ambiente escolar** e uma ferramenta de apoio à rotina da escola. Não substitui os sistemas, os canais nem as decisões oficiais da Secretaria da Educação do Estado de São Paulo. O apoio à iniciativa não dispensa as regras de tratamento de dados pessoais dos estudantes.
 
 ## Funcionalidades
 
@@ -67,7 +67,6 @@ Na nova matrícula, a Secretaria registra os dados escolares e o aluno cria sua 
 ├── index.html                    # Aplicação web
 ├── termos.html                   # Termos de Uso e Responsabilidades
 ├── privacidade.html              # Política de Privacidade
-├── projeto.html                  # Ficha acadêmica do TCC
 ├── LICENSE                       # Licença institucional restrita
 ├── config.js                     # Configuração pública do Supabase
 ├── assets/                       # CSS, JavaScript, exportador sob demanda e identidade visual
@@ -97,11 +96,11 @@ As páginas de Termos e Privacidade são textos informativos de uso do portal.
 A publicação não demonstra, por si só, adoção pelo poder público, certificação
 de conformidade nem a existência de um instrumento de tratamento de dados.
 
-**Governança de dados:** a atuação da equipe estudantil no código e na manutenção não concede acesso ilimitado a registros escolares. As decisões sobre finalidades, permissões e conservação seguem as atribuições dos responsáveis pelo tratamento; devem observar as bases legais, a segurança e os direitos dos titulares. A apresentação do TCC utiliza dados fictícios, sintéticos ou adequadamente anonimizados. O armazenamento internacional em nuvem exige salvaguardas previstas na LGPD. Consulte [Termos](./termos.html),
-[Privacidade](./privacidade.html), as [diretrizes de TCC e privacidade](./docs/DIRETRIZES_TCC_E_PRIVACIDADE_20260929.md) e o
+**Governança de dados:** a atuação da equipe estudantil no código e na manutenção não concede acesso ilimitado a registros escolares. As decisões sobre finalidades, permissões e conservação seguem as atribuições dos responsáveis pelo tratamento; devem observar as bases legais, a segurança e os direitos dos titulares. Demonstrações e materiais públicos utilizam dados fictícios, sintéticos ou adequadamente anonimizados. O armazenamento internacional em nuvem exige salvaguardas previstas na LGPD. Consulte [Termos](./termos.html),
+[Privacidade](./privacidade.html) e o
 [checklist institucional](./docs/AVALIACAO_INSTITUCIONAL.md).
 
-O trabalho acadêmico e o apoio da secretaria não autorizam a publicação de dados reais de alunos. Os registros escolares não devem ser armazenados no repositório do GitHub ou
+A autoria estudantil e o apoio da secretaria não autorizam a publicação de dados reais de alunos. Os registros escolares não devem ser armazenados no repositório do GitHub ou
 em arquivos públicos do site. A disponibilização do código-fonte **não** torna
 públicos nem licenciáveis os dados da instituição.
 
@@ -123,11 +122,11 @@ funcionamento de autenticação real ou a adequação jurídica de uma implanta�
 
 | Item | Situação |
 | --- | --- |
-| Versão do projeto | 5.3.4 (identidade acadêmica aprimorada, ficha do projeto, metodologia, maturidade e evidências técnicas), mantendo virada anual e keepalive do Supabase |
+| Versão do projeto | 5.3.1 (virada anual + keepalive do Supabase), requer as migrações 07, 09, 10 e 11 conforme o estado do banco |
 | Plataforma | Web responsiva / GitHub Pages |
 | Banco e autenticação | Supabase |
-| Natureza do serviço | Projeto aplicado de TCC do 3º A, solução funcional em validação acadêmica com apoio escolar, sem condição de sistema oficial da rede estadual |
-| Termos e política | Documentos 2.3 integrados ao site, com contexto acadêmico, estágio de validação, privacidade e limites do uso acadêmico |
+| Natureza do serviço | Projeto estudantil de apoio à rotina escolar, com apoio da equipe da unidade e sem condição de sistema oficial da rede estadual |
+| Termos e política | Documentos 2.1 integrados ao site, com atribuições da equipe escolar e do grupo de estudantes |
 
 ## Licença
 
