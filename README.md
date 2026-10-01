@@ -1,152 +1,203 @@
 <div align="center">
 
-<img src="assets/logo.png" alt="Identidade visual do Presença+" width="72" />
+<img src="assets/logo.png" alt="Presença+" width="78" />
 
 # Presença+
 
-**Portal web de acompanhamento escolar e gestão de registros de atraso.**
+**Plataforma web para acompanhamento escolar, gestão de matrículas e histórico de ocorrências.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-Alpha%201.0-205f50)](./docs/ALTERACOES.md)
-[![Plataforma](https://img.shields.io/badge/plataforma-Web-396c82)](./index.html)
-[![Banco](https://img.shields.io/badge/dados-Supabase-3c7659)](https://supabase.com/)
-[![Licença](https://img.shields.io/badge/licen%C3%A7a-institucional%20restrita-6c7075)](./LICENSE)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-Alpha%201.0-1769e8)](#versão-atual)
+[![Status](https://img.shields.io/badge/status-em%20valida%C3%A7%C3%A3o-0b7d67)](#estado-do-projeto)
+[![Plataforma](https://img.shields.io/badge/plataforma-Web-163b6d)](#tecnologia)
+[![Dados](https://img.shields.io/badge/dados-Supabase-3ecf8e)](#segurança-e-privacidade)
 
-[**Acessar o portal**](https://doquinha771.github.io/presenca/) · [**Termos de Uso**](./termos.html) · [**Privacidade**](./privacidade.html)
+**Projeto de conclusão de curso desenvolvido no contexto escolar, com foco em um problema real de organização e acompanhamento da rotina estudantil.**
 
 </div>
 
-## Sobre
+## Visão do produto
 
-O **Presença+** é uma aplicação web de apoio à rotina escolar. Organiza matrículas,
-registra atrasos, acompanha ocorrências e disponibiliza aos alunos uma consulta
-individual de seus próprios dados. A gestão e a conferência de registros cabem à
-equipe institucional autorizada.
+O **Presença+** centraliza informações que normalmente ficam espalhadas entre controles manuais, registros administrativos e consultas individuais. A proposta é oferecer uma experiência simples para alunos e equipe escolar, com navegação rápida, histórico preservado e regras claras de acesso.
 
-O **Presença+** foi desenvolvido por estudantes do **3º ano A da E.E. Amador e Catharina Saporito Augusto**, com apoio da equipe escolar, para resolver uma necessidade concreta da rotina da instituição.
+O sistema foi pensado para ser utilizado por pessoas com diferentes níveis de familiaridade com tecnologia. Por isso, a interface prioriza linguagem direta, poucos passos por tarefa, ações previsíveis e separação clara entre consulta e administração.
 
-É uma iniciativa de **inovação tecnológica no ambiente escolar** e uma ferramenta de apoio à rotina da escola. Não substitui os sistemas, os canais nem as decisões oficiais da Secretaria da Educação do Estado de São Paulo. O apoio à iniciativa não dispensa as regras de tratamento de dados pessoais dos estudantes.
+## Versão atual
 
-## Funcionalidades
+**Alpha 1.0**
 
-| Área | Recursos |
+A versão Alpha 1.0 representa a primeira consolidação funcional do produto. Ela reúne os principais fluxos de uso, a nova identidade visual do desktop, interface responsiva, autenticação, gestão escolar e integração com banco de dados em nuvem.
+
+Nesta fase, o objetivo é validar o produto em condições próximas do uso real, corrigir inconsistências de experiência e fortalecer estabilidade, acessibilidade, segurança e desempenho antes de uma versão estável.
+
+### Destaques da Alpha 1.0
+
+- nova interface desktop com navegação lateral fixa;
+- visão geral com indicadores e atalhos operacionais;
+- área de alunos com matrículas, séries e turmas integradas;
+- histórico com filtros, ordenação, paginação e ações por registro;
+- cadastro e autocadastro de alunos com regras institucionais;
+- renovação de matrícula e virada de ano letivo;
+- comunicados, relatórios e exportação para Excel;
+- autenticação e banco de dados no Supabase;
+- controles de acesso por perfil;
+- modo escuro, responsividade e suporte a redução de movimento;
+- rotina de continuidade para reduzir pausas por inatividade no plano gratuito do banco.
+
+## O problema
+
+Rotinas escolares simples podem exigir várias consultas, conferências e registros repetitivos. Quando essas informações ficam fragmentadas, tarefas como localizar um aluno, consultar histórico, acompanhar limites de atraso ou atualizar uma matrícula passam a depender de mais tempo e mais etapas do que deveriam.
+
+O Presença+ nasceu para reduzir essa fricção. A plataforma organiza os dados em torno das tarefas mais frequentes e mantém o histórico necessário para conferência e auditoria.
+
+## A solução
+
+A aplicação separa a experiência em três contextos principais:
+
+| Perfil | Experiência |
 | --- | --- |
-| Aluno | Acesso por conta individual, consulta de atrasos, histórico e comunicados. |
-| Secretaria | Gestão de matrículas autorizadas, cadastro e registros de atraso. |
-| Direção | Administração de permissões, ajustes justificados, períodos, calendário letivo e auditoria. |
-| Ano letivo | Agendamento da virada, renovação com aprovação ou reprovação, conclusão e transferência, com histórico preservado. |
-| Identidade | Solicitações pendentes de alunos, convites institucionais, confirmação de e-mail e provisionamento de contas pela secretaria. |
-| Privacidade | Documentos públicos, controles de acesso no banco e solicitação de revisão de registros. |
-| Mobile | Navegação inferior dedicada, menu de funções, cartões de histórico e formulários responsivos. |
-| Relatórios | Resumo agregado e exportações Excel (.xlsx) de alunos, histórico e matrículas com filtros de turma, série e período, mediante autorização institucional. |
+| **Aluno** | Consulta do próprio histórico, situação escolar e comunicados. |
+| **Secretaria** | Gestão de matrículas, cadastros, turmas e operações escolares autorizadas. |
+| **Direção** | Supervisão administrativa, regras, auditoria, privacidade e configurações institucionais. |
 
-## Arquitetura
+As permissões são verificadas no banco de dados e não apenas na interface. Isso evita que a simples manipulação do frontend conceda acesso a funções administrativas.
 
-```text
-Navegador (desktop / celular)
-         |
-         v
-GitHub Pages (HTML + CSS + JavaScript)
-         |
-         v
-Supabase Auth + Edge Functions + PostgreSQL
-         |
-         v
-Políticas RLS / funções com validação de autorização
-```
+## Experiência de uso
 
-O resumo agregado é gerado a partir do painel. Listas e históricos identificáveis usam exclusivamente `portal_export`, função do Supabase com verificação de perfil institucional, paginação e registro de solicitação em auditoria. As planilhas são montadas no navegador autorizado; não há importador de planilhas. Confira `docs/EXPORTACOES.md` para a migração necessária.
+A interface foi redesenhada com referência em portais institucionais e sistemas administrativos modernos. O foco visual está em legibilidade, consistência e velocidade de operação.
 
-A interface estática não contém senhas administrativas ou chaves de serviço.
-`config.js` armazena somente a URL e a chave **publicável** do projeto Supabase.
-Na nova matrícula, a Secretaria registra os dados escolares e o aluno cria sua própria conta e senha, confirmando o e-mail escolar. Matrículas já vinculadas a uma conta usam a recuperação de senha do Supabase Auth. O banco vincula automaticamente um cadastro ao registro escolar quando RA e e-mail institucional correspondem. Pré-cadastros sem matrícula aparecem como fichas à equipe, sem conceder acesso a dados escolares. A Edge Function `provision-student` permanece apenas como compatibilidade para procedimentos anteriores e não é chamada pelo novo cadastro. Operações no PostgreSQL dependem das políticas de acesso e das funções institucionais. Não há backend local ou armazenamento offline de registros.
+Princípios adotados:
 
-## Estrutura do projeto
+- hierarquia clara de informações;
+- navegação lateral persistente no desktop;
+- busca contextual nas áreas que realmente precisam dela;
+- tabelas legíveis e filtros próximos do conteúdo;
+- ações importantes sempre visíveis;
+- redução de informações duplicadas;
+- feedback visual curto e discreto;
+- animações leves, evitando impacto perceptível de desempenho;
+- adaptação para telas menores sem replicar a interface desktop de forma forçada.
 
-```text
-.
-├── index.html                    # Aplicação web
-├── termos.html                   # Termos de Uso e Responsabilidades
-├── privacidade.html              # Política de Privacidade
-├── LICENSE                       # Licença institucional restrita
-├── config.js                     # Configuração pública do Supabase
-├── assets/                       # CSS, JavaScript, exportador sob demanda e identidade visual
-├── sql/                          # Esquema e migrações do banco
-├── supabase/functions/           # Provisionamento autorizado de alunos
-├── docs/                         # Validação e diretrizes de implantação
-└── tests/                        # Testes automatizados
-```
+## Funcionalidades principais
 
-## Perfis e acesso
+### Gestão de alunos
 
-- **Aluno:** consulta exclusivamente os próprios registros após a autorização
-  de matrícula e as etapas de autenticação aplicáveis.
-- **Secretaria:** administra matrículas e operações permitidas ao cargo.
-- **Direção:** administra permissões, justificativas e configurações.
+A área de alunos concentra lista, matrículas, acessos, séries e turmas. A intenção é evitar que a equipe precise alternar entre várias páginas para concluir um cadastro ou atualização escolar.
 
-O aluno sem matrícula autorizada pode solicitar uma conta, mas permanece sem acesso aos registros escolares até a conferência institucional. A Secretaria registra a matrícula oficial e o aluno cria a própria conta e senha, usando seu e-mail escolar confirmado. Se a conta já existir, utiliza a recuperação de senha. O pré-cadastro espontâneo permanece pendente até a Secretaria verificar os dados oficiais. Durante a virada do ano, um aluno anteriormente matriculado pode acessar a mesma conta e seu histórico, embora as funções que dependem da matrícula atual só sejam liberadas após a renovação. Não use RA ou data de nascimento como senha inicial.
+### Histórico
 
-## Proteção de dados e uso institucional
+O histórico preserva ocorrências e alterações relevantes, com filtros por período, aluno, turma e situação. Correções permanecem identificáveis para que uma alteração não apague silenciosamente o contexto anterior.
 
-O Presença+ poderá tratar nome, RA, e-mail escolar, turma, nascimento para
-conferência de matrícula, registros de atraso e histórico de alterações.
-A caixa de leitura no cadastro é uma etapa informativa da interface e **não**
-representa consentimento genérico, contrato com o poder público ou registro
-auditável de aceitação no banco.
-As páginas de Termos e Privacidade são textos informativos de uso do portal.
-A publicação não demonstra, por si só, adoção pelo poder público, certificação
-de conformidade nem a existência de um instrumento de tratamento de dados.
+### Matrículas e contas
 
-**Governança de dados:** a atuação da equipe estudantil no código e na manutenção não concede acesso ilimitado a registros escolares. As decisões sobre finalidades, permissões e conservação seguem as atribuições dos responsáveis pelo tratamento; devem observar as bases legais, a segurança e os direitos dos titulares. Demonstrações e materiais públicos utilizam dados fictícios, sintéticos ou adequadamente anonimizados. O armazenamento internacional em nuvem exige salvaguardas previstas na LGPD. Consulte [Termos](./termos.html),
-[Privacidade](./privacidade.html) e o
-[checklist institucional](./docs/AVALIACAO_INSTITUCIONAL.md).
+Alunos previamente cadastrados pela escola podem criar a própria conta usando os dados institucionais correspondentes. Cadastros iniciados pelo próprio estudante aparecem como fichas pendentes para conferência da equipe escolar.
 
-A autoria estudantil e o apoio da secretaria não autorizam a publicação de dados reais de alunos. Os registros escolares não devem ser armazenados no repositório do GitHub ou
-em arquivos públicos do site. A disponibilização do código-fonte **não** torna
-públicos nem licenciáveis os dados da instituição.
+### Ano letivo
 
-O fluxo de renovação anual e suas ressalvas estão documentados em `docs/VIRADA_ANO_LETIVO_20260923.md`. A mudança de versão não encerra o calendário atual automaticamente.
+A plataforma possui fluxo de renovação anual. A mudança não precisa ocorrer em 1º de janeiro: a instituição pode definir datas de encerramento e abertura do ano letivo. Alunos aprovados avançam de série, reprovados permanecem na etapa e concluintes deixam a base ativa sem perder o histórico.
 
-## Continuidade do Supabase Free
+### Relatórios
 
-O repositório possui um workflow agendado que gera três consultas mínimas por dia no RPC `project_keepalive`. O RPC não lê nem modifica dados escolares e utiliza apenas a chave publicável já presente no cliente. A rotina existe como proteção adicional contra pausa automática por baixa atividade no plano Free; o uso real do portal continua sendo a principal atividade do banco. O workflow também pode ser executado manualmente pelo GitHub Actions.
+Usuários institucionais autorizados podem gerar relatórios e planilhas com filtros. A exportação foi projetada para evitar a exposição de informações que não são necessárias para a finalidade do relatório.
 
-A rotina não substitui monitoramento nem garante disponibilidade permanente do plano gratuito. Se o workflow agendado for desativado pelo GitHub ou se o projeto ultrapassar outras limitações do plano, a equipe deve verificar o painel do Supabase.
+## Projeto de TCC
 
-## Qualidade e testes
+O Presença+ é desenvolvido como **Trabalho de Conclusão de Curso**, a partir de uma necessidade observada no ambiente escolar.
 
-O repositório contém verificações automatizadas de validação de dados, acesso, integridade do frontend e documentos institucionais. Consulte `docs/VALIDACAO.md` para os critérios de homologação. A suíte SQL
-utiliza banco PostgreSQL descartável. Testes locais não comprovam o
-funcionamento de autenticação real ou a adequação jurídica de uma implantação.
+O projeto não foi pensado apenas como demonstração visual. Seu desenvolvimento envolve etapas típicas de um produto de software aplicado:
+
+- levantamento de problema e requisitos;
+- modelagem de dados;
+- definição de perfis e permissões;
+- desenvolvimento de interface e fluxos;
+- integração com serviços externos;
+- testes automatizados;
+- revisão de segurança e privacidade;
+- validação de usabilidade;
+- evolução por versões.
+
+A condição de TCC faz parte do contexto acadêmico do projeto, mas não reduz os critérios técnicos adotados. A Alpha 1.0 busca demonstrar uma solução funcional, coerente e auditável, com espaço explícito para validação e evolução.
+
+## Tecnologia
+
+O Presença+ utiliza uma arquitetura web enxuta:
+
+**Frontend**
+- HTML, CSS e JavaScript;
+- interface responsiva;
+- hospedagem estática via GitHub Pages.
+
+**Backend e dados**
+- Supabase Auth;
+- PostgreSQL;
+- Row Level Security (RLS);
+- funções SQL e RPCs para operações institucionais;
+- Edge Functions em fluxos específicos.
+
+A aplicação não depende de servidor local para operar em produção.
+
+## Segurança e privacidade
+
+O sistema trata informações escolares e, por isso, segurança e privacidade fazem parte do desenho do produto.
+
+Entre as medidas adotadas estão:
+
+- autenticação individual;
+- separação de permissões por função;
+- políticas RLS no banco;
+- uso de chave publicável no cliente;
+- ausência de chave de serviço no frontend;
+- histórico de ações administrativas;
+- validações no banco para operações sensíveis;
+- documentos de Termos de Uso e Política de Privacidade acessíveis antes do login;
+- preservação de registros quando há correções ou mudanças de período.
+
+O projeto não deve ser interpretado como substituto automático dos sistemas oficiais da rede de ensino. Seu uso depende da autorização e das regras da instituição responsável pelos dados.
+
+A confirmação de leitura dos Termos de Uso e da Política de Privacidade **não**
+representa consentimento genérico para qualquer tratamento de dados pessoais; as operações devem permanecer vinculadas à finalidade escolar e à base legal aplicável.
+
+## Qualidade
+
+O desenvolvimento mantém uma suíte automatizada para reduzir regressões durante as atualizações. Os testes cobrem regras de interface, fluxos principais, documentos legais, relatórios, responsividade, virada de ano, continuidade do banco e comportamentos críticos do frontend.
+
+Além da automação, a evolução da Alpha depende de validação visual e operacional em navegadores reais, especialmente nos fluxos que envolvem autenticação, permissões e diferentes tamanhos de tela.
 
 ## Estado do projeto
 
-| Item | Situação |
+| Área | Estado |
 | --- | --- |
-| Versão do projeto | 5.3.1 (virada anual + keepalive do Supabase), requer as migrações 07, 09, 10 e 11 conforme o estado do banco |
-| Plataforma | Web responsiva / GitHub Pages |
-| Banco e autenticação | Supabase |
-| Natureza do serviço | Projeto estudantil de apoio à rotina escolar, com apoio da equipe da unidade e sem condição de sistema oficial da rede estadual |
-| Termos e política | Documentos 2.1 integrados ao site, com atribuições da equipe escolar e do grupo de estudantes |
+| Interface desktop | Alpha funcional |
+| Interface mobile | Funcional e responsiva |
+| Autenticação | Integrada ao Supabase |
+| Gestão de alunos | Funcional |
+| Histórico | Funcional |
+| Matrículas e turmas | Funcional |
+| Relatórios | Funcional |
+| Virada de ano letivo | Implementada para validação |
+| Auditoria e privacidade | Implementadas |
+| Testes automatizados | Ativos |
+| Versão estável | Ainda não lançada |
 
-## Licença
+## Próximos marcos
 
-Distribuição conforme a **[Licença Institucional Restrita](./LICENSE)**.
-A existência de um repositório público não concede, por si só, licença de
-código aberto, permissão para tratamento de dados escolares nem endosso por
-instituições públicas. Direitos e licenças de componentes de terceiros
-permanecem aplicáveis.
+A evolução após a Alpha 1.0 prioriza:
 
+1. homologação completa dos fluxos com contas reais autorizadas;
+2. refinamento visual em diferentes resoluções de desktop;
+3. redução de etapas em operações administrativas frequentes;
+4. fortalecimento dos testes de navegador;
+5. revisão final de acessibilidade;
+6. preparação da primeira versão estável.
 
-## Relatórios escolares e impressão
+## Licença e uso
 
-A equipe institucional pode gerar o **resumo agregado** ou uma **lista de alunos**, **histórico por turma ou série** e **relação de matrículas** em Excel. Listas individuais podem conter nome e RA; matrículas também incluem e-mail institucional. Senhas, datas de nascimento e justificativas individuais não são exportadas. Filtros são executados pelo Supabase; o arquivo é montado no navegador e não é salvo no Storage. É necessário o RPC da migração `sql/07_exportacoes_institucionais.sql`.
+O projeto possui licença de uso institucional restrita. A disponibilidade do código não autoriza acesso, publicação ou reutilização de dados escolares.
 
-Contagens por turma são dados agregados, mas podem permitir inferências em grupos muito pequenos. Os relatórios destinam-se apenas ao uso interno e não devem ser publicados sem avaliação de privacidade.
+---
 
-## Desempenho e acessibilidade
+<div align="center">
 
-A navegação móvel e o desktop compartilham a linguagem visual da página Visão geral, com dimensionamento específico para cada dispositivo. O gerador XLSX é carregado somente quando o usuário institucional exporta um relatório. A interface oferece alvos de toque ampliados, foco visível, estados de carregamento e suporte à preferência por movimento reduzido. As pontuações Lighthouse variam conforme dispositivo, conexão, autenticação e conteúdo; não há garantia de pontuação fixa.
+**Presença+ · Alpha 1.0**  
+Tecnologia aplicada à organização da rotina escolar.
 
-
-## Alpha 1.0
-A interface desktop foi refeita a partir da referência visual fornecida: navegação lateral azul, pesquisa no topo da visão geral, indicadores compactos, gráfico, resumo por turma, comunicados e ações rápidas, preservando os fluxos de Alunos, Matrículas e Séries/Turmas.
+</div>

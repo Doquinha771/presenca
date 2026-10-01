@@ -67,5 +67,6 @@ test('origem estudantil, apoio escolar e limites de demonstração aparecem sem 
     assert.doesNotMatch(page,/validar com a instituição|Minuta para aprovação/i);
   }
   assert.match(home,/feito pelos alunos do 3-A e com apoio da direção\./);
-  assert.doesNotMatch(read('README.md'),/Trabalho de Conclusão de Curso|\bTCC\b|## Instalação|## Download/i);
+  assert.match(read('README.md'),/Trabalho de Conclusão de Curso|Projeto de TCC/i);
+  assert.doesNotMatch(read('README.md'),/## Instalação|## Download|estrutura do projeto/i);
 });

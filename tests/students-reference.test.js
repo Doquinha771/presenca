@@ -22,7 +22,7 @@ test('Alpha 1.0 usa a casca visual específica da área Alunos',()=>{
 });
 
 test('cabeçalho da área Alunos mantém busca global e apenas Tema',()=>{
- assert.match(app,/\['overview','students'\]\.includes\(state\.page\)/);
+ assert.match(app,/\['overview','students','history'\]\.includes\(state\.page\)/);
  assert.match(app,/Ctrl \+ K/);
  assert.doesNotMatch(html,/id="refresh"/);
  assert.match(css,/students-page \.page-header \.page-copy\{display:none!important\}/);

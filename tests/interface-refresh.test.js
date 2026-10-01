@@ -10,8 +10,9 @@ const read=name=>readFileSync(new URL('../'+name,import.meta.url),'utf8');
 test('camada de revisão é carregada por último e não reintroduz branding de TCC',()=>{
  assert.match(html,/academic-year\.css"><link rel="stylesheet" href="\.\/assets\/interface-refresh\.css">/);
  assert.doesNotMatch(html,/watermark|protótipo acadêmico|\bTCC\b/i);
- for(const page of [read('README.md'),read('termos.html'),read('privacidade.html')])
+ for(const page of [read('termos.html'),read('privacidade.html')])
    assert.doesNotMatch(page,/Trabalho de Conclusão de Curso|\bTCC\b|protótipo acadêmico/i);
+ assert.match(read('README.md'),/Trabalho de Conclusão de Curso|Projeto de TCC/i);
 });
 
 test('Alunos usa ações contextuais e filtros com menos passos',()=>{

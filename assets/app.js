@@ -74,20 +74,33 @@ function renderHeaderChrome(){
  const utility=$('pageUtility');
  if(utility){
   utility.replaceChildren();utility.hidden=true;
-  if(staff()&&['overview','students'].includes(state.page)){
+  if(staff()&&['overview','students','history'].includes(state.page)){
    utility.innerHTML=`<form id="dashboardSearch" class="dashboard-search" role="search"><span class="dashboard-search-icon">${uiIcon('search')}</span><input id="dashboardSearchInput" type="search" autocomplete="off" value="${esc(studentsFilter.search||'')}" placeholder="Buscar aluno por nome, RA ou turma…" aria-label="Buscar aluno por nome, RA ou turma"><kbd aria-hidden="true">Ctrl + K</kbd><button type="submit" class="sr-only">Buscar</button></form>`;
    utility.hidden=false;
-   const form=$('dashboardSearch');if(form)form.onsubmit=e=>{e.preventDefault();const input=$('dashboardSearchInput');const term=input?.value.trim()||'';const q=term.toLocaleLowerCase('pt-BR');const room=q?state.classes.find(c=>`${c.grade} ${c.name}`.toLocaleLowerCase('pt-BR').includes(q)):null;studentsFilter=room?{search:'',class:room.id,situation:''}:{...studentsFilter,search:term};studentsTab='list';state.offset=0;if(state.page==='students')void render();else location.hash='#/students';};
+   const form=$('dashboardSearch');if(form)form.onsubmit=e=>{e.preventDefault();const input=$('dashboardSearchInput');const term=input?.value.trim()||'';const q=term.toLocaleLowerCase('pt-BR');const room=q?state.classes.find(c=>`${c.grade} ${c.name}`.toLocaleLowerCase('pt-BR').includes(q)):null;state.offset=0;if(state.page==='history'){historySearch=term;historyFilter={...historyFilter,class:room?.id||historyFilter.class||''};void render();return;}studentsFilter=room?{search:'',class:room.id,situation:''}:{...studentsFilter,search:term};studentsTab='list';if(state.page==='students')void render();else location.hash='#/students';};
   }
  }
  const status=$('pageStatusCard');if(status){status.replaceChildren();status.hidden=true;}
  const campus=$('sidebarCampus');if(campus)campus.replaceChildren();
 }
-window.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'&&state.me&&staff()&&['overview','students'].includes(state.page)){event.preventDefault();$('dashboardSearchInput')?.focus();}});
-function historyBadge(r){return `<span class="pill ${r.status==='void'?'ghost':r.status==='forgiven'?'ok':r.status==='active'?'warn':''}">${r.status==='forgiven'?'Perdoado':r.status==='void'?'Anulado':r.justified?'Justificado':'Válido'}</span>`;}
+window.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='k'&&state.me&&staff()&&['overview','students','history'].includes(state.page)){event.preventDefault();$('dashboardSearchInput')?.focus();}});
+function historyStatus(r){
+ if(r.status==='void')return ['Anulado','status-void'];
+ if(r.status==='forgiven')return ['Perdoado','status-forgiven'];
+ if(r.justified)return ['Justificado','status-justified'];
+ return ['Registrado','status-active'];
+}
+function historyBadge(r){const [label,tone]=historyStatus(r);return `<span class="history-status ${tone}">${label}</span>`;}
+function historyType(r){
+ if(r.change_reason)return ['Correção','document'];
+ if(r.justified)return ['Justificativa','enrollments'];
+ return ['Atraso','calendar'];
+}
+function historyDateParts(value){
+ const d=new Date(value);if(Number.isNaN(d.getTime()))return {date:'—',time:''};
+ return {date:new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'America/Sao_Paulo'}).format(d),time:new Intl.DateTimeFormat('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}).format(d)};
+}
 async function hydrateHistoryRa(rows){
- // A consulta de RA usa somente SELECT id/ra, respeitando a RLS atual de profiles.
- // O histórico continua disponível mesmo se a consulta complementar falhar.
  const ids=[...new Set(rows.filter(r=>!r.ra).map(r=>r.student_id).filter(Boolean))];
  if(!ids.length||typeof db.from!=='function')return rows;
  try{
@@ -100,33 +113,42 @@ async function hydrateHistoryRa(rows){
 function historyClassName(r){
  const label=String(r.grade||'');
  const room=state.classes.find(c=>label===c.grade+' • '+c.name);
- return room?room.grade+' · '+room.name:label||'Turma não informada';
+ return room?room.grade+' • '+room.name:label||'Turma não informada';
+}
+function historyFilteredRows(rows){
+ const q=historySearch.trim().toLocaleLowerCase('pt-BR');
+ if(!q)return rows;
+ return rows.filter(r=>`${r.full_name||''} ${r.ra||''} ${historyClassName(r)}`.toLocaleLowerCase('pt-BR').includes(q));
 }
 function renderHistoryRows(rows){
  const ordered=historyOrder==='oldest'?[...rows].reverse():rows;
- return ordered.map(r=>{
+ return ordered.slice(0,historyPageSize).map(r=>{
+  const dt=historyDateParts(r.occurred_at),[type,typeIcon]=historyType(r);
   const menu=`<button type="button" class="history-menu-btn" data-action="history-actions" data-id="${esc(r.id)}" aria-label="Ações do registro de ${esc(r.full_name)}" title="Ações deste registro">${uiIcon('menuDots')}</button>`;
-  return `<tr><td class="history-date" data-label="Data"><strong>${dateBR(r.occurred_at)}</strong></td><td class="history-student" data-label="Aluno"><strong>${esc(r.full_name)}</strong>${r.ra?`<small>RA ${esc(r.ra)}</small>`:''}</td><td class="history-class" data-label="Turma">${esc(historyClassName(r))}</td><td data-label="Situação">${historyBadge(r)}</td><td class="history-comment" data-label="Observação">${esc(r.reason||'—')}${r.change_reason?`<small>Alteração: ${esc(r.change_reason)}</small>`:''}</td><td data-label="Responsável">${esc(r.operator_name||'Registro legado')}</td><td class="history-action-cell" data-label="Ações">${menu}</td></tr>`;
- }).join('')||'<tr><td colspan="7" class="history-empty">Nenhum registro encontrado para os filtros selecionados.</td></tr>';
+  return `<tr><td class="history-date" data-label="Data e hora"><strong>${dt.date}, ${dt.time}</strong></td><td class="history-student" data-label="Aluno"><strong>${esc(r.full_name)}</strong>${r.ra?`<small>RA ${esc(r.ra)}</small>`:''}</td><td class="history-class" data-label="Turma">${esc(historyClassName(r))}</td><td class="history-type" data-label="Tipo"><span>${uiIcon(typeIcon)}</span>${type}</td><td data-label="Situação">${historyBadge(r)}</td><td class="history-comment" data-label="Observação">${esc(r.reason||'—')}${r.change_reason?`<small>Alteração: ${esc(r.change_reason)}</small>`:''}</td><td data-label="Responsável">${esc(r.operator_name||'Sistema')}</td><td class="history-action-cell" data-label="Ações">${menu}</td></tr>`;
+ }).join('')||'<tr><td colspan="8" class="history-empty">Nenhum registro encontrado para os filtros selecionados.</td></tr>';
+}
+function historyReferencePager(rows){
+ const page=Math.floor(state.offset/historyPageSize)+1;
+ const knownTotal=rows.length<25?Math.max(page,Math.ceil((state.offset+rows.length)/historyPageSize)):null;
+ return `<div class="history-reference-pager"><label class="history-page-size"><select id="historyPageSize" aria-label="Itens por página"><option value="10" ${historyPageSize===10?'selected':''}>10 por página</option><option value="15" ${historyPageSize===15?'selected':''}>15 por página</option><option value="20" ${historyPageSize===20?'selected':''}>20 por página</option></select></label><div class="history-page-nav"><button type="button" class="outline" data-action="history-prev" ${state.offset===0?'disabled':''}>${uiIcon('back')} <span>Anterior</span></button><strong>Página ${page}${knownTotal?' de '+knownTotal:''}</strong><button type="button" class="outline" data-action="history-next" ${rows.length<=historyPageSize?'disabled':''}><span>Próxima</span> ${uiIcon('chevron')}</button></div></div>`;
 }
 function renderStaffHistory(rows){
- const n=rows.length,start=n?state.offset+1:0,last=n?state.offset+n:0;
- return `<section class="panel history-filter-panel" aria-labelledby="historyFilterTitle">
- <div class="history-panel-head"><div class="history-title"><span class="history-heading-icon">${uiIcon('filter')}</span><div><h2 id="historyFilterTitle">Filtros</h2><p>Refine a busca para encontrar os registros desejados.</p></div></div><button type="button" class="outline history-clear" data-action="clear-history-filters">${uiIcon('refresh')} Limpar filtros</button></div>
- <form id="historyFilters" class="history-filter-grid">
- <label>De<input id="fromDate" name="from" type="date" value="${esc(historyFilter.from||'')}"></label>
- <label>Até<input id="toDate" name="to" type="date" value="${esc(historyFilter.to||'')}"></label>
- <label>Turma<select id="historyClass" name="class">${classesOptions(historyFilter.class)}</select></label>
- <label>Situação<select id="historyStatus" name="status"><option value="">Todas</option><option value="active">Válidos</option><option value="forgiven">Perdoados</option><option value="void">Anulados</option></select></label>
- <button class="primary history-filter-submit" type="submit">${uiIcon('search')} Filtrar</button>
- <button class="outline history-export" type="button" data-action="open-reports">${uiIcon('download')} Exportar Excel</button>
- </form>${state.historyStudent?`<div class="history-current-student">Exibindo o histórico de um aluno. ${button('Mostrar todos','all-history')}</div>`:''}
+ const filtered=historyFilteredRows(rows),shown=filtered.slice(0,historyPageSize),n=shown.length;
+ const info=`<aside class="history-top-info" aria-label="Informações sobre o histórico"><span>${uiIcon('info')}</span><p>O histórico mostra as ocorrências registradas,<br>incluindo correções e justificativas.</p></aside>`;
+ return `<section class="history-reference-intro"><div class="history-reference-heading"><span class="history-reference-icon">${uiIcon('history')}</span><div><h2>Histórico</h2><p>Consulte o histórico de ocorrências, atrasos e alterações dos alunos.</p></div></div>${info}</section>
+ <section class="panel history-filter-panel" aria-labelledby="historyFilterTitle">
+  <div class="history-panel-head"><div class="history-title"><span class="history-heading-icon">${uiIcon('filter')}</span><h2 id="historyFilterTitle">Filtros de busca</h2></div><div class="history-filter-actions"><button type="button" class="outline history-clear" data-action="clear-history-filters">${uiIcon('refresh')} Limpar filtros</button><button type="submit" form="historyFilters" class="primary history-filter-submit">${uiIcon('search')} Aplicar filtros</button></div></div>
+  <form id="historyFilters" class="history-filter-grid">
+   <label class="history-period-label">Período<div class="history-period-control"><span>${uiIcon('calendar')}</span><input id="fromDate" name="from" type="date" value="${esc(historyFilter.from||'')}"><b aria-hidden="true">→</b><input id="toDate" name="to" type="date" value="${esc(historyFilter.to||'')}"></div></label>
+   <label>Aluno<div class="history-search-control"><span>${uiIcon('search')}</span><input id="historyStudentSearch" type="search" value="${esc(historySearch)}" placeholder="Nome ou RA…" autocomplete="off"></div></label>
+   <label>Turma<select id="historyClass" name="class">${classesOptions(historyFilter.class)}</select></label>
+   <label>Situação<select id="historyStatus" name="status"><option value="">Todas</option><option value="active">Registrados</option><option value="forgiven">Perdoados</option><option value="void">Anulados</option></select></label>
+  </form>${state.historyStudent?`<div class="history-current-student">Histórico individual selecionado. ${button('Mostrar todos','all-history')}</div>`:''}
  </section>
- <section class="panel history-results-panel" aria-labelledby="historyResultsTitle"><div class="history-results-head"><div class="history-results-caption"><span class="history-heading-icon">${uiIcon('history')}</span><h2 id="historyResultsTitle">Registros encontrados</h2><span class="history-count">${n} ${n===1?'registro':'registros'}</span></div><label class="history-sort">Ordenar nesta página <select id="historyOrder" aria-label="Ordenar registros nesta página"><option value="recent" ${historyOrder==='recent'?'selected':''}>Data (mais recente)</option><option value="oldest" ${historyOrder==='oldest'?'selected':''}>Data (mais antiga)</option></select></label></div>
- <div class="table-scroll history-table-wrap"><table class="responsive history-table"><thead><tr><th scope="col">Data</th><th scope="col">Aluno</th><th scope="col">Turma</th><th scope="col">Situação</th><th scope="col">Observação</th><th scope="col">Responsável</th><th scope="col">Ações</th></tr></thead><tbody id="historyRows">${renderHistoryRows(rows)}</tbody></table></div>
- <div class="history-results-foot"><span>${n?`Exibindo ${start} a ${last} nesta página`:'Nenhum registro nesta página'}</span>${pager(rows)}</div>
- </section>
- <aside class="history-info" aria-label="Informações sobre o histórico"><span>${uiIcon('info')}</span><p><strong>Informações</strong><br>O histórico mostra as ocorrências registradas, incluindo correções e justificativas. Use os filtros para facilitar a busca.</p></aside>`;
+ <section class="panel history-results-panel" aria-labelledby="historyResultsTitle"><div class="history-results-head"><div class="history-results-caption"><span class="history-heading-icon">${uiIcon('history')}</span><h2 id="historyResultsTitle">Registros encontrados</h2><span class="history-count">${n} ${n===1?'registro':'registros'}</span></div><label class="history-sort">Ordenar por <select id="historyOrder" aria-label="Ordenar registros"><option value="recent" ${historyOrder==='recent'?'selected':''}>Data (mais recente)</option><option value="oldest" ${historyOrder==='oldest'?'selected':''}>Data (mais antiga)</option></select></label></div>
+ <div class="table-scroll history-table-wrap"><table class="responsive history-table"><thead><tr><th scope="col">Data e hora</th><th scope="col">Aluno</th><th scope="col">Turma</th><th scope="col">Tipo</th><th scope="col">Situação</th><th scope="col">Observação</th><th scope="col">Responsável</th><th scope="col">Ações</th></tr></thead><tbody id="historyRows">${renderHistoryRows(filtered)}</tbody></table></div>
+ ${historyReferencePager(filtered)}</section>`;
 }
 function renderStudentHistory(rows){
  const filters=`<section class="panel filters-card"><div class="section-head"><h3>Filtros</h3><button type="button" class="link-lite" data-action="clear-history-filters">Limpar filtros</button></div><form id="historyFilters" class="filters mobile-history-filters"><label>De<input id="fromDate" type="date" value="${esc(historyFilter.from||'')}"></label><label>Até<input id="toDate" type="date" value="${esc(historyFilter.to||'')}"></label><label>Situação<select id="historyStatus"><option value="">Todas</option><option value="active">Válidos</option><option value="forgiven">Perdoados</option><option value="void">Anulados</option></select></label><button type="submit" class="primary">Filtrar</button></form></section>`;
@@ -250,7 +272,7 @@ async function route(){const p=location.hash.replace('#/','');if((p==='enrollmen
  if(themeButton){themeButton.hidden=false;themeButton.innerHTML=`${uiIcon('theme')}<span>Tema</span>`;}
  await render();}
 function historyArgs(){return {student:state.historyStudent,from:$('fromDate')?.value||'',to:$('toDate')?.value||'',class:$('historyClass')?.value||'',status:$('historyStatus')?.value||'',offset:state.offset};}
-let historyFilter={},studentsFilter={},historyOrder='recent',studentsSort='name-asc',studentPageSize=10;
+let historyFilter={},studentsFilter={},historyOrder='recent',historySearch='',historyPageSize=10,studentsSort='name-asc',studentPageSize=10;
 function bindReportForm(){
  const form=$('reportForm');if(!form)return;
  const kind=$('reportKind'),scope=$('reportScope'),grade=form.elements.grade,room=form.elements.class;
@@ -392,9 +414,10 @@ function bindPage(){if($('reportForm'))bindReportForm();if($('enrollmentsFilter'
 if($('studentOrder'))$('studentOrder').onchange=e=>{studentsSort=e.target.value;const box=$('studentRows');if(box)box.innerHTML=studentTable(state.rows,false);const count=$('studentResultCount');if(count){const n=studentVisibleRows(state.rows).length;count.textContent=`${n} ${n===1?'aluno encontrado':'alunos encontrados'}`;}bindStudentSelection();};
 if($('studentPageSize'))$('studentPageSize').onchange=e=>{studentPageSize=Math.max(10,Math.min(20,Number(e.target.value)||10));state.offset=0;void render();};
 bindStudentSelection();
-if($('historyFilters')){$('historyStatus').value=historyFilter.status||'';$('historyFilters').onsubmit=e=>{e.preventDefault();const from=$('fromDate')?.value,to=$('toDate')?.value;if(from&&to&&from>to){msg('A data inicial precisa ser anterior ou igual à data final.','error');return;}historyFilter=historyArgs();state.offset=0;void render();};}
-if($('historyOrder'))$('historyOrder').onchange=e=>{historyOrder=e.target.value;const body=$('historyRows');if(body)body.innerHTML=renderHistoryRows(state.rows);};
-const clearHistory=$('view').querySelector('[data-action=clear-history-filters]');if(clearHistory)clearHistory.onclick=()=>{historyFilter={};state.offset=0;void render();};
+if($('historyFilters')){$('historyStatus').value=historyFilter.status||'';$('historyFilters').onsubmit=e=>{e.preventDefault();const from=$('fromDate')?.value,to=$('toDate')?.value;if(from&&to&&from>to){msg('A data inicial precisa ser anterior ou igual à data final.','error');return;}historySearch=$('historyStudentSearch')?.value.trim()||'';historyFilter=historyArgs();state.offset=0;void render();};const historySearchInput=$('historyStudentSearch');if(historySearchInput)historySearchInput.oninput=e=>{historySearch=e.target.value;};}
+if($('historyOrder'))$('historyOrder').onchange=e=>{historyOrder=e.target.value;void render();};
+if($('historyPageSize'))$('historyPageSize').onchange=e=>{historyPageSize=Math.max(10,Math.min(20,Number(e.target.value)||10));state.offset=0;void render();};
+const clearHistory=$('view').querySelector('[data-action=clear-history-filters]');if(clearHistory)clearHistory.onclick=()=>{historyFilter={};historySearch='';state.historyStudent='';state.offset=0;void render();};
 if($('announcementFilters')){$('announcementFilters').onsubmit=e=>e.preventDefault();const search=$('announcementSearch');if(search)search.oninput=e=>{announcementFilter={...announcementFilter,query:e.target.value};void render();};$('view').querySelectorAll('[data-announcement-type]').forEach(btn=>btn.onclick=()=>{announcementFilter={...announcementFilter,type:btn.dataset.announcementType};void render();});}
 if($('renewalSearchForm')){const previous=$('view').querySelector('[data-action=renewal-prev]'),next=$('view').querySelector('[data-action=renewal-next]');if(previous)previous.disabled=renewalOffset===0;if(next)next.disabled=(renewalData?.rows?.length||0)<25;}
 if($('renewalSearchForm'))$('renewalSearchForm').onsubmit=e=>{e.preventDefault();renewalSearch=e.target.elements.search.value.trim();renewalOffset=0;void render();};
@@ -433,6 +456,7 @@ if(a==='annual-renew'){const r=renewalData?.rows?.find(x=>x.id===id);if(!r)retur
  const update=()=>{const key=annualSuggestedKey(r.previous_grade,select.value),needsClass=['approved','reproved'].includes(select.value);label.hidden=!needsClass;target.disabled=!needsClass;target.required=needsClass;const matching=options.filter(c=>annualGradeKey(c.grade)===key);target.innerHTML='<option value="">Selecione a turma</option>'+matching.map(c=>`<option value="${esc(c.id)}">${esc(c.grade+' • '+c.name)}</option>`).join('');hint.textContent=!needsClass?'O aluno deixará a lista de matrículas ativas.':!key?'Não foi possível determinar a série. Para última série do ensino médio, escolha Concluiu; para outras séries, peça à Direção para padronizar a nomenclatura.':!matching.length?'Ainda não existe turma ativa na série prevista. A Direção precisa cadastrar a turma de destino antes da renovação.':`Série calculada automaticamente: ${matching[0].grade}. Selecione a turma de destino.`;};select.onchange=update;update();return;}
 const row=state.rows.find(r=>String(r.id)===id);if(a==='applications-next'||a==='applications-prev'){signupApplicationsOffset=Math.max(0,Math.min(10000,signupApplicationsOffset+(a==='applications-next'?25:-25)));await render();return;}
 if(a==='students-tab'){renewalView=false;studentsTab=['list','enrollments','classes'].includes(id)?id:'list';state.offset=0;searchToken++;await render();return;}
+if(a==='history-prev'||a==='history-next'){state.offset=Math.max(0,state.offset+(a==='history-next'?historyPageSize:-historyPageSize));await render();return;}
 if(a==='prev'||a==='next'){state.offset=Math.max(0,state.offset+(a==='next'?25:-25));await render();return;}
 if(a==='open-reports'){reportFilter={kind:state.page==='history'?'history':state.page==='enrollments'||state.page==='students'&&studentsTab==='enrollments'?'enrollments':'students',class:state.page==='history'?historyFilter.class||'':state.page==='students'?studentsFilter.class||'':'',grade:''};location.hash='/reports';return;}
 if(a==='export-report'){if(!staff()||state.page!=='reports'||!state.report)throw Error('Relatório disponível apenas para a equipe institucional.');await run(async()=>{const {saveReportWorkbook}=await import('./report-xlsx.js');saveReportWorkbook(state.report);return {notice:'Resumo agregado exportado.'};},false);return;}
@@ -445,7 +469,7 @@ if(a==='history-actions'){
  $('modalBody').onclick=e=>{const btn=e.target.closest('[data-action]');if(btn){$('modal').close();void action(btn.dataset.action,btn.dataset.id).catch(err=>msg(errorText(err),'error'));}};
  return;
 }
-if(a==='clear-history-filters'){historyFilter={};state.offset=0;await render();return;}
+if(a==='clear-history-filters'){historyFilter={};historySearch='';state.historyStudent='';state.offset=0;await render();return;}
 if(a==='history'){state.historyStudent=id;historyFilter={};if(state.page==='history'){state.offset=0;await render();}else location.hash='/history';return;}
 if(a==='all-history'){state.historyStudent='';state.offset=0;await render();return;}
 if(['chance','undo','correct','forgive','archive','restore','approve','reset_student'].includes(a)){const title={chance:'Conceder mais um atraso de limite',undo:'Desfazer registro recente',correct:'Anular ocorrência incorreta',forgive:'Perdoar atraso',archive:'Arquivar aluno',restore:'Restaurar aluno',approve:'Validar matrícula existente',reset_student:'Iniciar novo período individual'}[a];await reasonAction(title,a,['undo','correct','forgive'].includes(a)?{event:id}:{student:id});return;}
