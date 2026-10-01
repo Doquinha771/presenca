@@ -10,6 +10,7 @@ test('Alpha 1.0 usa a casca visual específica da área Alunos',()=>{
  assert.equal(pkg.version,'1.0.0-alpha.1');
  assert.match(html,/assets\/students-reference\.css/);
  assert.match(app,/studentReferenceTop\('list'/);
+ assert.match(app,/student-reference-top-action/);
  assert.match(app,/student-reference-filter-card/);
  assert.match(app,/student-reference-list-card/);
  assert.match(app,/Filtros avançados/);

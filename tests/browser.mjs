@@ -38,7 +38,7 @@ try{
  await page.locator('#modal').evaluate(el=>el.close());
  await page.locator('[data-action="students-tab"][data-id="list"]').click();
  await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='list');
- assert.equal(await page.locator('.hub-top [data-action="enrollment-new"]').count(),1);
+ assert.equal(await page.locator('.student-reference-top-action [data-action="enrollment-new"]').count(),1);
  await page.goto(base+'#/classes');
  await page.waitForFunction(()=>document.querySelector('.student-tabs button.selected')?.dataset.id==='classes');
  await page.goto(base+'#/students');
