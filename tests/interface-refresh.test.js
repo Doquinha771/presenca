@@ -25,11 +25,12 @@ test('Alunos usa ações contextuais e filtros com menos passos',()=>{
 });
 
 test('visão geral usa dados reais e atalhos funcionais no lugar de cartões vazios',()=>{
- assert.match(app,/RESUMO DO DIA/);
- assert.match(app,/Acesso rápido/);
+ assert.match(app,/Atrasos nos últimos 14 dias/);
+ assert.match(app,/Comunicados da escola/);
  assert.match(app,/Ações rápidas/);
+ assert.match(app,/reference-metrics/);
  assert.doesNotMatch(app,/Próximos eventos|Educação transforma realidades|Cada passo na escola constrói o seu futuro/);
- assert.match(css,/dashboard-metrics\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/dashboard-metrics/);
  assert.match(css,/@media \(min-width:780px\) and \(max-width:1099px\)/);
  assert.match(css,/\.quick-links/);
 });

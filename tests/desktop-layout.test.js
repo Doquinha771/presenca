@@ -57,7 +57,7 @@ test('interface ergonômica mantém rodapé ao fundo, perfil único e ícones Ui
  assert.match(ergonomic,/#sidebar\{[^}]*position:sticky/);
  assert.match(ergonomic,/#nav\{[^}]*overflow-y:auto/);
  assert.match(app,/function renderSidebarNav\(\)/);
- assert.match(app,/priorityPages=\{/);
+ assert.match(app,/sidebarMenus=\{/);
  assert.match(app,/fi fi-rr-/);
  assert.doesNotMatch(app,/<svg viewBox=/);
 });
