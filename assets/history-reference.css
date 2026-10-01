@@ -14,24 +14,13 @@
   body.portal-layout.staff-shell.history-page .dashboard-search kbd{display:inline-flex;align-items:center;justify-content:center;padding:4px 8px;border:1px solid #d8e2ee;border-radius:7px;background:#f4f7fb;color:#5d6d88;font:600 .68rem/1 inherit;white-space:nowrap}
   body.portal-layout.staff-shell.history-page #view{width:100%;max-width:none;min-width:0}
 
-  body.portal-layout.staff-shell.history-page .history-reference-intro{
     display:flex;align-items:center;justify-content:space-between;gap:28px;margin:0 4px 28px;padding:0 0 0 2px
   }
-  body.portal-layout.staff-shell.history-page .history-reference-heading{display:flex;align-items:center;gap:15px;min-width:0}
-  body.portal-layout.staff-shell.history-page .history-reference-icon{
     display:grid;place-items:center;width:62px;height:62px;flex:none;border-radius:18px;background:#e9f2ff;color:#0d67ee;font-size:1.65rem
   }
-  body.portal-layout.staff-shell.history-page .history-reference-heading h2{margin:0;color:#091b42;font-size:2rem;line-height:1.04;font-weight:850;letter-spacing:-.04em}
-  body.portal-layout.staff-shell.dark.history-page .history-reference-heading h2{color:#f1f6ff}
-  body.portal-layout.staff-shell.history-page .history-reference-heading p{margin:5px 0 0;color:#60708f;font-size:.91rem;line-height:1.4}
-  body.portal-layout.staff-shell.history-page .history-top-info{
     display:flex;align-items:center;gap:14px;min-width:365px;max-width:390px;margin:0;padding:16px 18px;border:1px solid #c7ddfb;
     border-radius:12px;background:rgba(248,251,255,.86);color:#213b68;box-shadow:none
   }
-  body.portal-layout.staff-shell.history-page .history-top-info>span{display:grid;place-items:center;flex:none;width:25px;height:25px;color:#0b6bf2;font-size:1.18rem}
-  body.portal-layout.staff-shell.history-page .history-top-info p{margin:0;font-size:.77rem;line-height:1.45;color:#304b76}
-  body.portal-layout.staff-shell.dark.history-page .history-top-info{background:#13223a;border-color:#294d7e}
-  body.portal-layout.staff-shell.dark.history-page .history-top-info p{color:#c8d7ef}
 
   body.portal-layout.staff-shell.history-page #view>.history-filter-panel,
   body.portal-layout.staff-shell.history-page #view>.history-results-panel{
@@ -125,18 +114,13 @@
 }
 
 @media(min-width:780px) and (max-width:1300px){
-  body.portal-layout.staff-shell.history-page .history-reference-intro{align-items:flex-start}
-  body.portal-layout.staff-shell.history-page .history-top-info{min-width:300px;max-width:340px}
   body.portal-layout.staff-shell.history-page .history-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 @media(max-width:900px) and (min-width:780px){
-  body.portal-layout.staff-shell.history-page .history-reference-intro{flex-direction:column;align-items:stretch;gap:16px}
-  body.portal-layout.staff-shell.history-page .history-top-info{min-width:0;max-width:none}
 }
 
 @media(max-width:779px){
-  body.portal-layout.staff-shell.history-page .history-reference-intro{display:none}
   body.portal-layout.staff-shell.history-page .history-filter-actions{display:flex;gap:8px;flex-wrap:wrap}
   body.portal-layout.staff-shell.history-page .history-filter-grid{grid-template-columns:1fr 1fr}
   body.portal-layout.staff-shell.history-page .history-period-label{grid-column:1/-1}

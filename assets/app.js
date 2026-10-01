@@ -135,9 +135,7 @@ function historyReferencePager(rows){
 }
 function renderStaffHistory(rows){
  const filtered=historyFilteredRows(rows),shown=filtered.slice(0,historyPageSize),n=shown.length;
- const info=`<aside class="history-top-info" aria-label="Informações sobre o histórico"><span>${uiIcon('info')}</span><p>O histórico mostra as ocorrências registradas,<br>incluindo correções e justificativas.</p></aside>`;
- return `<section class="history-reference-intro"><div class="history-reference-heading"><span class="history-reference-icon">${uiIcon('history')}</span><div><h2>Histórico</h2><p>Consulte o histórico de ocorrências, atrasos e alterações dos alunos.</p></div></div>${info}</section>
- <section class="panel history-filter-panel" aria-labelledby="historyFilterTitle">
+ return `<section class="panel history-filter-panel" aria-labelledby="historyFilterTitle">
   <div class="history-panel-head"><div class="history-title"><span class="history-heading-icon">${uiIcon('filter')}</span><h2 id="historyFilterTitle">Filtros de busca</h2></div><div class="history-filter-actions"><button type="button" class="outline history-clear" data-action="clear-history-filters">${uiIcon('refresh')} Limpar filtros</button><button type="submit" form="historyFilters" class="primary history-filter-submit">${uiIcon('search')} Aplicar filtros</button></div></div>
   <form id="historyFilters" class="history-filter-grid">
    <label class="history-period-label">Período<div class="history-period-control"><span>${uiIcon('calendar')}</span><input id="fromDate" name="from" type="date" value="${esc(historyFilter.from||'')}"><b aria-hidden="true">→</b><input id="toDate" name="to" type="date" value="${esc(historyFilter.to||'')}"></div></label>

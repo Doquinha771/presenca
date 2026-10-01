@@ -5,9 +5,9 @@ const app=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/history-reference.css',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 
-test('histórico institucional segue a referência com título, informação, filtros e oito colunas',()=>{
+test('histórico institucional mantém filtros e oito colunas sem cabeçalho redundante',()=>{
  for(const marker of [
-  'renderStaffHistory(rows)','history-reference-intro','history-top-info','Filtros de busca','id="historyFilters"',
+  'renderStaffHistory(rows)','Filtros de busca','id="historyFilters"',
   'id="fromDate"','id="toDate"','id="historyStudentSearch"','id="historyClass"','id="historyStatus"',
   'Limpar filtros','Aplicar filtros','historyResultsTitle','historyRows','history-reference-pager'
  ]) assert.ok(app.includes(marker),marker);
@@ -26,7 +26,8 @@ test('histórico mantém correções, ações existentes e paginação configur�
 test('folha da referência é carregada por último e adapta desktop e mobile',()=>{
  assert.ok(html.indexOf('assets/history-reference.css')>html.indexOf('assets/students-reference.css'));
  for(const width of ['max-width:1300px','max-width:900px','max-width:779px','max-width:520px']) assert.ok(css.includes(width),width);
- assert.match(css,/history-reference-intro/);
+ assert.doesNotMatch(app,/Consulte o histórico de ocorrências, atrasos e alterações dos alunos\./);
+ assert.doesNotMatch(app,/O histórico mostra as ocorrências registradas/);
  assert.match(css,/history-period-control/);
  assert.match(css,/history-table th:nth-child\(8\)/);
  assert.match(css,/history-reference-pager/);
