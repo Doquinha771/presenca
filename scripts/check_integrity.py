@@ -1,7 +1,7 @@
 from pathlib import Path
 from bs4 import BeautifulSoup
 import re
-root=Path(__file__).resolve().parent
+root=Path(__file__).resolve().parent.parent
 for name in ('termos.html','privacidade.html','index.html'):
  text=(root/name).read_text('utf-8')
  soup=BeautifulSoup(text,'html.parser')

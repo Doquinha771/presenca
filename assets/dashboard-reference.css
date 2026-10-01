@@ -82,14 +82,14 @@ body.portal-layout.staff-shell.dark{
   }
   body.portal-layout.staff-shell .dashboard-search input:focus-visible{outline:0}
   body.portal-layout.staff-shell .page-header>.toolbar{display:flex!important;position:static;gap:9px;margin-left:auto}
-  body.portal-layout.staff-shell .page-header>.toolbar :is(#theme,#refresh){
+  body.portal-layout.staff-shell .page-header>.toolbar #theme{
     min-height:42px;height:42px;padding:8px 13px;border:1px solid #cbd8e9;border-radius:10px;background:#fff;color:#0b2f68;
     font-size:.82rem;font-weight:720;box-shadow:none
   }
-  body.portal-layout.staff-shell.dark .page-header>.toolbar :is(#theme,#refresh){background:#111d2d;color:#edf4ff;border-color:#2a3b53}
-  body.portal-layout.staff-shell .page-header>.toolbar :is(#theme,#refresh):hover{background:#f6f9fd}
-  body.portal-layout.staff-shell.dark .page-header>.toolbar :is(#theme,#refresh):hover{background:#17253a}
-  body.portal-layout.staff-shell .page-header>.toolbar :is(#theme,#refresh) .fi{font-size:1rem}
+  body.portal-layout.staff-shell.dark .page-header>.toolbar #theme{background:#111d2d;color:#edf4ff;border-color:#2a3b53}
+  body.portal-layout.staff-shell .page-header>.toolbar #theme:hover{background:#f6f9fd}
+  body.portal-layout.staff-shell.dark .page-header>.toolbar #theme:hover{background:#17253a}
+  body.portal-layout.staff-shell .page-header>.toolbar #theme .fi{font-size:1rem}
 
   body.portal-layout.staff-shell #view{width:100%;max-width:none;min-width:0}
   body.portal-layout.staff-shell.desktop-overview-mode #view{padding:0}

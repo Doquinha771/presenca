@@ -7,17 +7,18 @@ const app=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/header-minimal.css',import.meta.url),'utf8');
 const header=html.match(/<header class="page-header"[\s\S]*?<\/header>/)?.[0]||'';
 
-test('cabeçalho global exibe somente o ícone e os botões Tema e Atualizar',()=>{
+test('cabeçalho global exibe somente o ícone da área e o botão Tema',()=>{
  assert.ok(header,'Cabeçalho não encontrado');
  assert.match(header,/<h1 id="pageTitle" class="header-page-icon"/);
  assert.doesNotMatch(header,/id="areaName"/);
  assert.doesNotMatch(header,/id="globalSearchInput"/);
  assert.doesNotMatch(header,/id="pageTitle"[^>]*>[^<\s]/);
  assert.match(header,/id="theme"/);
- assert.match(header,/id="refresh"/);
+ assert.doesNotMatch(header,/id="refresh"/);
  assert.match(header,/id="pageDescription" class="sr-only"/);
  assert.match(app,/title\.innerHTML=uiIcon\(state\.page\)/);
  assert.match(app,/title\.setAttribute\('aria-label',label\)/);
+ assert.doesNotMatch(app,/\$\('refresh'\)/);
 });
 
 test('pesquisa global removida e cada fluxo mantém seu próprio campo',()=>{

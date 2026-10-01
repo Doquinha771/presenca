@@ -27,7 +27,7 @@ body.portal-layout .page-header .page-side:empty{display:none!important}
 .hero-quote-icon .fi,.hero-chip .fi,.status-card-icon .fi{font-size:1.28rem}
 .metric-arrow .fi{font-size:1rem}
 #mobileMore{font-size:initial!important}
-#menu::before,#theme::before,#refresh::before{content:none!important;display:none!important}
+#menu::before,#theme::before{content:none!important;display:none!important}
 /* A ordem e os grupos são os mesmos nas resoluções desktop; a navegação rola sem deslocar o perfil. */
 #nav .nav-group{display:grid;gap:3px;min-width:0}
 #nav .nav-heading{margin:10px 12px 5px;padding:0;color:var(--muted);font-size:.65rem;font-weight:800;letter-spacing:.085em;line-height:1.3}

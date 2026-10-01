@@ -40,20 +40,20 @@ body.portal-layout.desktop-overview-mode .page-header>.toolbar{
  min-width:0;margin:0;padding:0;order:0;grid-area:auto;
 }
 body.portal-layout .page-header>.toolbar #menu{display:none!important;}
-body.portal-layout .page-header>.toolbar :is(#theme,#refresh),
-body.portal-layout.staff-shell .page-header>.toolbar :is(#theme,#refresh),
-body.portal-layout.staff-shell.history-page .page-header>.toolbar :is(#theme,#refresh),
-body.portal-layout.desktop-overview-mode .page-header>.toolbar :is(#theme,#refresh){
+body.portal-layout .page-header>.toolbar #theme,
+body.portal-layout.staff-shell .page-header>.toolbar #theme,
+body.portal-layout.staff-shell.history-page .page-header>.toolbar #theme,
+body.portal-layout.desktop-overview-mode .page-header>.toolbar #theme{
  display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
  gap:8px;width:auto;min-width:0;height:40px;min-height:40px;margin:0;
  padding:7px 13px;border:1px solid var(--line);border-radius:10px;
  background:var(--surface);color:var(--ink);font-size:.84rem;font-weight:700;
  line-height:1.2;white-space:nowrap;box-shadow:none;
 }
-body.portal-layout .page-header>.toolbar :is(#theme,#refresh):hover{background:var(--soft);}
-body.portal-layout .page-header>.toolbar :is(#theme,#refresh):focus-visible,
+body.portal-layout .page-header>.toolbar #theme:hover{background:var(--soft);}
+body.portal-layout .page-header>.toolbar #theme:focus-visible,
 body.portal-layout .header-page-icon:focus-visible{outline:3px solid var(--focus-ring,#d5aa32);outline-offset:2px;}
-body.portal-layout .page-header>.toolbar :is(#theme,#refresh) .fi{font-size:1rem;}
+body.portal-layout .page-header>.toolbar #theme .fi{font-size:1rem;}
 /* No celular a barra se ajusta sem reintroduzir título ou um segundo campo de busca. */
 @media(max-width:779px){
  body.portal-layout .page-header,
@@ -64,10 +64,10 @@ body.portal-layout .page-header>.toolbar :is(#theme,#refresh) .fi{font-size:1rem
  }
  body.portal-layout .page-header>.toolbar,
  body.portal-layout.staff-shell .page-header>.toolbar{width:auto;flex:0 0 auto;gap:6px;align-self:center;}
- body.portal-layout .page-header>.toolbar :is(#theme,#refresh),
- body.portal-layout.staff-shell .page-header>.toolbar :is(#theme,#refresh),
- body.portal-layout.staff-shell.history-page .page-header>.toolbar :is(#theme,#refresh){
+ body.portal-layout .page-header>.toolbar #theme,
+ body.portal-layout.staff-shell .page-header>.toolbar #theme,
+ body.portal-layout.staff-shell.history-page .page-header>.toolbar #theme{
   min-height:40px;height:40px;padding:7px 10px;font-size:.78rem;border-radius:9px;
  }
 }
-@media(max-width:350px){body.portal-layout .page-header>.toolbar :is(#theme,#refresh){padding:7px 8px;gap:5px;font-size:.74rem;}}
+@media(max-width:350px){body.portal-layout .page-header>.toolbar #theme{padding:7px 8px;gap:5px;font-size:.74rem;}}

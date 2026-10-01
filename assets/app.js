@@ -245,11 +245,9 @@ async function route(){const p=location.hash.replace('#/','');if((p==='enrollmen
  // Mesma estrutura de cabeçalho e navegação em todas as telas e perfis.
  $('content').querySelector('.app-footer').before($('mobileNav'));
  $('menu').hidden=true;
- const themeButton=$('theme'),refreshButton=$('refresh');
+ const themeButton=$('theme');
  if(themeButton){themeButton.hidden=false;themeButton.innerHTML=`${uiIcon('theme')}<span>Tema</span>`;}
- if(refreshButton)refreshButton.hidden=true;
  await render();}
-if($('refresh'))$('refresh').onclick=async()=>{try{state.me=await read('me');state.academic=await academicState();state.classes=state.academic?.pending?[]:await read('classes');renderPageProfile();renderHeaderChrome();await render();}catch(e){msg(errorText(e),'error');}};
 function historyArgs(){return {student:state.historyStudent,from:$('fromDate')?.value||'',to:$('toDate')?.value||'',class:$('historyClass')?.value||'',status:$('historyStatus')?.value||'',offset:state.offset};}
 let historyFilter={},studentsFilter={},historyOrder='recent';
 function bindReportForm(){

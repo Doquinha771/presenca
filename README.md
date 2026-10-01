@@ -6,7 +6,7 @@
 
 **Portal web de acompanhamento escolar e gestão de registros de atraso.**
 
-[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.3.6-205f50)](./docs/ALTERACOES.md)
+[![Versão](https://img.shields.io/badge/vers%C3%A3o-5.3.8-205f50)](./docs/ALTERACOES.md)
 [![Plataforma](https://img.shields.io/badge/plataforma-Web-396c82)](./index.html)
 [![Banco](https://img.shields.io/badge/dados-Supabase-3c7659)](https://supabase.com/)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-institucional%20restrita-6c7075)](./LICENSE)
@@ -148,5 +148,5 @@ Contagens por turma são dados agregados, mas podem permitir inferências em gru
 A navegação móvel e o desktop compartilham a linguagem visual da página Visão geral, com dimensionamento específico para cada dispositivo. O gerador XLSX é carregado somente quando o usuário institucional exporta um relatório. A interface oferece alvos de toque ampliados, foco visível, estados de carregamento e suporte à preferência por movimento reduzido. As pontuações Lighthouse variam conforme dispositivo, conexão, autenticação e conteúdo; não há garantia de pontuação fixa.
 
 
-## Interface 5.3.6
+## Interface 5.3.8
 A interface desktop foi refeita a partir da referência visual fornecida: navegação lateral azul, pesquisa no topo da visão geral, indicadores compactos, gráfico, resumo por turma, comunicados e ações rápidas, preservando os fluxos de Alunos, Matrículas e Séries/Turmas.
