@@ -83,6 +83,8 @@ try{
  {
   const {context:yearContext,page:yearPage}=await setup('secretaria',1280,false,true);
   await yearPage.goto(base+'#/students');
+  await yearPage.locator('[data-action="student-advanced"]').click();
+  await yearPage.locator('#studentAdvancedPanel').waitFor({state:'visible'});
   await yearPage.locator('[data-action="renewal-show"]').click();
   await yearPage.locator('#renewalTitle').waitFor();
   assert.equal(await yearPage.locator('[data-action="annual-renew"]').count(),1);
